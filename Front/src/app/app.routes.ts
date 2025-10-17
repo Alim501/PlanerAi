@@ -6,7 +6,7 @@ import { PlansListComponent } from './features/study-plans/plans-list/plans-list
 import { PlanCreateComponent } from './features/study-plans/plan-create/plan-create';
 import { NotesCatalogComponent } from './features/notes/notes-catalog/notes-catalog';
 import { NoteUploadComponent } from './features/notes/note-upload/note-upload';
-import { ProfileComponent } from './features/profile/profile/profile';
+import { ProfileComponent } from './features/profile/profile';
 import { authGuard, publicGuard } from './guards/auth.guard';
 
 export const routes: Routes = [

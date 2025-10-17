@@ -64,7 +64,7 @@
               "buildTarget": "planner-ai-front:build:production"
             },
             "development": {
-              "buildTarget": "planner-ai-frontt:build:development"
+              "buildTarget": "planner-ai-front:build:development"
             }
           },
           "defaultConfiguration": "development"
