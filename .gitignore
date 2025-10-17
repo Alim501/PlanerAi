@@ -1,0 +1,96 @@
+# -------------------------
+# Compiled output
+# -------------------------
+/dist
+/tmp
+/out-tsc
+/bazel-out
+
+# -------------------------
+# Node
+# -------------------------
+node_modules
+npm-debug.log
+yarn-error.log
+.angular
+
+# -------------------------
+# Environment files
+# -------------------------
+.env
+
+# -------------------------
+# IDEs and editors
+# -------------------------
+.idea/
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# -------------------------
+# Visual Studio Code
+# -------------------------
+.vscode/*
+.vscode
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/*
+
+# -------------------------
+# IntelliJ IDEA
+# -------------------------
+*.iws
+*.iml
+*.ipr
+
+# -------------------------
+# STS (Spring Tool Suite)
+# -------------------------
+.apt_generated
+.factorypath
+.springBeans
+.sts4-cache
+
+# -------------------------
+# NetBeans
+# -------------------------
+/nbproject/private/
+/nbbuild/
+/nbdist/
+/.nb-gradle/
+/dist/
+/build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# -------------------------
+# Miscellaneous
+# -------------------------
+/.angular/cache
+.sass-cache/
+/connect.lock
+/coverage
+/libpeerconnection.log
+testem.log
+/typings
+
+# -------------------------
+# System files
+# -------------------------
+.DS_Store
+Thumbs.db
+HELP.md
+uploads
+
+# -------------------------
+# Maven / Java
+# -------------------------
+target/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/

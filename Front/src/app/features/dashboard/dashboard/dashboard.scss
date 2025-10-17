@@ -1,0 +1,238 @@
+.spacer {
+  flex: 1 1 auto;
+}
+
+.dashboard-container {
+  padding: 20px;
+  min-height: calc(100vh - 64px);
+  margin: 0 auto;
+}
+
+.welcome-section {
+  text-align: center;
+  margin-bottom: 30px;
+  
+  h1 {
+    color: #333;
+    margin-bottom: 10px;
+  }
+  
+  p {
+    color: #666;
+    font-size: 1.1em;
+  }
+}
+
+.section-card {
+  margin-bottom: 30px;
+  
+  mat-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    
+    mat-card-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+  }
+}
+
+.header-button {
+  margin-left: auto !important;
+}
+
+/* Upcoming Exams */
+.exams-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.exam-card {
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: white;
+  
+  .exam-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    
+    h3 {
+      margin: 0;
+      color: #333;
+    }
+  }
+  
+  .days-left {
+    font-weight: 600;
+    font-size: 0.9em;
+  }
+  
+  mat-progress-bar {
+    margin: 10px 0;
+  }
+  
+  .progress-text {
+    font-size: 0.85em;
+    color: #666;
+  }
+}
+
+/* Study Plans */
+.plans-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.plan-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: white;
+  
+  .plan-content {
+    flex: 1;
+    
+    h4 {
+      margin: 0 0 8px 0;
+      color: #333;
+    }
+    
+    p {
+      margin: 8px 0;
+      color: #666;
+      font-size: 0.9em;
+    }
+    
+    mat-progress-bar {
+      margin-top: 8px;
+      width: 200px;
+    }
+  }
+  
+  .plan-actions {
+    margin-left: 16px;
+  }
+}
+
+/* Recent Notes */
+.notes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.note-card {
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: white;
+  
+  .note-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+    
+    h4 {
+      margin: 0;
+      color: #333;
+      flex: 1;
+      margin-right: 10px;
+    }
+  }
+  
+  p {
+    margin: 8px 0;
+    color: #666;
+    font-size: 0.9em;
+  }
+  
+  .note-stats {
+    display: flex;
+    gap: 16px;
+    margin: 10px 0;
+    
+    span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.85em;
+      color: #666;
+      
+      mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+      }
+    }
+    
+    .rating mat-icon {
+      color: #ffc107;
+    }
+  }
+}
+
+/* Quick Actions */
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  
+  button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px;
+  }
+}
+
+/* Utility classes */
+.text-red-600 {
+  color: #dc2626;
+}
+
+.text-orange-600 {
+  color: #ea580c;
+}
+
+.text-green-600 {
+  color: #16a34a;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 16px;
+  }
+  
+  .exams-grid,
+  .notes-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .plan-item {
+    flex-direction: column;
+    align-items: flex-start;
+    
+    .plan-actions {
+      margin-left: 0;
+      margin-top: 16px;
+      align-self: flex-end;
+    }
+  }
+  
+  .quick-actions {
+    grid-template-columns: 1fr;
+  }
+}
