@@ -22,19 +22,13 @@ REST API для управления задачами с поддержкой а
 #### 1. Склонировать репозиторий
 
 ```bash
-git clone https://github.com/MaxLutsenko205/TaskApi
-cd TaskApi
+git clone https://github.com/Alim501/PlanerAi.git
+cd PlanerAi
 ```
 
-#### 2. Создать .env файл в корне проекта:
+#### 2. Создать .env файл в папке Back на основе .env.example:
 
-Укажите в нём необходимые переменные:
-
-```bash
-DB_USERNAME=your_db_username
-DB_PASSWORD=your_db_password
-JWT_SECRET=your_jwt_secret_key
-```
+Укажите в нём необходимые переменные
 
 #### 3. Настроить базу данных PostgreSQL
 
@@ -46,10 +40,13 @@ CREATE DATABASE task_service;
 
 #### 4. Запустить проект
 
-В IntelliJ IDEA или через команду:
-
+Для запуска бека с папки Back выполнить команду
 ```bash
-./mvnw spring-boot:run
+mvn spring-boot:run
+```
+Для запуска фронта с папки Front выполнить команду
+```bash
+npm run start
 ```
 
 ---
@@ -107,10 +104,11 @@ CREATE DATABASE task_service;
 - ai communication
 - exception handler
 - User info problem: JWT token contain only email and there is no GetByEmail endpoint:
-1. Put userId in jwt
+1. ✅ Put userId in jwt
 2. Refactor getById to getByEmail
-3. Make auth fucnctions to return userId 
-- Add .env support without using IntelejIdea ( for now application.propertios is hardcoded)
+3. Make auth fucnctions to return userId
+4. ✅Added method to get current user details http://localhost:8080/api/users/me and 2 other in UserController
+- (works) Add .env support without using IntelejIdea ( for now application.propertios is hardcoded)
 - Put Front_URL (localhost:4200) in .env (for now hardcode in SecurityConfig)
 - ? Possible troubles with versions
 - Dynamic subjects added by moderator/admin 

@@ -7,9 +7,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import projects.java.taskapi.models.User;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -17,6 +20,7 @@ public class JwtService {
 
     @Value("${jwt.secret}")
     private String secret;
+    //fixme: relocate exp into .env
     private long accessTokenExp = 1000 * 60 * 60 * 2; // 2 часа
     private long refreshTokenExp = 1000 * 60 * 60 * 48; // 2 дня
 
@@ -29,9 +33,13 @@ public class JwtService {
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
-    public String generateAccessToken(UserDetails userDetails){
+    public String generateAccessToken(User user){
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", user.getId());
+
         return Jwts.builder()
-                .subject(userDetails.getUsername())
+                .claims(claims)
+                .subject(user.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + accessTokenExp))
                 .signWith(getSignInKey())

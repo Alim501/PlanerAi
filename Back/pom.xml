@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>projects.java</groupId>
-    <artifactId>TaskApi</artifactId>
+    <artifactId>PlannerApi</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>TaskApi</name>
-    <description>TaskApi</description>
+    <name>PlannerApi</name>
+    <description>PlannerApi</description>
     <url/>
     <licenses>
         <license/>
@@ -91,7 +91,7 @@
         <dependency>
             <groupId>me.paulschwarz</groupId>
             <artifactId>spring-dotenv</artifactId>
-            <version>4.0.0</version>
+            <version>3.0.0</version>
         </dependency>
         <!-- Test -->
         <dependency>

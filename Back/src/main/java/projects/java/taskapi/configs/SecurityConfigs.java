@@ -1,6 +1,7 @@
 package projects.java.taskapi.configs;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,6 +29,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfigs {
 
+    @Value("${front.url}")
+    private String frontUrl;
     private final JwtTokenFilter jwtTokenFilter;
 
     @Bean
@@ -78,7 +81,7 @@ public class SecurityConfigs {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:4200"));
+        config.setAllowedOrigins(List.of(frontUrl));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
