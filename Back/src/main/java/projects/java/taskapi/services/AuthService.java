@@ -53,9 +53,8 @@ public class AuthService {
         return new AuthResponse(access, refresh);
     }
 
-    public AuthResponse refreshToken(RefreshTokenRequest refreshRequest) {
+    public AuthResponse refreshToken(String refreshToken) {
 
-        String refreshToken = refreshRequest.getRefreshToken();
         String email = jwtService.extractUserEmail(refreshToken);
 
         User user = userRepository.findByEmail(email)
@@ -65,12 +64,19 @@ public class AuthService {
             throw new TokenValidationException("Рефреш токен не совпадает");
         }
 
-        if (!jwtService.isTokenValid(refreshRequest.getRefreshToken(), user)){
+        if (!jwtService.isTokenValid(refreshToken, user)){
             throw new TokenValidationException("Токен не валидный или вышел срок годности");
         }
 
         String accessToken = jwtService.generateAccessToken(user);
 
         return new AuthResponse(accessToken, refreshToken);
+    }
+
+    public void logoutUser(String email) {
+        userRepository.findByEmail(email).ifPresent(user -> {
+            user.setRefreshToken(null);
+            userRepository.save(user);
+        });
     }
 }

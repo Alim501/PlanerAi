@@ -113,5 +113,5 @@ npm run start
 - ? Possible troubles with versions
 - Dynamic subjects added by moderator/admin 
 In Future:
-- HTTP-Cookie jwt 
+- ✅ Added HttpOnly Cookie (accessToken and refreshToken)
 - Docker
