@@ -1,19 +1,27 @@
 import { inject } from '@angular/core';
 import { Router, CanActivateFn } from '@angular/router';
+import { AuthStore } from '../store/auth.store';
 import { AuthService } from '../services/auth.service';
 
 /**
- * Guard для защиты роутов, требующих аутентификации
+ * Guard для защищенных роутов
+ * Ждет завершения проверки статуса авторизации
  */
-export const authGuard: CanActivateFn = (route, state) => {
+export const authGuard: CanActivateFn = async (route, state) => {
+  const authStore = inject(AuthStore);
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  if (authService.isAuthenticated()) {
+  //  Ждем завершения проверки статуса
+  await authService.waitForAuthCheck();
+
+  const isAuth = authStore.isAuthenticated();
+
+  if (isAuth) {
     return true;
   }
 
-  // Сохраняем URL, на который пользователь пытался попасть
+  console.log('❌ Access denied, redirecting to /login');
   router.navigate(['/login'], {
     queryParams: { returnUrl: state.url },
   });
@@ -21,17 +29,23 @@ export const authGuard: CanActivateFn = (route, state) => {
 };
 
 /**
- * Guard для предотвращения доступа к auth страницам для авторизованных пользователей
+ * Guard для публичных страниц (login/register)
  */
-export const publicGuard: CanActivateFn = (route, state) => {
+export const publicGuard: CanActivateFn = async (route, state) => {
+  const authStore = inject(AuthStore);
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  if (!authService.isAuthenticated()) {
+  //  Ждем завершения проверки статуса
+  await authService.waitForAuthCheck();
+
+  const isAuth = authStore.isAuthenticated();
+
+  if (!isAuth) {
     return true;
   }
 
-  // Если пользователь уже авторизован, перенаправляем на главную
+  console.log('⚠️ Already authenticated, redirecting to /');
   router.navigate(['/']);
   return false;
 };
