@@ -9,11 +9,14 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import projects.java.taskapi.models.Keyword;
 import projects.java.taskapi.models.Note;
 import projects.java.taskapi.models.enums.NoteFormat;
-import projects.java.taskapi.models.enums.Subject;
+import projects.java.taskapi.models.Subject;
 import projects.java.taskapi.services.NoteService;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -29,20 +32,20 @@ public class NoteController {
     public ResponseEntity<Note> uploadNote(
             @RequestParam("userId") Long userId,
             @RequestParam("title") String title,
-            @RequestParam("subject") Subject subject,
+            @RequestParam("subjectId") Long subjectId,
             @RequestParam("format") NoteFormat format,
             @RequestParam("file") MultipartFile file) {
 
-        Note savedNote = noteService.createNote(userId, title, subject, format, file);
+        Note savedNote = noteService.createNote(userId, title, subjectId, format, file);
         return ResponseEntity.ok(savedNote);
     }
 
     @Operation(summary = "Получить все конспекты (с фильтрацией и сортировкой)")
     @GetMapping
     public ResponseEntity<List<Note>> getAllNotes(
-            @RequestParam(required = false) Subject subject,
+            @RequestParam(required = false) Long subjectId,
             @RequestParam(defaultValue = "desc") String sortOrder) {
-        return ResponseEntity.ok(noteService.getFilteredAndSortedNotes(subject, sortOrder));
+        return ResponseEntity.ok(noteService.getFilteredAndSortedNotes(subjectId, sortOrder));
     }
 
     @Operation(summary = "Получить все конспекты пользователя (с фильтрацией и сортировкой)")
@@ -52,6 +55,30 @@ public class NoteController {
             @RequestParam(required = false) Subject subject,
             @RequestParam(defaultValue = "desc") String sortOrder) {
         return ResponseEntity.ok(noteService.getFilteredAndSortedNotesByUser(userId, subject, sortOrder));
+    }
+
+    @Operation(summary = "Получить все конспекты по ключевым словам (по совпадению с любым из предоставленных слов)")
+    @GetMapping("/byKeywords")
+    public ResponseEntity<List<Note>> searchNotes(@RequestParam List<String> keywords) {
+        if (keywords == null || keywords.isEmpty()) {
+            return ResponseEntity.badRequest().body(Collections.emptyList());
+        }
+
+        // Normalize keywords (trim, lowercase, remove empty)
+        List<String> normalized = keywords.stream()
+                .flatMap(k -> Arrays.stream(k.split(","))) // support comma-separated format
+                .map(String::trim)
+                .filter(k -> !k.isEmpty())
+                .map(String::toLowerCase)
+                .distinct()
+                .toList();
+
+        if (normalized.isEmpty()) {
+            return ResponseEntity.badRequest().body(Collections.emptyList());
+        }
+
+        List<Note> results = noteService.searchByKeywords(normalized);
+        return ResponseEntity.ok(results);
     }
 
     @Operation(summary = "Скачать конспект по id")
@@ -70,5 +97,25 @@ public class NoteController {
         noteService.deleteNote(id);
         return ResponseEntity.noContent().build();
     }
+
+
+    /// keywords and summary
+
+    @Operation(summary = "Добавить ключевые слова к заметке")
+    @PostMapping("/{noteId}/keywords")
+    public ResponseEntity<Note> addKeywordsToNote(
+            @PathVariable Long noteId,
+            @RequestBody List<String> keywords) {
+
+        Note updatedNote = noteService.addKeywordsToNote(noteId, keywords);
+        return ResponseEntity.ok(updatedNote);
+    }
+
+    @Operation(summary = "Получить все ключевые слова")
+    @GetMapping("/keywords")
+    public ResponseEntity<List<Keyword>> getAllKeywords() {
+        return ResponseEntity.ok(noteService.getAllKeywords());
+    }
+
 }
 

@@ -1,9 +1,9 @@
 package projects.java.taskapi.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import projects.java.taskapi.models.enums.NoteFormat;
-import projects.java.taskapi.models.enums.Subject;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,6 +21,8 @@ public class Note {
 
     private String title;
 
+    @ManyToOne
+    @JoinColumn(name = "subject_id")
     private Subject subject;
 
     @Column(updatable = false)
@@ -31,7 +33,13 @@ public class Note {
 
     private String summary;
 
-    private String keywords;
+    @ManyToMany
+    @JoinTable(
+            name = "note_keywords",
+            joinColumns = @JoinColumn(name = "note_id"),
+            inverseJoinColumns = @JoinColumn(name = "keyword_id")
+    )
+    private List<Keyword> keywords;
 
     @ManyToOne
     private User user;
