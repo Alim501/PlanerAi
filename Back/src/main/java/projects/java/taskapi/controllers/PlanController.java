@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import projects.java.taskapi.models.Plan;
 import projects.java.taskapi.models.dto.PlanDTO;
-import projects.java.taskapi.models.enums.Subject;
+import projects.java.taskapi.models.Subject;
 import projects.java.taskapi.services.PlanService;
 
 import java.util.List;
@@ -35,8 +35,8 @@ public class PlanController {
     @GetMapping("/search")
     public List<Plan> searchPlans(
             @RequestParam(required = false) String title,
-            @RequestParam(required = false) Subject subject) {
-        return studyPlanService.searchPlans(title, subject);
+            @RequestParam(required = false) Long subjectId) {
+        return studyPlanService.searchPlans(title, subjectId);
     }
 
     @Operation(summary = "Получить план по ID")

@@ -1,6 +1,5 @@
 package projects.java.taskapi.services;
 
-import io.jsonwebtoken.Jwt;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import projects.java.taskapi.models.Plan;
@@ -8,10 +7,10 @@ import projects.java.taskapi.models.Task;
 import projects.java.taskapi.models.User;
 import projects.java.taskapi.models.UserPlanProgress;
 import projects.java.taskapi.models.dto.PlanDTO;
-import projects.java.taskapi.models.enums.Subject;
+import projects.java.taskapi.models.Subject;
 import projects.java.taskapi.repositories.PlanRepository;
 import projects.java.taskapi.repositories.ProgressRepository;
-import projects.java.taskapi.repositories.TaskRepository;
+import projects.java.taskapi.repositories.SubjectRepository;
 import projects.java.taskapi.repositories.UserRepository;
 
 import java.util.List;
@@ -24,15 +23,19 @@ public class PlanService {
     private final PlanRepository studyPlanRepository;
     private final ProgressRepository userPlanProgressRepository;
     private final UserRepository userRepository;
+    private final SubjectRepository subjectRepository;
 
     public Plan createPlan(PlanDTO dto) {
 
         User user = userRepository.findById(dto.userId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        Subject subject = subjectRepository.findById(dto.subjectId())
+                .orElseThrow(() -> new RuntimeException("Subject not found"));
+
         Plan plan = Plan.builder()
                 .title(dto.title())
-                .subject(dto.subject())
+                .subject(subject)
                 .startDate(dto.startDate())
                 .endDate(dto.endDate())
                 .build();
@@ -87,13 +90,13 @@ public class PlanService {
         studyPlanRepository.deleteById(id);
     }
 
-    public List<Plan> searchPlans(String title, Subject subject) {
-        if (title != null && subject != null) {
-            return studyPlanRepository.findByTitleContainingIgnoreCaseAndSubject(title, subject);
+    public List<Plan> searchPlans(String title, Long subjectId) {
+        if (title != null && subjectId != null) {
+            return studyPlanRepository.findByTitleContainingIgnoreCaseAndSubjectId(title, subjectId);
         } else if (title != null) {
             return studyPlanRepository.findByTitleContainingIgnoreCase(title);
-        } else if (subject != null) {
-            return studyPlanRepository.findBySubject(subject);
+        } else if (subjectId != null) {
+            return studyPlanRepository.findBySubjectId(subjectId);
         } else {
             return studyPlanRepository.findAll();
         }
