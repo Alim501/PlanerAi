@@ -1,7 +1,8 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
-import { User, UpdateProfileRequest, ChangePasswordRequest } from '../models/user.models';
+import { User } from '../models/user.models';
+import { UserStore } from '../store/user.store';
 
 @Injectable({
   providedIn: 'root',
@@ -9,47 +10,47 @@ import { User, UpdateProfileRequest, ChangePasswordRequest } from '../models/use
 export class UserService {
   private readonly API_URL = 'http://localhost:8080/api/users';
 
-  // Кешируем данные пользователя
-  currentUserProfile = signal<User | null>(null);
-
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private userStore: UserStore) {}
 
   /**
-   * Получить профиль пользователя по ID
+   * Получить профиль текущего пользователя
    */
-  getUserById(userId: number): Observable<User> {
-    return this.http
-      .get<User>(`${this.API_URL}/${userId}`)
-      .pipe(tap((user: User) => this.currentUserProfile.set(user)));
+  getUserInfo(): Observable<User> {
+    this.userStore.setLoading(true);
+
+    return this.http.get<User>(`${this.API_URL}/me`).pipe(
+      tap((user: User) => {
+        this.userStore.setUser(user);
+        this.userStore.setLoading(false);
+      })
+    );
   }
 
   /**
    * Обновить профиль (имя и фамилию)
    */
-  updateProfile(userId: number, firstName: string, lastName: string): Observable<User> {
+  updateProfile(firstName: string, lastName: string): Observable<User> {
     const params = new HttpParams().set('firstName', firstName).set('lastName', lastName);
 
-    return this.http
-      .put<User>(`${this.API_URL}/${userId}/update-profile`, null, { params })
-      .pipe(tap((user: User) => this.currentUserProfile.set(user)));
+    this.userStore.setLoading(true);
+
+    return this.http.put<User>(`${this.API_URL}/me/update-profile`, null, { params }).pipe(
+      tap((user: User) => {
+        this.userStore.setUser(user);
+        this.userStore.setLoading(false);
+      })
+    );
   }
 
   /**
    * Изменить пароль
    */
-  changePassword(userId: number, oldPassword: string, newPassword: string): Observable<string> {
+  changePassword(oldPassword: string, newPassword: string): Observable<string> {
     const params = new HttpParams().set('oldPassword', oldPassword).set('newPassword', newPassword);
 
-    return this.http.put(`${this.API_URL}/${userId}/change-password`, null, {
+    return this.http.put(`${this.API_URL}/me/change-password`, null, {
       params,
       responseType: 'text',
     });
-  }
-
-  /**
-   * Очистить кеш профиля
-   */
-  clearProfile(): void {
-    this.currentUserProfile.set(null);
   }
 }

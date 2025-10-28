@@ -1,1 +1,171 @@
-<p>profile works!</p>
+<div class="profile-container">
+  <mat-card class="profile-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>account_circle</mat-icon>
+        Профиль пользователя
+      </mat-card-title>
+      <mat-card-subtitle>Управление вашим аккаунтом</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <!-- Email (только для чтения) -->
+      <div class="user-info">
+        <mat-icon>email</mat-icon>
+        <div class="info-content">
+          <span class="info-label">Email</span>
+          <span class="info-value">{{ userStore.userEmail() }}</span>
+        </div>
+      </div>
+
+      @if (userProfile()) {
+      <div class="user-info">
+        <mat-icon>badge</mat-icon>
+        <div class="info-content">
+          <span class="info-label">Роль</span>
+          <span class="info-value">{{ userStore.userRole() }}</span>
+        </div>
+      </div>
+      }
+
+      <mat-divider></mat-divider>
+
+      <!-- Табы для редактирования профиля и смены пароля -->
+      <mat-tab-group>
+        <!-- Вкладка редактирования профиля -->
+        <mat-tab label="Редактировать профиль">
+          <div class="tab-content">
+            @if (isLoadingProfile()) {
+            <div class="loading-container">
+              <mat-spinner></mat-spinner>
+              <p>Загрузка...</p>
+            </div>
+            } @else {
+            <form [formGroup]="profileForm" (ngSubmit)="onUpdateProfile()">
+              <mat-form-field appearance="outline">
+                <mat-label>Имя</mat-label>
+                <input
+                  matInput
+                  type="text"
+                  formControlName="firstName"
+                  placeholder="Введите ваше имя"
+                />
+                @if (profileForm.get('firstName')?.touched && profileForm.get('firstName')?.invalid)
+                {
+                <mat-error>{{ getErrorMessage(profileForm, 'firstName') }}</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Фамилия</mat-label>
+                <input
+                  matInput
+                  type="text"
+                  formControlName="lastName"
+                  placeholder="Введите вашу фамилию"
+                />
+                @if (profileForm.get('lastName')?.touched && profileForm.get('lastName')?.invalid) {
+                <mat-error>{{ getErrorMessage(profileForm, 'lastName') }}</mat-error>
+                }
+              </mat-form-field>
+
+              <button
+                mat-raised-button
+                color="primary"
+                type="submit"
+                [disabled]="isLoadingProfile()"
+              >
+                <mat-icon>save</mat-icon>
+                Сохранить изменения
+              </button>
+            </form>
+            }
+          </div>
+        </mat-tab>
+
+        <!-- Вкладка смены пароля -->
+        <mat-tab label="Сменить пароль">
+          <div class="tab-content">
+            <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()">
+              <mat-form-field appearance="outline">
+                <mat-label>Старый пароль</mat-label>
+                <input
+                  matInput
+                  [type]="hideOldPassword() ? 'password' : 'text'"
+                  formControlName="oldPassword"
+                  placeholder="Введите текущий пароль"
+                />
+                <button
+                  mat-icon-button
+                  matSuffix
+                  type="button"
+                  (click)="hideOldPassword.set(!hideOldPassword())"
+                >
+                  <mat-icon>{{ hideOldPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+                </button>
+                @if (passwordForm.get('oldPassword')?.touched &&
+                passwordForm.get('oldPassword')?.invalid) {
+                <mat-error>{{ getErrorMessage(passwordForm, 'oldPassword') }}</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Новый пароль</mat-label>
+                <input
+                  matInput
+                  [type]="hideNewPassword() ? 'password' : 'text'"
+                  formControlName="newPassword"
+                  placeholder="Минимум 6 символов"
+                />
+                <button
+                  mat-icon-button
+                  matSuffix
+                  type="button"
+                  (click)="hideNewPassword.set(!hideNewPassword())"
+                >
+                  <mat-icon>{{ hideNewPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+                </button>
+                @if (passwordForm.get('newPassword')?.touched &&
+                passwordForm.get('newPassword')?.invalid) {
+                <mat-error>{{ getErrorMessage(passwordForm, 'newPassword') }}</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Подтвердите новый пароль</mat-label>
+                <input
+                  matInput
+                  type="password"
+                  formControlName="confirmPassword"
+                  placeholder="Повторите новый пароль"
+                />
+                @if (passwordForm.get('confirmPassword')?.touched &&
+                passwordForm.get('confirmPassword')?.invalid) {
+                <mat-error>{{ getErrorMessage(passwordForm, 'confirmPassword') }}</mat-error>
+                } @if (passwordForm.hasError('passwordMismatch') &&
+                passwordForm.get('confirmPassword')?.touched) {
+                <mat-error>Пароли не совпадают</mat-error>
+                }
+              </mat-form-field>
+
+              <button
+                mat-raised-button
+                color="primary"
+                type="submit"
+                [disabled]="isLoadingPassword()"
+              >
+                @if (isLoadingPassword()) {
+                <mat-spinner diameter="20"></mat-spinner>
+                <span>Изменение...</span>
+                } @else {
+                <mat-icon>lock</mat-icon>
+                <span>Изменить пароль</span>
+                }
+              </button>
+            </form>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </mat-card-content>
+  </mat-card>
+</div>

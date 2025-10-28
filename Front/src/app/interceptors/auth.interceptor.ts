@@ -1,34 +1,38 @@
-import { HttpInterceptorFn } from '@angular/common/http';
+import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { AuthService } from '../services/auth.service';
-import { catchError, throwError } from 'rxjs';
+import { AuthStore } from '../store/auth.store';
 import { Router } from '@angular/router';
+import { catchError, throwError } from 'rxjs';
 
 /**
- * Перехватчик для добавления JWT токена к каждому запросу
+ * Перехватчик для HttpOnly Cookies
+ * - Автоматически добавляет withCredentials ко всем запросам
+ * - Обрабатывает ошибки 401
  */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  const authService = inject(AuthService);
+  const authStore = inject(AuthStore);
   const router = inject(Router);
-  const token = authService.getToken();
 
-  // Клонируем запрос и добавляем токен, если он есть
-  if (token) {
-    req = req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-  }
+  // Добавляем withCredentials для автоматической отправки cookies
+  const authReq = req.clone({
+    withCredentials: true,
+  });
 
-  // Обрабатываем ошибки (например, 401 Unauthorized)
-  return next(req).pipe(
-    catchError((error: any) => {
+  return next(authReq).pipe(
+    catchError((error: HttpErrorResponse) => {
       if (error.status === 401) {
-        // Токен недействителен или истек
-        authService.logout();
-        router.navigate(['/login']);
+        // Не обрабатываем 401 для auth endpoints
+        if (
+          !req.url.includes('/auth/login') &&
+          !req.url.includes('/auth/reg')
+          // !req.url.includes('/auth/status')
+        ) {
+          // Разлогиниваем пользователя
+          authStore.logout();
+          router.navigate(['/login']);
+        }
       }
+
       return throwError(() => error);
     })
   );
