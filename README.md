@@ -69,6 +69,13 @@ npm run start
 - Фильтрация и **сортировка** (subject, createdAt) в NoteController
 - Реализована работа с **профилем** пользователя (смена имени фамилии, пароля, получение данных)
 
+В NoteController (api/notes)
+- Добавлена возможность оценивания конспектов (/{noteId}/rate)
+- Увеличения числа просмотров (/{noteId}/view)
+- Есть функционал добавления ключевых слов (/{noteId}/keywords) и поиск конспектов по ним (/byKeywords)
+- Ключевые слова являются уникальными и case insensitive, если слово существует в базе оно будет привязано, иначе создано новое; получение всех ключевых слов (/keywords)
+
+- улучшена обработка исключений
 ---
 #### Процесс создания плана
 1. Пользователь или ИИ отправляет JSON с планом на эндпоинт (POST) http://localhost:8080/api/plans
@@ -102,16 +109,11 @@ npm run start
 ---
 #### To do:
 - ai communication
-- exception handler
+- ✅exception handler
 - User info problem: JWT token contain only email and there is no GetByEmail endpoint:
 1. ✅ Put userId in jwt
-2. Refactor getById to getByEmail
-3. Make auth fucnctions to return userId
 4. ✅Added method to get current user details http://localhost:8080/api/users/me and 2 other in UserController
-- (works) Add .env support without using IntelejIdea ( for now application.propertios is hardcoded)
-- Put Front_URL (localhost:4200) in .env (for now hardcode in SecurityConfig)
-- ? Possible troubles with versions
-- Dynamic subjects added by moderator/admin 
+- ✅Dynamic subjects added by moderator/admin 
 In Future:
 - ✅ Added HttpOnly Cookie (accessToken and refreshToken)
 - Docker

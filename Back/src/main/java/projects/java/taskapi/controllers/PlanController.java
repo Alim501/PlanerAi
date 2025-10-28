@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import projects.java.taskapi.exceptions.PlanNotFoundException;
 import projects.java.taskapi.models.Plan;
 import projects.java.taskapi.models.dto.PlanDTO;
 import projects.java.taskapi.models.Subject;
@@ -43,7 +44,7 @@ public class PlanController {
     @GetMapping("/{id}")
     public Plan getPlan(@PathVariable Long id) {
         return studyPlanService.getPlanById(id)
-                .orElseThrow(() -> new RuntimeException("Plan not found"));
+                .orElseThrow(() -> new PlanNotFoundException(id));
     }
 
     @Operation(summary = "Обновить существующий план по ID")

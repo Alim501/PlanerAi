@@ -14,6 +14,7 @@ import projects.java.taskapi.models.Note;
 import projects.java.taskapi.models.enums.NoteFormat;
 import projects.java.taskapi.models.Subject;
 import projects.java.taskapi.services.NoteService;
+import projects.java.taskapi.services.NoteStatisticsService;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,6 +27,7 @@ import java.util.List;
 public class NoteController {
 
     private final NoteService noteService;
+    private final NoteStatisticsService noteStatisticsService;
 
     @Operation(summary = "Upload a new note file")
     @PostMapping(value = "/upload", consumes = "multipart/form-data")
@@ -115,6 +117,24 @@ public class NoteController {
     @GetMapping("/keywords")
     public ResponseEntity<List<Keyword>> getAllKeywords() {
         return ResponseEntity.ok(noteService.getAllKeywords());
+    }
+
+
+    /// statistics
+
+    @Operation(summary = "Увеличение количества просмотров конспекта +1")
+    @PostMapping("/{noteId}/view")
+    public ResponseEntity<Note> recordView(@PathVariable Long noteId) {
+        return ResponseEntity.ok(noteStatisticsService.incrementNoteViews(noteId));
+    }
+
+    @Operation(summary = "Оценка конспекта от 1 до 5 включительно")
+    @PostMapping("/{noteId}/rate")
+    public ResponseEntity<Note> rateNote(
+            @PathVariable Long noteId,
+            @RequestParam Long userId,
+            @RequestParam Integer rating) {
+        return ResponseEntity.ok(noteStatisticsService.rateNote(noteId, userId, rating));
     }
 
 }

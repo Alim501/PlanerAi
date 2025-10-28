@@ -4,6 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import projects.java.taskapi.exceptions.NoteNotFoundException;
+import projects.java.taskapi.exceptions.SubjectNotFoundException;
+import projects.java.taskapi.exceptions.UserNotFoundException;
 import projects.java.taskapi.models.Keyword;
 import projects.java.taskapi.models.Note;
 import projects.java.taskapi.models.User;
@@ -30,10 +33,10 @@ public class NoteService {
 
     public Note createNote(Long userId, String title, Long subjectId, NoteFormat format, MultipartFile file) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         Subject subject = subjectRepository.findById(subjectId)
-                .orElseThrow(() -> new RuntimeException("Subject not found"));
+                .orElseThrow(() -> new SubjectNotFoundException(subjectId));
 
         // Save file to "uploads/notes/"
         String fileUrl = fileService.saveFile(file);
@@ -93,7 +96,7 @@ public class NoteService {
 
     public Resource downloadNoteFile(Long noteId) {
         Note note = noteRepository.findById(noteId)
-                .orElseThrow(() -> new RuntimeException("Note not found"));
+                .orElseThrow(() -> new NoteNotFoundException(noteId));
         return fileService.loadFile(note.getFileUrl());
     }
 
@@ -103,7 +106,7 @@ public class NoteService {
 
     public Note addKeywordsToNote(Long noteId, List<String> newKeywords) {
         Note note = noteRepository.findById(noteId)
-                .orElseThrow(() -> new RuntimeException("Note not found with id: " + noteId));
+                .orElseThrow(() -> new NoteNotFoundException(noteId));
 
         Set<Keyword> updatedKeywords = new HashSet<>(note.getKeywords());
 

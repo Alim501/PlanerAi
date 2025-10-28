@@ -2,6 +2,9 @@ package projects.java.taskapi.services;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import projects.java.taskapi.exceptions.PlanNotFoundException;
+import projects.java.taskapi.exceptions.SubjectNotFoundException;
+import projects.java.taskapi.exceptions.UserNotFoundException;
 import projects.java.taskapi.models.Plan;
 import projects.java.taskapi.models.Task;
 import projects.java.taskapi.models.User;
@@ -28,10 +31,10 @@ public class PlanService {
     public Plan createPlan(PlanDTO dto) {
 
         User user = userRepository.findById(dto.userId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(dto.userId()));
 
         Subject subject = subjectRepository.findById(dto.subjectId())
-                .orElseThrow(() -> new RuntimeException("Subject not found"));
+                .orElseThrow(() -> new SubjectNotFoundException(dto.subjectId()));
 
         Plan plan = Plan.builder()
                 .title(dto.title())
@@ -83,7 +86,7 @@ public class PlanService {
                     plan.setEndDate(updatedPlan.getEndDate());
                     return studyPlanRepository.save(plan);
                 })
-                .orElseThrow(() -> new RuntimeException("Plan not found"));
+                .orElseThrow(() -> new PlanNotFoundException(id));
     }
 
     public void deletePlan(Long id) {

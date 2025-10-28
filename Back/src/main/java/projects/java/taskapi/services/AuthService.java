@@ -43,7 +43,7 @@ public class AuthService {
                 new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getPassword()));
 
         User user = userRepository.findByEmail(authRequest.getEmail())
-                .orElseThrow(() -> new EntityNotFoundException(String.format("Пользователь с email: %s не найден", authRequest.getEmail())));
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         String access = jwtService.generateAccessToken(user);
         String refresh = jwtService.generateRefreshToken(user);
@@ -58,14 +58,14 @@ public class AuthService {
         String email = jwtService.extractUserEmail(refreshToken);
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException(String.format("Пользователь с email: %s не найден", email)));
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         if(!refreshToken.equals(user.getRefreshToken())){
-            throw new TokenValidationException("Рефреш токен не совпадает");
+            throw new TokenValidationException("Refresh token mismatch");
         }
 
         if (!jwtService.isTokenValid(refreshToken, user)){
-            throw new TokenValidationException("Токен не валидный или вышел срок годности");
+            throw new TokenValidationException("Token is not valid or expired");
         }
 
         String accessToken = jwtService.generateAccessToken(user);

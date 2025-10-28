@@ -1,6 +1,7 @@
 package projects.java.taskapi.configs;
 
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -60,7 +61,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         // check context for authentication existing
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new RuntimeException(String.format("Пользователь с email: %s не найден", email)));
+                    .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
             // validate token
             if (jwtService.isTokenValid(token, userDetails)) {
