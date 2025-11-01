@@ -1,0 +1,80 @@
+<footer class="footer">
+  <div class="footer-container">
+    <!-- Main Footer Content -->
+    <div class="footer-content">
+      <!-- Brand Section -->
+      <div class="footer-section brand-section">
+        <div class="brand">
+          <mat-icon>school</mat-icon>
+          <h3>PlannerAI</h3>
+        </div>
+        <p class="brand-description">
+          Умный планировщик для студентов. Организуйте свою учебу эффективно с помощью AI.
+        </p>
+        <div class="social-links">
+          @for (link of socialLinks; track link.name) {
+            <a [href]="link.url" target="_blank" rel="noopener" mat-icon-button>
+              <mat-icon>{{ link.icon }}</mat-icon>
+            </a>
+          }
+        </div>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="footer-section">
+        <h4>Быстрые ссылки</h4>
+        <ul class="footer-links">
+          @for (link of quickLinks; track link.route) {
+            <li>
+              <a [routerLink]="link.route">{{ link.label }}</a>
+            </li>
+          }
+        </ul>
+      </div>
+
+      <!-- Features -->
+      <div class="footer-section">
+        <h4>Возможности</h4>
+        <ul class="footer-links">
+          <li><a routerLink="/tasks">Управление задачами</a></li>
+          <li><a routerLink="/calendar">Календарь</a></li>
+          <li><a routerLink="/notes">Заметки</a></li>
+          <li><a routerLink="/dashboard">Дашборд</a></li>
+        </ul>
+      </div>
+
+      <!-- Contact -->
+      <div class="footer-section">
+        <h4>Контакты</h4>
+        <ul class="footer-links">
+          <li>
+            <mat-icon>email</mat-icon>
+            <span>support@plannerai.com</span>
+          </li>
+          <li>
+            <mat-icon>phone</mat-icon>
+            <span>+7 (777) 777-77-77</span>
+          </li>
+          <li>
+            <mat-icon>location_on</mat-icon>
+            <span>Алматы, Казахстан</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Bottom Footer -->
+    <div class="footer-bottom">
+      <div class="copyright">
+        <span>© {{ currentYear }} PlannerAI. Все права защищены.</span>
+      </div>
+      <div class="legal-links">
+        @for (link of legalLinks; track link.route) {
+          <a [routerLink]="link.route">{{ link.label }}</a>
+        }
+      </div>
+    </div>
+  </div>
+</footer>

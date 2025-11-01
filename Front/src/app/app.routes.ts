@@ -2,18 +2,29 @@ import { Routes } from '@angular/router';
 import { LoginComponent } from './features/auth/login/login';
 import { RegisterComponent } from './features/auth/register/register';
 import { DashboardComponent } from './features/dashboard/dashboard/dashboard';
-import { PlansListComponent } from './features/study-plans/plans-list/plans-list';
-import { PlanCreateComponent } from './features/study-plans/plan-create/plan-create';
+import { PlansListComponent } from './features/plans/plans-list/plans-list';
+import { CreatePlanComponent } from './features/plans/plan-create/plan-create';
+import { EditPlanComponent } from './features/plans/plan-edit/plan-edit';
 import { NotesCatalogComponent } from './features/notes/notes-catalog/notes-catalog';
 import { NoteUploadComponent } from './features/notes/note-upload/note-upload';
 import { ProfileComponent } from './features/profile/profile';
 import { authGuard, publicGuard } from './guards/auth.guard';
+import { AuthLayoutComponent } from './components/layout/auth-layout/auth-layout';
+import { MainLayoutComponent } from './components/layout/main-layout/main-layout';
 
 export const routes: Routes = [
-  { path: 'login', component: LoginComponent, canActivate: [publicGuard] },
-  { path: 'register', component: RegisterComponent, canActivate: [publicGuard] },
+  {
+    path: 'auth',
+    component: AuthLayoutComponent,
+    canActivate: [publicGuard],
+    children: [
+      { path: 'login', component: LoginComponent, canActivate: [publicGuard] },
+      { path: 'register', component: RegisterComponent, canActivate: [publicGuard] },
+    ],
+  },
   {
     path: '',
+    component: MainLayoutComponent,
     canActivate: [authGuard],
     children: [
       {
@@ -31,7 +42,11 @@ export const routes: Routes = [
       },
       {
         path: 'plans/create',
-        component: PlanCreateComponent,
+        component: CreatePlanComponent,
+      },
+      {
+        path: 'plans/edit',
+        component: EditPlanComponent,
       },
       {
         path: 'notes',
@@ -49,6 +64,6 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: 'login',
+    redirectTo: 'dashboard',
   },
 ];

@@ -158,8 +158,10 @@
                 <mat-spinner diameter="20"></mat-spinner>
                 <span>Изменение...</span>
                 } @else {
-                <mat-icon>lock</mat-icon>
-                <span>Изменить пароль</span>
+                <ng-container>
+                  <mat-icon>lock</mat-icon>
+                  <span>Изменить пароль</span>
+                </ng-container>
                 }
               </button>
             </form>
