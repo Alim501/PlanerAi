@@ -1,157 +1,188 @@
-<!-- src/app/features/dashboard/dashboard.html -->
-<mat-toolbar color="primary">
-  <span>Study Planner</span>
-  <span class="spacer"></span>
-  <button mat-button routerLink="/plans">
-    <mat-icon>assignment</mat-icon>
-    Планы
-  </button>
-  <button mat-button routerLink="/notes">
-    <mat-icon>library_books</mat-icon>
-    Конспекты
-  </button>
-  <button mat-icon-button routerLink="/profile">
-    <mat-icon>account_circle</mat-icon>
-  </button>
-</mat-toolbar>
+<div class="dashboiard-bg">
+  <div class="dashboard-container">
+    <!-- Welcome Section -->
+    <div class="welcome-section">
+      <h1>👋 Привет, {{ fullName() || 'Студент' }}!</h1>
+      <p>Давайте подготовимся к экзаменам эффективно</p>
+    </div>
 
-<div class="dashboard-container">
-  <!-- Welcome Section -->
-  <div class="welcome-section">
-    <h1>Добро пожаловать, Студент!</h1>
-    <p>Давайте подготовимся к экзаменам эффективно</p>
-  </div>
-
-  <!-- Upcoming Exams -->
-  <mat-card class="section-card">
-    <mat-card-header>
-      <mat-card-title>
-        <mat-icon>event</mat-icon>
-        Ближайшие экзамены
-      </mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <div class="exams-grid">
-        <div *ngFor="let exam of upcomingExams" class="exam-card">
-          <div class="exam-header">
-            <h3>{{ exam.subject }}</h3>
-            <span [class]="getDaysLeftText(exam.daysLeft)" class="days-left">
-              {{ exam.daysLeft }} дней
-            </span>
-          </div>
-          <p>{{ exam.date | date:'dd.MM.yyyy' }}</p>
-          <mat-progress-bar 
-            mode="determinate" 
-            [value]="exam.progress"
-            [color]="getProgressColor(exam.progress)">
-          </mat-progress-bar>
-          <span class="progress-text">Подготовка: {{ exam.progress }}%</span>
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <mat-card class="stat-card" routerLink="/plans">
+        <div class="stat-icon primary">
+          <mat-icon>book</mat-icon>
         </div>
-      </div>
-    </mat-card-content>
-  </mat-card>
+        <div class="stat-content">
+          <span class="stat-value">{{ plansCount().total }}</span>
+          <span class="stat-label">Всего планов</span>
+        </div>
+      </mat-card>
 
-  <!-- Study Plans -->
-  <mat-card class="section-card">
-    <mat-card-header>
-      <mat-card-title>
-        <mat-icon>assignment_turned_in</mat-icon>
-        Активные планы подготовки
-      </mat-card-title>
-      <button mat-button color="primary" routerLink="/plans/create" class="header-button">
-        <mat-icon>add</mat-icon>
-        Создать план
-      </button>
-    </mat-card-header>
-    <mat-card-content>
-      <div class="plans-list">
-        <div *ngFor="let plan of studyPlans" class="plan-item">
-          <div class="plan-content">
-            <h4>{{ plan.title }}</h4>
+      <mat-card class="stat-card" routerLink="/plans">
+        <div class="stat-icon success">
+          <mat-icon>check_circle</mat-icon>
+        </div>
+        <div class="stat-content">
+          <span class="stat-value">{{ plansCount().active }}</span>
+          <span class="stat-label">Активных</span>
+        </div>
+      </mat-card>
+
+      <mat-card class="stat-card" routerLink="/plans">
+        <div class="stat-icon warning">
+          <mat-icon>task_alt</mat-icon>
+        </div>
+        <div class="stat-content">
+          <span class="stat-value">{{ plansCount().completed }}</span>
+          <span class="stat-label">Завершенных</span>
+        </div>
+      </mat-card>
+
+      <mat-card class="stat-card" routerLink="/plans">
+        <div class="stat-icon accent">
+          <mat-icon>stars</mat-icon>
+        </div>
+        <div class="stat-content">
+          <span class="stat-value">{{ upcomingExams().length }}</span>
+          <span class="stat-label">Ближайших</span>
+        </div>
+      </mat-card>
+    </div>
+
+    <!-- Upcoming Exams -->
+    @if (upcomingExams().length > 0) {
+    <mat-card class="section-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>event</mat-icon>
+          Ближайшие экзамены
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="exams-grid">
+          @for (exam of upcomingExams(); track exam.id) {
+          <div class="exam-card" [routerLink]="['/plans', exam.id]">
+            <div class="exam-header">
+              <h3>{{ exam.title }}</h3>
+              <span [class]="'days-left ' + getDaysLeftClass(exam.daysLeft)">
+                {{ exam.daysLeft }} дн.
+              </span>
+            </div>
             <mat-chip-set>
-              <mat-chip color="primary">{{ plan.subject }}</mat-chip>
+              <mat-chip>{{ exam.subject }}</mat-chip>
             </mat-chip-set>
-            <p>{{ plan.completedDays }} из {{ plan.totalDays }} дней выполнено</p>
-            <mat-progress-bar 
-              mode="determinate" 
-              [value]="plan.progress"
-              [color]="getProgressColor(plan.progress)">
+            <p class="exam-date">
+              <mat-icon>event</mat-icon>
+              {{ exam.date | date : 'dd MMMM yyyy' }}
+            </p>
+            <mat-progress-bar
+              mode="determinate"
+              [value]="exam.progress"
+              [color]="getProgressColor(exam.progress)"
+            >
             </mat-progress-bar>
+            <span class="progress-text">Прогресс: {{ exam.progress }}%</span>
           </div>
-          <div class="plan-actions">
-            <button mat-button [routerLink]="['/plans', plan.id]">
-              <mat-icon>visibility</mat-icon>
-              Открыть
-            </button>
-          </div>
+          }
         </div>
-      </div>
-    </mat-card-content>
-  </mat-card>
+      </mat-card-content>
+    </mat-card>
+    }
 
-  <!-- Recent Notes -->
-  <mat-card class="section-card">
-    <mat-card-header>
-      <mat-card-title>
-        <mat-icon>library_books</mat-icon>
-        Популярные конспекты
-      </mat-card-title>
-      <button mat-button color="primary" routerLink="/notes" class="header-button">
-        <mat-icon>explore</mat-icon>
-        Все конспекты
+    <!-- Active Study Plans -->
+    @if (recentPlans().length > 0) {
+    <mat-card class="section-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>assignment_turned_in</mat-icon>
+          Недавние планы
+        </mat-card-title>
+        <button mat-button color="primary" routerLink="/plans/create" class="header-button">
+          <mat-icon>add</mat-icon>
+          Создать план
+        </button>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="plans-list">
+          @for (plan of recentPlans(); track plan.id) {
+          <div class="plan-item" [routerLink]="['/plans', plan.id]">
+            <div class="plan-content">
+              <h4>{{ plan.title }}</h4>
+              <mat-chip-set>
+                <mat-chip color="primary">{{ plan.subject }}</mat-chip>
+                <mat-chip [color]="plan.status === 'ACTIVE' ? 'accent' : 'warn'">
+                  {{ plan.status }}
+                </mat-chip>
+              </mat-chip-set>
+              <div class="plan-dates">
+                <mat-icon>calendar_today</mat-icon>
+                <span
+                  >{{ plan.startDate | date : 'dd.MM' }} -
+                  {{ plan.endDate | date : 'dd.MM.yyyy' }}</span
+                >
+              </div>
+              @if (plan.tasks && plan.tasks.length > 0) {
+              <mat-progress-bar
+                mode="determinate"
+                [value]="getPlanProgress(plan)"
+                [color]="getProgressColor(getPlanProgress(plan))"
+              >
+              </mat-progress-bar>
+              <span class="tasks-count">{{ plan.tasks.length }} задач</span>
+              }
+            </div>
+            <div class="plan-actions">
+              <button mat-icon-button>
+                <mat-icon>arrow_forward</mat-icon>
+              </button>
+            </div>
+          </div>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+    }
+
+    <!-- Quick Actions -->
+    <mat-card class="section-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>flash_on</mat-icon>
+          Быстрые действия
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="quick-actions">
+          <button mat-raised-button color="primary" routerLink="/plans/create">
+            <mat-icon>add_circle</mat-icon>
+            Создать план
+          </button>
+          <button mat-raised-button routerLink="/plans">
+            <mat-icon>list</mat-icon>
+            Все планы
+          </button>
+          <button mat-raised-button routerLink="/notes">
+            <mat-icon>note</mat-icon>
+            Заметки
+          </button>
+          <button mat-raised-button routerLink="/profile">
+            <mat-icon>person</mat-icon>
+            Профиль
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Empty State -->
+    @if (plans().length === 0 && !loading()) {
+    <mat-card class="empty-state">
+      <mat-icon>school</mat-icon>
+      <h2>Начните свою учебу!</h2>
+      <p>Создайте свой первый учебный план, чтобы эффективно подготовиться к экзаменам</p>
+      <button mat-raised-button color="primary" routerLink="/plans/create">
+        Создать первый план
       </button>
-    </mat-card-header>
-    <mat-card-content>
-      <div class="notes-grid">
-        <div *ngFor="let note of recentNotes" class="note-card">
-          <div class="note-header">
-            <h4>{{ note.title }}</h4>
-            <mat-chip color="accent">{{ note.subject }}</mat-chip>
-          </div>
-          <p>Автор: {{ note.author }}</p>
-          <div class="note-stats">
-            <span class="rating">
-              <mat-icon>star</mat-icon>
-              {{ note.rating }}
-            </span>
-            <span class="views">
-              <mat-icon>visibility</mat-icon>
-              {{ note.views }}
-            </span>
-          </div>
-          <button mat-button color="primary">Открыть</button>
-        </div>
-      </div>
-    </mat-card-content>
-  </mat-card>
-
-  <!-- Quick Actions -->
-  <mat-card class="section-card">
-    <mat-card-header>
-      <mat-card-title>
-        <mat-icon>flash_on</mat-icon>
-        Быстрые действия
-      </mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <div class="quick-actions">
-        <button mat-raised-button color="primary" routerLink="/plans/create">
-          <mat-icon>assignment_add</mat-icon>
-          Создать план с ИИ
-        </button>
-        <button mat-raised-button color="accent" routerLink="/notes/upload">
-          <mat-icon>cloud_upload</mat-icon>
-          Загрузить конспект
-        </button>
-        <button mat-raised-button routerLink="/notes">
-          <mat-icon>search</mat-icon>
-          Найти конспекты
-        </button>
-        <button mat-raised-button routerLink="/profile">
-          <mat-icon>settings</mat-icon>
-          Настройки
-        </button>
-      </div>
-    </mat-card-content>
-  </mat-card>
+    </mat-card>
+    }
+  </div>
 </div>

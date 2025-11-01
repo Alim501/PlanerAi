@@ -1,104 +1,105 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatChipsModule } from '@angular/material/chips';
-import { RouterModule } from '@angular/router';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { PlanService } from '../../../services/plan.service';
+import { PlanStore } from '../../../store/plan.store';
+import { UserStore } from '../../../store/user.store';
 
 @Component({
   selector: 'app-dashboard',
+  standalone: true,
   imports: [
     CommonModule,
+    RouterModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
-    MatToolbarModule,
-    MatProgressBarModule,
     MatChipsModule,
-    RouterModule
+    MatProgressBarModule,
   ],
   templateUrl: './dashboard.html',
-  styleUrl: './dashboard.scss'
+  styleUrl: './dashboard.scss',
 })
-export class DashboardComponent {
-  upcomingExams = [
-    {
-      subject: 'Высшая математика',
-      date: new Date('2024-12-20'),
-      daysLeft: 15,
-      progress: 65
-    },
-    {
-      subject: 'Физика',
-      date: new Date('2024-12-25'),
-      daysLeft: 20,
-      progress: 40
-    },
-    {
-      subject: 'Программирование',
-      date: new Date('2025-01-10'),
-      daysLeft: 35,
-      progress: 25
-    }
-  ];
+export class DashboardComponent implements OnInit {
+  private planService = inject(PlanService);
+  private planStore = inject(PlanStore);
+  private userStore = inject(UserStore);
+  // Data from stores
+  fullName = this.userStore.fullName;
+  plans = this.planStore.plans;
+  activePlans = this.planStore.activePlans;
+  plansCount = this.planStore.plansCount;
+  loading = this.planStore.loading;
 
-  studyPlans = [
-    {
-      id: 1,
-      title: 'Подготовка к экзамену по математике',
-      subject: 'Математика',
-      progress: 65,
-      totalDays: 21,
-      completedDays: 14,
-      status: 'active'
-    },
-    {
-      id: 2,
-      title: 'Изучение основ физики',
-      subject: 'Физика',
-      progress: 40,
-      totalDays: 28,
-      completedDays: 11,
-      status: 'active'
-    }
-  ];
+  // Computed values
+  recentPlans = computed(() => this.plans().slice(0, 3));
 
-  recentNotes = [
-    {
-      title: 'Производные и их свойства',
-      subject: 'Математика',
-      author: 'Иван Петров',
-      rating: 4.8,
-      views: 156
-    },
-    {
-      title: 'Законы Ньютона',
-      subject: 'Физика', 
-      author: 'Мария Сидорова',
-      rating: 4.6,
-      views: 89
-    },
-    {
-      title: 'Алгоритмы сортировки',
-      subject: 'Программирование',
-      author: 'Алексей Иванов',
-      rating: 4.9,
-      views: 203
-    }
-  ];
+  upcomingExams = computed(() => {
+    return this.activePlans()
+      .map((plan) => {
+        const endDate = new Date(plan.endDate);
+        const today = new Date();
+        const daysLeft = Math.ceil((endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+        const progress = this.calculateProgress(plan.startDate, plan.endDate);
 
-  getDaysLeftText(days: number): string {
-    if (days <= 7) return 'text-red-600';
-    if (days <= 14) return 'text-orange-600';
-    return 'text-green-600';
+        return {
+          id: plan.id,
+          title: plan.title,
+          subject: plan.subject,
+          date: endDate,
+          daysLeft: daysLeft > 0 ? daysLeft : 0,
+          progress,
+        };
+      })
+      .filter((exam) => exam.daysLeft >= 0)
+      .sort((a, b) => a.daysLeft - b.daysLeft)
+      .slice(0, 4);
+  });
+
+  ngOnInit(): void {
+    this.loadPlans();
   }
 
-  getProgressColor(progress: number): string {
-    if (progress >= 80) return 'primary';
-    if (progress >= 50) return 'accent';
+  loadPlans(): void {
+    const userId = this.userStore.userId();
+    if (userId) {
+      this.planService.getUserPlans(userId).subscribe();
+    }
+  }
+
+  calculateProgress(startDate: string, endDate: string): number {
+    const start = new Date(startDate).getTime();
+    const end = new Date(endDate).getTime();
+    const now = new Date().getTime();
+
+    if (now < start) return 0;
+    if (now > end) return 100;
+
+    const total = end - start;
+    const elapsed = now - start;
+    return Math.round((elapsed / total) * 100);
+  }
+
+  getDaysLeftClass(days: number): string {
+    if (days <= 3) return 'urgent';
+    if (days <= 7) return 'warning';
+    return 'normal';
+  }
+
+  getProgressColor(progress: number): 'primary' | 'accent' | 'warn' {
+    if (progress >= 75) return 'accent';
+    if (progress >= 40) return 'primary';
     return 'warn';
+  }
+
+  getPlanProgress(plan: any): number {
+    if (!plan.tasks || plan.tasks.length === 0) return 0;
+    const completed = plan.tasks.filter((t: any) => t.taskStatus === 'COMPLETED').length;
+    return Math.round((completed / plan.tasks.length) * 100);
   }
 }

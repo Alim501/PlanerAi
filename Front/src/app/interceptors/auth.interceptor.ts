@@ -29,7 +29,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         ) {
           // Разлогиниваем пользователя
           authStore.logout();
-          router.navigate(['/login']);
+          router.navigate(['/auth/login']);
         }
       }
 

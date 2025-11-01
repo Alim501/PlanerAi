@@ -1,0 +1,100 @@
+<mat-toolbar color="primary" class="navbar">
+  <div class="navbar-container">
+    <!-- Logo -->
+    <div class="logo-section">
+      <a routerLink="/" class="logo">
+        <mat-icon>school</mat-icon>
+        <span>PlannerAI</span>
+      </a>
+    </div>
+
+    @if (isAuthenticated()) {
+    <!-- Navigation Links -->
+    <nav class="nav-links">
+      <a mat-button routerLink="/dashboard" routerLinkActive="active" matTooltip="Главная панель">
+        <mat-icon>dashboard</mat-icon>
+        <span>Дашборд</span>
+      </a>
+      <a mat-button routerLink="/tasks" routerLinkActive="active" matTooltip="Управление задачами">
+        <mat-icon>task_alt</mat-icon>
+        <span>Задачи</span>
+      </a>
+      <a mat-button routerLink="/calendar" routerLinkActive="active" matTooltip="Календарь событий">
+        <mat-icon>calendar_month</mat-icon>
+        <span>Календарь</span>
+      </a>
+      <a mat-button routerLink="/notes" routerLinkActive="active" matTooltip="Мои заметки">
+        <mat-icon>note</mat-icon>
+        <span>Заметки</span>
+      </a>
+    </nav>
+
+    <span class="spacer"></span>
+
+    <!-- Loading Indicator -->
+    @if (loading()) {
+    <mat-icon class="loading-icon" matTooltip="Загрузка...">sync</mat-icon>
+    }
+
+    <!-- User Menu -->
+    <button mat-icon-button [matMenuTriggerFor]="userMenu" class="user-button" matTooltip="Профиль">
+      @if (initials()) {
+      <div class="user-avatar">{{ initials() }}</div>
+      } @else {
+      <mat-icon>account_circle</mat-icon>
+      }
+    </button>
+
+    <mat-menu #userMenu="matMenu" class="user-menu">
+      <!-- User Info -->
+      <div class="user-info-header" mat-menu-item disabled>
+        <div class="user-avatar-large">{{ initials() || '?' }}</div>
+        <div class="user-details">
+          @if (fullName()) {
+          <strong>{{ fullName() }}</strong>
+          }
+          <span class="user-email">{{ userEmail() }}</span>
+          <span class="user-role-badge" [class.admin]="isAdmin()">
+            {{ userRole() }}
+          </span>
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <!-- Menu Items -->
+      <a mat-menu-item routerLink="/profile">
+        <mat-icon>person</mat-icon>
+        <span>Мой профиль</span>
+      </a>
+
+      <a mat-menu-item routerLink="/settings">
+        <mat-icon>settings</mat-icon>
+        <span>Настройки</span>
+      </a>
+
+      @if (isAdmin()) {
+      <mat-divider></mat-divider>
+      <a mat-menu-item routerLink="/admin">
+        <mat-icon>admin_panel_settings</mat-icon>
+        <span>Админ панель</span>
+      </a>
+      }
+
+      <mat-divider></mat-divider>
+
+      <button mat-menu-item (click)="logout()">
+        <mat-icon>exit_to_app</mat-icon>
+        <span>Выход</span>
+      </button>
+    </mat-menu>
+    } @else {
+    <!-- Auth Buttons for non-authenticated users -->
+    <span class="spacer"></span>
+    <div class="auth-buttons">
+      <a mat-button routerLink="/login">Войти</a>
+      <a mat-raised-button color="accent" routerLink="/register">Регистрация</a>
+    </div>
+    }
+  </div>
+</mat-toolbar>

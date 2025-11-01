@@ -2,7 +2,6 @@
   <mat-card class="login-card">
     <mat-card-header>
       <mat-card-title>Вход</mat-card-title>
-      <mat-card-subtitle>Войдите в свой аккаунт</mat-card-subtitle>
     </mat-card-header>
 
     <mat-card-content>
@@ -39,7 +38,7 @@
             <mat-spinner diameter="20"></mat-spinner>
             Вход... } @else { Войти }
           </button>
-          <button mat-button type="button" routerLink="/register" [disabled]="isLoading()">
+          <button mat-button type="button" routerLink="/auth/register" [disabled]="isLoading()">
             Создать аккаунт
           </button>
         </mat-card-actions>
