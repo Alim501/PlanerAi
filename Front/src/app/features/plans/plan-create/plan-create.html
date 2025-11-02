@@ -1,0 +1,114 @@
+<div class="create-plan-bg">
+  <div class="create-plan-container">
+    <div class="header">
+      <button mat-icon-button (click)="cancel()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h1>
+        <mat-icon>add_circle</mat-icon>
+        Создать учебный план
+      </h1>
+    </div>
+
+    <mat-card class="form-card">
+      <mat-card-content>
+        <form [formGroup]="planForm" (ngSubmit)="onSubmit()">
+          <!-- Title -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Название плана</mat-label>
+            <input
+              matInput
+              formControlName="title"
+              placeholder="Например: Подготовка к экзамену по математике"
+            />
+            <mat-icon matPrefix>title</mat-icon>
+            @if (planForm.get('title')?.touched && planForm.get('title')?.invalid) {
+            <mat-error>{{ getErrorMessage('title') }}</mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Subject -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Предмет</mat-label>
+            <mat-select formControlName="subject">
+              @for (subject of subjects; track subject.value) {
+              <mat-option [value]="subject.value">
+                {{ subject.label }}
+              </mat-option>
+              }
+            </mat-select>
+            <mat-icon matPrefix>subject</mat-icon>
+            @if (planForm.get('subject')?.touched && planForm.get('subject')?.invalid) {
+            <mat-error>{{ getErrorMessage('subject') }}</mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Dates -->
+          <div class="date-row">
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Дата начала</mat-label>
+              <input
+                matInput
+                [matDatepicker]="startPicker"
+                formControlName="startDate"
+                [min]="minDate"
+                [max]="maxDate"
+              />
+              <mat-datepicker-toggle matPrefix [for]="startPicker"></mat-datepicker-toggle>
+              <mat-datepicker #startPicker></mat-datepicker>
+              @if (planForm.get('startDate')?.touched && planForm.get('startDate')?.invalid) {
+              <mat-error>{{ getErrorMessage('startDate') }}</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Дата окончания</mat-label>
+              <input
+                matInput
+                [matDatepicker]="endPicker"
+                formControlName="endDate"
+                [min]="minDate"
+                [max]="maxDate"
+              />
+              <mat-datepicker-toggle matPrefix [for]="endPicker"></mat-datepicker-toggle>
+              <mat-datepicker #endPicker></mat-datepicker>
+              @if (planForm.get('endDate')?.touched && planForm.get('endDate')?.invalid) {
+              <mat-error>{{ getErrorMessage('endDate') }}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+
+          <!-- Status -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Статус</mat-label>
+            <mat-select formControlName="status">
+              @for (status of statuses; track status.value) {
+              <mat-option [value]="status.value">
+                {{ status.label }}
+              </mat-option>
+              }
+            </mat-select>
+            <mat-icon matPrefix>flag</mat-icon>
+          </mat-form-field>
+
+          <!-- Actions -->
+          <div class="actions">
+            <button mat-stroked-button type="button" (click)="cancel()" [disabled]="isLoading()">
+              Отмена
+            </button>
+            <button mat-raised-button color="primary" type="submit" [disabled]="isLoading()">
+              @if (isLoading()) {
+              <ng-container>
+                <mat-spinner diameter="20"></mat-spinner>
+                Создание...
+              </ng-container>
+              } @else {
+              <ng-container> Создать план </ng-container>
+              }
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

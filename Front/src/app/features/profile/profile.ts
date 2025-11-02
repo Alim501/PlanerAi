@@ -38,6 +38,7 @@ import { User } from '../../models/user.models';
     MatTabsModule,
     MatIconModule,
     MatDividerModule,
+    
   ],
   templateUrl: './profile.html',
   styleUrl: './profile.scss',

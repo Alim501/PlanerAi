@@ -21,8 +21,8 @@ export const authGuard: CanActivateFn = async (route, state) => {
     return true;
   }
 
-  console.log('❌ Access denied, redirecting to /login');
-  router.navigate(['/login'], {
+  console.log('❌ Access denied, redirecting to /auth/login');
+  router.navigate(['auth/login'], {
     queryParams: { returnUrl: state.url },
   });
   return false;
