@@ -3,16 +3,21 @@ package projects.java.taskapi.services;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import projects.java.taskapi.models.Role;
 import projects.java.taskapi.models.dto.AuthRequest;
 import projects.java.taskapi.models.dto.AuthResponse;
-import projects.java.taskapi.models.dto.RefreshTokenRequest;
 import projects.java.taskapi.exceptions.TokenValidationException;
-import projects.java.taskapi.models.enums.Role;
+import projects.java.taskapi.models.enums.RoleName;
 import projects.java.taskapi.models.User;
+import projects.java.taskapi.repositories.RoleRepository;
 import projects.java.taskapi.repositories.UserRepository;
+
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -21,12 +26,17 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
+    private final RoleRepository roleRepository;
 
     public AuthResponse registerUser(AuthRequest authRequest){
+
+        Role studentRole = roleRepository.findByName(RoleName.ROLE_STUDENT)
+                .orElseThrow(() -> new EntityNotFoundException("Default role not found"));
+
         User user = User.builder()
                 .email(authRequest.getEmail())
                 .password(passwordEncoder.encode(authRequest.getPassword()))
-                .role(Role.STUDENT)
+                .roles(Set.of(studentRole))
                 .build();
 
         String refreshToken = jwtService.generateRefreshToken(user);
@@ -39,11 +49,19 @@ public class AuthService {
     }
 
     public AuthResponse loginUser(AuthRequest authRequest) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getPassword()));
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            authRequest.getEmail(),
+                            authRequest.getPassword()
+                    )
+            );
+        } catch (AuthenticationException e) {
+            throw new BadCredentialsException("Invalid email or password");
+        }
 
         User user = userRepository.findByEmail(authRequest.getEmail())
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+                .orElseThrow(() -> new BadCredentialsException("Invalid email or password"));
 
         String access = jwtService.generateAccessToken(user);
         String refresh = jwtService.generateRefreshToken(user);

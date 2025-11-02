@@ -8,7 +8,6 @@ public record PlanDTO (
         Long subjectId,
         LocalDate startDate,
         LocalDate endDate,
-        Long userId,
         List<TaskDTO> tasks
 ) {
 }

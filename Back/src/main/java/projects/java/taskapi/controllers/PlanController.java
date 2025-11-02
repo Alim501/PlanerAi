@@ -3,9 +3,11 @@ package projects.java.taskapi.controllers;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import projects.java.taskapi.exceptions.PlanNotFoundException;
 import projects.java.taskapi.models.Plan;
+import projects.java.taskapi.models.User;
 import projects.java.taskapi.models.dto.PlanDTO;
 import projects.java.taskapi.models.Subject;
 import projects.java.taskapi.services.PlanService;
@@ -22,14 +24,21 @@ public class PlanController {
 
     @Operation(summary = "Создать новый учебный план")
     @PostMapping
-    public Plan createPlan(@RequestBody PlanDTO planDto) {
-        return studyPlanService.createPlan(planDto);
+    public Plan createPlan(@AuthenticationPrincipal User currentUser,
+                           @RequestBody PlanDTO planDto) {
+        return studyPlanService.createPlan(currentUser.getId(), planDto);
     }
 
     @Operation(summary = "Получить все планы пользователя по его ID")
     @GetMapping("/user/{userId}")
     public List<Plan> getPlansByUser(@PathVariable Long userId) {
         return studyPlanService.getPlansByUser(userId);
+    }
+
+    @Operation(summary = "Получить все планы текущего пользователя")
+    @GetMapping("/my")
+    public List<Plan> getPlansByUser(@AuthenticationPrincipal User currentUser) {
+        return studyPlanService.getPlansByUser(currentUser.getId());
     }
 
     @Operation(summary = "Поиск планов по названию и/или предмету")

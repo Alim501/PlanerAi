@@ -117,3 +117,21 @@ npm run start
 In Future:
 - ✅ Added HttpOnly Cookie (accessToken and refreshToken)
 - Docker
+
+
+! If problems with launching and it is related to flyway then write command directly to db console
+```sql
+DELETE FROM flyway_schema_history WHERE version = '2';
+```
+
+- relocated tokens(access, refresh) expiration into .env
+
+- response for the most errors looks like this (ErrorResponse)
+```json
+{
+  "timestamp": "2025-11-02T22:43:17.590900900",
+  "status": 500,
+  "error": "Internal Server Error",
+  "message": "An unexpected error occurred"
+}
+```

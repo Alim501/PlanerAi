@@ -28,10 +28,10 @@ public class PlanService {
     private final UserRepository userRepository;
     private final SubjectRepository subjectRepository;
 
-    public Plan createPlan(PlanDTO dto) {
+    public Plan createPlan(Long userId, PlanDTO dto) {
 
-        User user = userRepository.findById(dto.userId())
-                .orElseThrow(() -> new UserNotFoundException(dto.userId()));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         Subject subject = subjectRepository.findById(dto.subjectId())
                 .orElseThrow(() -> new SubjectNotFoundException(dto.subjectId()));

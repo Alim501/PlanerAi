@@ -7,7 +7,9 @@ import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import projects.java.taskapi.exceptions.*;
@@ -20,7 +22,6 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Custom exceptions
     @ExceptionHandler(NoteNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNoteNotFound(NoteNotFoundException ex) {
         return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
@@ -52,9 +53,32 @@ public class GlobalExceptionHandler {
     }
 
     // Authentication & Security
-    @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<ErrorResponse> handleAuthError(AuthenticationException ex) {
-        return buildErrorResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleBadCredentials(BadCredentialsException ex) {
+        ErrorResponse error = new ErrorResponse(
+                LocalDateTime.now().toString(),
+                401,
+                "Unauthorized",
+                "Invalid email or password"
+        );
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleUsernameNotFound(UsernameNotFoundException ex) {
+        ErrorResponse error = new ErrorResponse(
+                LocalDateTime.now().toString(),
+                401,
+                "Unauthorized",
+                "Invalid email or password"
+        );
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAuthorizationDeniedException(AuthorizationDeniedException ex){
+        log.error("permission error", ex);
+        return buildErrorResponse("You don't have permission to access this resource", HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(TokenValidationException.class)
@@ -85,14 +109,14 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneral(Exception ex) {
-        log.error(ex.getMessage());
+        log.error("Unexpected error occurred", ex);
         return buildErrorResponse("An unexpected error occurred", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     // Helper method
     private ResponseEntity<ErrorResponse> buildErrorResponse(String message, HttpStatus status) {
         ErrorResponse error = new ErrorResponse(
-                LocalDateTime.now(),
+                LocalDateTime.now().toString(),
                 status.value(),
                 status.getReasonPhrase(),
                 message

@@ -7,10 +7,12 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import projects.java.taskapi.models.Keyword;
 import projects.java.taskapi.models.Note;
+import projects.java.taskapi.models.User;
 import projects.java.taskapi.models.enums.NoteFormat;
 import projects.java.taskapi.models.Subject;
 import projects.java.taskapi.services.NoteService;
@@ -32,13 +34,13 @@ public class NoteController {
     @Operation(summary = "Upload a new note file")
     @PostMapping(value = "/upload", consumes = "multipart/form-data")
     public ResponseEntity<Note> uploadNote(
-            @RequestParam("userId") Long userId,
+            @AuthenticationPrincipal User currentUser,
             @RequestParam("title") String title,
             @RequestParam("subjectId") Long subjectId,
             @RequestParam("format") NoteFormat format,
             @RequestParam("file") MultipartFile file) {
 
-        Note savedNote = noteService.createNote(userId, title, subjectId, format, file);
+        Note savedNote = noteService.createNote(currentUser.getId(), title, subjectId, format, file);
         return ResponseEntity.ok(savedNote);
     }
 
@@ -131,10 +133,10 @@ public class NoteController {
     @Operation(summary = "Оценка конспекта от 1 до 5 включительно")
     @PostMapping("/{noteId}/rate")
     public ResponseEntity<Note> rateNote(
+            @AuthenticationPrincipal User currentUser,
             @PathVariable Long noteId,
-            @RequestParam Long userId,
             @RequestParam Integer rating) {
-        return ResponseEntity.ok(noteStatisticsService.rateNote(noteId, userId, rating));
+        return ResponseEntity.ok(noteStatisticsService.rateNote(noteId, currentUser.getId(), rating));
     }
 
 }
