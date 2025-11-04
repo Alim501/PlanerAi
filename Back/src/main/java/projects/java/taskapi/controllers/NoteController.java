@@ -7,6 +7,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,7 +26,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/notes")
 @RequiredArgsConstructor
-@SecurityRequirement(name = "BearerAuth")
 public class NoteController {
 
     private final NoteService noteService;
@@ -44,7 +44,7 @@ public class NoteController {
         return ResponseEntity.ok(savedNote);
     }
 
-    @Operation(summary = "Получить все конспекты (с фильтрацией и сортировкой)")
+    @Operation(summary = "Получить все конспекты (с фильтрацией и сортировкой по дате добавления)")
     @GetMapping
     public ResponseEntity<List<Note>> getAllNotes(
             @RequestParam(required = false) Long subjectId,
@@ -52,13 +52,13 @@ public class NoteController {
         return ResponseEntity.ok(noteService.getFilteredAndSortedNotes(subjectId, sortOrder));
     }
 
-    @Operation(summary = "Получить все конспекты пользователя (с фильтрацией и сортировкой)")
+    @Operation(summary = "Получить все конспекты пользователя (с фильтрацией и сортировкой по дате добавления)")
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<Note>> getNotesByUser(
             @PathVariable Long userId,
-            @RequestParam(required = false) Subject subject,
+            @RequestParam(required = false) Long subjectId,
             @RequestParam(defaultValue = "desc") String sortOrder) {
-        return ResponseEntity.ok(noteService.getFilteredAndSortedNotesByUser(userId, subject, sortOrder));
+        return ResponseEntity.ok(noteService.getFilteredAndSortedNotesByUser(userId, subjectId, sortOrder));
     }
 
     @Operation(summary = "Получить все конспекты по ключевым словам (по совпадению с любым из предоставленных слов)")
@@ -95,18 +95,20 @@ public class NoteController {
                 .body(data);
     }
 
-    @Operation(summary = "Удалить конспект по id")
+    @Operation(summary = "Удалить конспект по id, student может удалить только свои")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteNote(@PathVariable Long id) {
-        noteService.deleteNote(id);
+    public ResponseEntity<Void> deleteNote(@AuthenticationPrincipal User currentUser,
+                                           @PathVariable Long id) {
+        noteService.deleteNote(id, currentUser.getId());
         return ResponseEntity.noContent().build();
     }
 
 
     /// keywords and summary
 
-    @Operation(summary = "Добавить ключевые слова к заметке")
+    @Operation(summary = "Добавить ключевые слова к заметке (админ, модератор)")
     @PostMapping("/{noteId}/keywords")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     public ResponseEntity<Note> addKeywordsToNote(
             @PathVariable Long noteId,
             @RequestBody List<String> keywords) {

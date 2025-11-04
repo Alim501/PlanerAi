@@ -13,7 +13,6 @@ import java.util.List;
 @RestController
 @RequestMapping("api/plans")
 @RequiredArgsConstructor
-@SecurityRequirement(name = "BearerAuth")
 public class TaskController {
 
     private final TaskService taskService;

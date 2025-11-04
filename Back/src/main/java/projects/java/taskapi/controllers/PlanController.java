@@ -3,7 +3,10 @@ package projects.java.taskapi.controllers;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import projects.java.taskapi.exceptions.PlanNotFoundException;
 import projects.java.taskapi.models.Plan;
@@ -17,7 +20,6 @@ import java.util.List;
 @RestController
 @RequestMapping("api/plans")
 @RequiredArgsConstructor
-@SecurityRequirement(name = "BearerAuth")
 public class PlanController {
 
     private final PlanService studyPlanService;
@@ -56,15 +58,20 @@ public class PlanController {
                 .orElseThrow(() -> new PlanNotFoundException(id));
     }
 
-    @Operation(summary = "Обновить существующий план по ID")
+    @Operation(summary = "Обновить существующий план(title, subject, startDate, endDate) по ID")
     @PutMapping("/{id}")
-    public Plan updatePlan(@PathVariable Long id, @RequestBody Plan plan) {
-        return studyPlanService.updatePlan(id, plan);
+    public Plan updatePlan(@PathVariable Long id, @RequestBody PlanDTO dto) {
+        return studyPlanService.updatePlan(id, dto);
     }
 
-    @Operation(summary = "Удалить план по ID")
+    @Operation(summary = "Удалить план по ID, только MODERATOR или ADMIN")
     @DeleteMapping("/{id}")
-    public void deletePlan(@PathVariable Long id) {
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
+    public ResponseEntity<Void> deletePlan(@PathVariable Long id) {
         studyPlanService.deletePlan(id);
+        return ResponseEntity.noContent().build();
     }
+
+    // todo: add endpoint that would delete UserPlanProgress(plan for determine user) not genuine Plan
+
 }

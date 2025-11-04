@@ -68,17 +68,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             // validate token
             if (jwtService.isTokenValid(token, userDetails)) {
 
-                // Add debug logging
-                System.out.println("=== JWT FILTER DEBUG ===");
-                System.out.println("User: " + email);
-                System.out.println("UserDetails class: " + userDetails.getClass().getName());
-                System.out.println("Authorities: " + userDetails.getAuthorities());
-                if (userDetails instanceof User) {
-                    User user = (User) userDetails;
-                    System.out.println("Roles from entity: " + user.getRoles());
-                }
-                System.out.println("=======================");
-
                 // Set user identity on the spring security context
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
@@ -88,7 +77,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                         );
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-                System.out.println("Authorities: " + userDetails.getAuthorities());
             }
         }
 

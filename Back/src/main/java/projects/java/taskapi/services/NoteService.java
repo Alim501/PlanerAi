@@ -2,6 +2,8 @@ package projects.java.taskapi.services;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import projects.java.taskapi.exceptions.NoteNotFoundException;
@@ -12,6 +14,7 @@ import projects.java.taskapi.models.Note;
 import projects.java.taskapi.models.User;
 import projects.java.taskapi.models.enums.NoteFormat;
 import projects.java.taskapi.models.Subject;
+import projects.java.taskapi.models.enums.RoleName;
 import projects.java.taskapi.repositories.KeywordRepository;
 import projects.java.taskapi.repositories.NoteRepository;
 import projects.java.taskapi.repositories.SubjectRepository;
@@ -67,9 +70,9 @@ public class NoteService {
                 .collect(Collectors.toList());
     }
 
-    public List<Note> getFilteredAndSortedNotesByUser(Long userId, Subject subject, String sortOrder) {
-        List<Note> notes = (subject != null)
-                ? noteRepository.findByUserIdAndSubject(userId, subject)
+    public List<Note> getFilteredAndSortedNotesByUser(Long userId, Long subjectId, String sortOrder) {
+        List<Note> notes = (subjectId != null)
+                ? noteRepository.findByUserIdAndSubjectId(userId, subjectId)
                 : noteRepository.findByUserId(userId);
 
         Comparator<Note> comparator = Comparator.comparing(Note::getCreatedAt);
@@ -90,8 +93,24 @@ public class NoteService {
         return noteRepository.findById(id);
     }
 
-    public void deleteNote(Long id) {
-        noteRepository.deleteById(id);
+    public void deleteNote(Long noteId, Long userId) {
+        Note note = noteRepository.findById(noteId)
+                .orElseThrow(() -> new NoteNotFoundException(noteId));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
+        // Students can only delete their own notes
+        boolean isOwner = note.getUser().getId().equals(userId);
+        boolean isModerator = user.getRoles().stream()
+                .anyMatch(role -> role.getName() == RoleName.ROLE_MODERATOR
+                        || role.getName() == RoleName.ROLE_ADMIN);
+
+        if (!isOwner && !isModerator) {
+            throw new AccessDeniedException("You cannot delete this note");
+        }
+
+        noteRepository.delete(note);
     }
 
     public Resource downloadNoteFile(Long noteId) {

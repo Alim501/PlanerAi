@@ -8,6 +8,8 @@ import projects.java.taskapi.models.enums.PlanStatus;
 import java.time.LocalDate;
 import java.util.List;
 
+// fixme: plan is available for all users, so it cannot store common startDate, endDate and Status it should be personal for each user
+
 @Entity
 @Data
 @NoArgsConstructor

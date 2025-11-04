@@ -13,11 +13,9 @@ import projects.java.taskapi.services.UserService;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
-@SecurityRequirement(name = "BearerAuth")
 public class UserController {
 
     private final UserService userService;
-
 
     // методы для роли STUDENT и MODERATOR
 

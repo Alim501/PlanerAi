@@ -14,7 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/admin/users")
 @RequiredArgsConstructor
-//@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
 
     private final UserService userService;
@@ -46,11 +46,13 @@ public class AdminController {
         return ResponseEntity.ok("Пароль успешно изменён");
     }
 
+    @Operation(summary = "Получить всех пользователей")
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
+    @Operation(summary = "Добавить роль юзеру по ID")
     @PostMapping("/{userId}/role/{roleName}")
     public ResponseEntity<User> addRoleToUser(
             @PathVariable Long userId,
@@ -58,6 +60,7 @@ public class AdminController {
         return ResponseEntity.ok(userService.addRoleToUser(userId, roleName));
     }
 
+    @Operation(summary = "Удалить роль юзеру по ID")
     @DeleteMapping("/{userId}/role/{roleName}")
     public ResponseEntity<User> removeRoleFromUser(
             @PathVariable Long userId,
