@@ -2,6 +2,7 @@ package projects.java.taskapi.services;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import projects.java.taskapi.exceptions.PlanNotFoundException;
 import projects.java.taskapi.models.Plan;
 import projects.java.taskapi.models.Task;
 import projects.java.taskapi.models.dto.TaskDTO;
@@ -20,7 +21,7 @@ public class TaskService {
 
     public Task addTask(Long planId, TaskDTO taskDto) {
         Plan plan = planRepository.findById(planId)
-                .orElseThrow(() -> new RuntimeException("Plan not found"));
+                .orElseThrow(() -> new PlanNotFoundException(planId));
 
         Task task = Task.builder()
                 .title(taskDto.title())

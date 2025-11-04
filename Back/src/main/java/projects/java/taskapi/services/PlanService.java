@@ -1,19 +1,23 @@
 package projects.java.taskapi.services;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-import projects.java.taskapi.models.Plan;
-import projects.java.taskapi.models.Task;
-import projects.java.taskapi.models.User;
-import projects.java.taskapi.models.UserPlanProgress;
+import projects.java.taskapi.exceptions.NoteNotFoundException;
+import projects.java.taskapi.exceptions.PlanNotFoundException;
+import projects.java.taskapi.exceptions.SubjectNotFoundException;
+import projects.java.taskapi.exceptions.UserNotFoundException;
+import projects.java.taskapi.models.*;
 import projects.java.taskapi.models.dto.PlanDTO;
-import projects.java.taskapi.models.Subject;
+import projects.java.taskapi.models.enums.RoleName;
 import projects.java.taskapi.repositories.PlanRepository;
 import projects.java.taskapi.repositories.ProgressRepository;
 import projects.java.taskapi.repositories.SubjectRepository;
 import projects.java.taskapi.repositories.UserRepository;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -24,14 +28,15 @@ public class PlanService {
     private final ProgressRepository userPlanProgressRepository;
     private final UserRepository userRepository;
     private final SubjectRepository subjectRepository;
+    private final PlanRepository planRepository;
 
-    public Plan createPlan(PlanDTO dto) {
+    public Plan createPlan(Long userId, PlanDTO dto) {
 
-        User user = userRepository.findById(dto.userId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         Subject subject = subjectRepository.findById(dto.subjectId())
-                .orElseThrow(() -> new RuntimeException("Subject not found"));
+                .orElseThrow(() -> new SubjectNotFoundException(dto.subjectId()));
 
         Plan plan = Plan.builder()
                 .title(dto.title())
@@ -75,19 +80,22 @@ public class PlanService {
         return studyPlanRepository.findById(id);
     }
 
-    public Plan updatePlan(Long id, Plan updatedPlan) {
+    public Plan updatePlan(Long id, PlanDTO dto) {
         return studyPlanRepository.findById(id)
                 .map(plan -> {
-                    plan.setTitle(updatedPlan.getTitle());
-                    plan.setStartDate(updatedPlan.getStartDate());
-                    plan.setEndDate(updatedPlan.getEndDate());
+                    plan.setTitle(dto.title());
+                    plan.setSubject(
+                            subjectRepository.findById(dto.subjectId())
+                                    .orElseThrow(() -> new SubjectNotFoundException(dto.subjectId())));
+                    plan.setStartDate(dto.startDate());
+                    plan.setEndDate(dto.endDate());
                     return studyPlanRepository.save(plan);
                 })
-                .orElseThrow(() -> new RuntimeException("Plan not found"));
+                .orElseThrow(() -> new PlanNotFoundException(id));
     }
 
-    public void deletePlan(Long id) {
-        studyPlanRepository.deleteById(id);
+    public void deletePlan(Long planId) {
+        studyPlanRepository.deleteById(planId);
     }
 
     public List<Plan> searchPlans(String title, Long subjectId) {

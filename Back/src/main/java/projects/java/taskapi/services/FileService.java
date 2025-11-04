@@ -5,6 +5,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import projects.java.taskapi.exceptions.FileNotFoundException;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -44,10 +45,10 @@ public class FileService {
             if (resource.exists() && resource.isReadable()) {
                 return resource;
             } else {
-                throw new RuntimeException("File not found: " + fileName);
+                throw new FileNotFoundException(fileName);
             }
         } catch (MalformedURLException ex) {
-            throw new RuntimeException("File not found: " + fileName, ex);
+            throw new FileNotFoundException(fileName);
         }
     }
 

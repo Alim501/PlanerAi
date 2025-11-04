@@ -1,8 +1,10 @@
 package projects.java.taskapi.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import projects.java.taskapi.models.enums.NoteFormat;
 
 import java.time.LocalDateTime;
@@ -41,6 +43,16 @@ public class Note {
     )
     private List<Keyword> keywords;
 
+    @Column(nullable = false)
+    private Integer viewCount;
+
+    @OneToMany(mappedBy = "note", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<NoteRating> ratings;
+
+    // Cached values for performance
+    private Double averageRating;
+    private Integer ratingCount;
+
     @ManyToOne
     private User user;
 
@@ -52,6 +64,31 @@ public class Note {
     @PrePersist
     private void prePersist(){
         this.createdAt = LocalDateTime.now();
+        if (this.viewCount == null) {
+            this.viewCount = 0;
+        }
+    }
+
+
+    /// Helpers
+
+    // Helper method to increment views
+    public void incrementViewCount() {
+        this.viewCount = (this.viewCount == null ? 0 : this.viewCount) + 1;
+    }
+
+    // Update cache whenever ratings change
+    public void updateRatingCache() {
+        if (ratings == null || ratings.isEmpty()) {
+            this.averageRating = null;
+            this.ratingCount = 0;
+            return;
+        }
+        this.ratingCount = ratings.size();
+        this.averageRating = ratings.stream()
+                .mapToInt(NoteRating::getRating)
+                .average()
+                .orElse(0.0);
     }
 }
 
