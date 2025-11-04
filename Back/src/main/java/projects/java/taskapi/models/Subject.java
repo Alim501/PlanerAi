@@ -31,8 +31,3 @@ public class Subject {
     private List<Note> notes;
 }
 
-//MATH,
-//ARCHITECTURE,
-//OPERATING_SYSTEMS,
-//DEV_OPS,
-//JAVA

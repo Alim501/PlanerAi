@@ -13,7 +13,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -36,6 +35,7 @@ public class SecurityConfigs {
     @Value("${front.url}")
     private String frontUrl;
     private final JwtTokenFilter jwtTokenFilter;
+    private final CustomUserDetailsService userDetailsService;
 
     // Handles 401 errors (not authenticated)
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
@@ -72,7 +72,7 @@ public class SecurityConfigs {
     public DaoAuthenticationProvider daoAuthenticationProvider(){
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setPasswordEncoder(passwordEncoder());
-        provider.setUserDetailsService(userDetailsService());
+        provider.setUserDetailsService(userDetailsService);
         return provider;
     }
 
@@ -84,11 +84,6 @@ public class SecurityConfigs {
     @Bean
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public UserDetailsService userDetailsService(){
-        return new CustomUserDetailsService();
     }
 
     // настройки cors

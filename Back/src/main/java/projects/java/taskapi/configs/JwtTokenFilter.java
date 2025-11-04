@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import projects.java.taskapi.models.User;
 import projects.java.taskapi.repositories.UserRepository;
+import projects.java.taskapi.services.CustomUserDetailsService;
 import projects.java.taskapi.services.JwtService;
 
 import java.io.IOException;
@@ -29,7 +30,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
     private final String TOKEN_START = "Bearer ";
     private final JwtService jwtService;
-    private final UserRepository userRepository;
+    private final CustomUserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -62,13 +63,29 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
         // check context for authentication existing
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new EntityNotFoundException("User not found"));
+            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
             // validate token
             if (jwtService.isTokenValid(token, userDetails)) {
+
+                // Add debug logging
+                System.out.println("=== JWT FILTER DEBUG ===");
+                System.out.println("User: " + email);
+                System.out.println("UserDetails class: " + userDetails.getClass().getName());
+                System.out.println("Authorities: " + userDetails.getAuthorities());
+                if (userDetails instanceof User) {
+                    User user = (User) userDetails;
+                    System.out.println("Roles from entity: " + user.getRoles());
+                }
+                System.out.println("=======================");
+
                 // Set user identity on the spring security context
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(
+                                userDetails,
+                                null,
+                                userDetails.getAuthorities()
+                        );
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 System.out.println("Authorities: " + userDetails.getAuthorities());
