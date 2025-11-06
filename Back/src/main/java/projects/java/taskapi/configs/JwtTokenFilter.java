@@ -54,21 +54,27 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             return;
         }
 
-        // extract email from token
-        final String email = jwtService.extractUserEmail(token);
+        try {
+            // extract email from token
+            final String email = jwtService.extractUserEmail(token);
 
-        // check context for authentication existing
-        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new RuntimeException(String.format("Пользователь с email: %s не найден", email)));
+            // check context for authentication existing
+            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = userRepository.findByEmail(email)
+                        .orElseThrow(() -> new RuntimeException(String.format("Пользователь с email: %s не найден", email)));
 
-            // validate token
-            if (jwtService.isTokenValid(token, userDetails)) {
-                // Set user identity on the spring security context
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                // validate token
+                if (jwtService.isTokenValid(token, userDetails)) {
+                    // Set user identity on the spring security context
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
             }
+        } catch (Exception e) {
+            // Invalid/expired token - continue without authentication
+            // SecurityContext remains empty, protected endpoints will return 401/403
+            System.err.println("JWT validation failed for request " + request.getRequestURI() + ": " + e.getMessage());
         }
 
         filterChain.doFilter(request, response);

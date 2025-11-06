@@ -1,0 +1,237 @@
+.info-bg {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+}
+
+.info-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 48px;
+  color: white;
+
+  .header-icon {
+    font-size: 72px;
+    width: 72px;
+    height: 72px;
+    margin-bottom: 16px;
+  }
+
+  h1 {
+    font-size: 48px;
+    font-weight: 700;
+    margin: 0 0 12px 0;
+  }
+
+  .subtitle {
+    font-size: 20px;
+    margin: 0;
+    opacity: 0.95;
+  }
+}
+
+.contact-methods {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+
+  .contact-card {
+    text-align: center;
+    padding: 32px 24px;
+    border-radius: 16px;
+    transition: all 0.3s;
+
+    &:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    }
+
+    .contact-icon {
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      mat-icon {
+        font-size: 40px;
+        width: 40px;
+        height: 40px;
+        color: white;
+      }
+
+      &.primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+
+      &.accent {
+        background: linear-gradient(135deg, #e91e63 0%, #f06292 100%);
+      }
+
+      &.success {
+        background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
+      }
+
+      &.warning {
+        background: linear-gradient(135deg, #ff9800 0%, #ffc107 100%);
+      }
+    }
+
+    h3 {
+      font-size: 20px;
+      font-weight: 600;
+      margin: 0 0 12px 0;
+      color: #333;
+    }
+
+    .contact-value {
+      font-size: 16px;
+      font-weight: 600;
+      color: #667eea;
+      margin: 0 0 8px 0;
+    }
+
+    .contact-description {
+      font-size: 14px;
+      color: #666;
+      margin: 0;
+    }
+  }
+}
+
+.section-card {
+  margin-bottom: 24px;
+  border-radius: 16px;
+  overflow: hidden;
+
+  mat-card-header {
+    margin-bottom: 24px;
+
+    mat-card-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 24px;
+      font-weight: 600;
+
+      mat-icon {
+        color: #667eea;
+        font-size: 28px;
+        width: 28px;
+        height: 28px;
+      }
+    }
+  }
+}
+
+.form-card {
+  .form-intro {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 24px;
+  }
+
+  .contact-form {
+    .form-row {
+      margin-bottom: 16px;
+
+      .full-width {
+        width: 100%;
+      }
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 16px;
+      justify-content: flex-start;
+      margin-top: 24px;
+
+      button {
+        padding: 12px 32px;
+
+        mat-icon {
+          margin-right: 8px;
+        }
+      }
+    }
+  }
+}
+
+.location-card {
+  .location-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 24px;
+
+    .location-item {
+      display: flex;
+      gap: 16px;
+      padding: 20px;
+      background-color: #f8f9ff;
+      border-radius: 12px;
+      border-left: 4px solid #667eea;
+
+      mat-icon {
+        color: #667eea;
+        font-size: 32px;
+        width: 32px;
+        height: 32px;
+        flex-shrink: 0;
+      }
+
+      div {
+        flex: 1;
+
+        h4 {
+          margin: 0 0 8px 0;
+          font-size: 16px;
+          font-weight: 600;
+          color: #333;
+        }
+
+        p {
+          margin: 0;
+          font-size: 14px;
+          color: #666;
+          line-height: 1.6;
+        }
+      }
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .page-header {
+    h1 {
+      font-size: 36px;
+    }
+
+    .subtitle {
+      font-size: 16px;
+    }
+  }
+
+  .contact-methods {
+    grid-template-columns: 1fr;
+  }
+
+  .location-info {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions {
+    flex-direction: column;
+
+    button {
+      width: 100%;
+    }
+  }
+}

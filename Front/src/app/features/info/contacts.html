@@ -1,0 +1,143 @@
+<div class="info-bg">
+  <div class="info-container">
+    <!-- Header -->
+    <div class="page-header">
+      <mat-icon class="header-icon">contact_support</mat-icon>
+      <h1>Контакты</h1>
+      <p class="subtitle">Свяжитесь с нами любым удобным способом</p>
+    </div>
+
+    <!-- Contact Methods -->
+    <div class="contact-methods">
+      @for (method of contactMethods; track method.title) {
+      <mat-card class="contact-card">
+        <div class="contact-icon" [class]="method.color">
+          <mat-icon>{{ method.icon }}</mat-icon>
+        </div>
+        <h3>{{ method.title }}</h3>
+        <p class="contact-value">{{ method.value }}</p>
+        <p class="contact-description">{{ method.description }}</p>
+      </mat-card>
+      }
+    </div>
+
+    <!-- Contact Form -->
+    <mat-card class="section-card form-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>send</mat-icon>
+          Напишите нам
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p class="form-intro">
+          Заполните форму ниже, и мы свяжемся с вами в ближайшее время
+        </p>
+        <form class="contact-form" (ngSubmit)="submitForm()">
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Имя</mat-label>
+              <input
+                matInput
+                [(ngModel)]="contactForm.name"
+                name="name"
+                required
+                placeholder="Введите ваше имя"
+              />
+              <mat-icon matPrefix>person</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Email</mat-label>
+              <input
+                matInput
+                type="email"
+                [(ngModel)]="contactForm.email"
+                name="email"
+                required
+                placeholder="your@email.com"
+              />
+              <mat-icon matPrefix>email</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Тема</mat-label>
+              <input
+                matInput
+                [(ngModel)]="contactForm.subject"
+                name="subject"
+                required
+                placeholder="Тема вашего сообщения"
+              />
+              <mat-icon matPrefix>subject</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Сообщение</mat-label>
+              <textarea
+                matInput
+                [(ngModel)]="contactForm.message"
+                name="message"
+                required
+                rows="6"
+                placeholder="Опишите ваш вопрос или предложение"
+              ></textarea>
+              <mat-icon matPrefix>message</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <div class="form-actions">
+            <button mat-raised-button color="primary" type="submit">
+              <mat-icon>send</mat-icon>
+              Отправить сообщение
+            </button>
+            <button mat-button type="button" (click)="resetForm()">
+              Очистить
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Office Location (Optional) -->
+    <mat-card class="section-card location-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>location_on</mat-icon>
+          Наш офис
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="location-info">
+          <div class="location-item">
+            <mat-icon>business</mat-icon>
+            <div>
+              <h4>Адрес</h4>
+              <p>г. Москва, ул. Примерная, д. 123, офис 456</p>
+            </div>
+          </div>
+          <div class="location-item">
+            <mat-icon>schedule</mat-icon>
+            <div>
+              <h4>Часы работы</h4>
+              <p>Пн-Пт: 9:00 - 18:00<br />Сб-Вс: Выходной</p>
+            </div>
+          </div>
+          <div class="location-item">
+            <mat-icon>support_agent</mat-icon>
+            <div>
+              <h4>Поддержка</h4>
+              <p>Онлайн-поддержка 24/7</p>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

@@ -1,0 +1,207 @@
+<div class="info-bg">
+  <div class="info-container">
+    <!-- Header -->
+    <div class="page-header">
+      <mat-icon class="header-icon">help_center</mat-icon>
+      <h1>Помощь</h1>
+      <p class="subtitle">Руководство по использованию PlannerAI</p>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions-grid">
+      @for (action of quickActions; track action.title) {
+      <mat-card class="action-card" [routerLink]="action.link">
+        <mat-icon>{{ action.icon }}</mat-icon>
+        <h3>{{ action.title }}</h3>
+        <p>{{ action.description }}</p>
+        <button mat-icon-button>
+          <mat-icon>arrow_forward</mat-icon>
+        </button>
+      </mat-card>
+      }
+    </div>
+
+    <!-- Guides -->
+    <mat-card class="section-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>menu_book</mat-icon>
+          Пошаговые руководства
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="guides-grid">
+          @for (guide of guides; track guide.title) {
+          <div class="guide-card">
+            <div class="guide-header">
+              <div class="guide-icon">
+                <mat-icon>{{ guide.icon }}</mat-icon>
+              </div>
+              <div class="guide-info">
+                <h3>{{ guide.title }}</h3>
+                <p>{{ guide.description }}</p>
+              </div>
+            </div>
+            <div class="guide-steps">
+              <ol>
+                @for (step of guide.steps; track step) {
+                <li>{{ step }}</li>
+                }
+              </ol>
+            </div>
+          </div>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Features Overview -->
+    <mat-card class="section-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>featured_play_list</mat-icon>
+          Основные возможности
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <mat-accordion>
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                <mat-icon>dashboard</mat-icon>
+                Панель управления
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <p>
+              Панель управления показывает общую статистику: количество планов, активные задачи,
+              ближайшие экзамены и прогресс подготовки. Здесь вы можете быстро перейти к любому разделу
+              и отслеживать свою продуктивность.
+            </p>
+          </mat-expansion-panel>
+
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                <mat-icon>event</mat-icon>
+                Планы подготовки
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <p>
+              Создавайте индивидуальные планы для каждого экзамена. Система автоматически распределит
+              материал по дням с учетом времени до экзамена. Вы можете редактировать задачи, отмечать
+              выполненные и отслеживать прогресс в реальном времени.
+            </p>
+          </mat-expansion-panel>
+
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                <mat-icon>note</mat-icon>
+                База заметок
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <p>
+              Загружайте лекции, конспекты и учебные материалы в различных форматах (PDF, текст, изображения).
+              ИИ автоматически проанализирует содержимое, выделит ключевые понятия и создаст краткие выжимки
+              для быстрого повторения.
+            </p>
+          </mat-expansion-panel>
+
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                <mat-icon>psychology</mat-icon>
+                ИИ-ассистент
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <p>
+              Интеллектуальный помощник на базе ИИ отвечает на вопросы по вашим материалам, генерирует
+              тестовые задания для самопроверки, создает карточки для запоминания и помогает разобраться
+              со сложными темами. Контекст сохраняется внутри каждого чата.
+            </p>
+          </mat-expansion-panel>
+
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                <mat-icon>analytics</mat-icon>
+                Аналитика и прогресс
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <p>
+              Отслеживайте свой прогресс с помощью наглядных графиков и статистики. Система показывает,
+              сколько материала изучено, какие темы требуют дополнительного внимания и насколько вы
+              готовы к экзамену.
+            </p>
+          </mat-expansion-panel>
+        </mat-accordion>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Tips & Tricks -->
+    <mat-card class="section-card tips-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>lightbulb</mat-icon>
+          Советы по эффективному использованию
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="tips-list">
+          <div class="tip-item">
+            <mat-icon>check_circle</mat-icon>
+            <div>
+              <h4>Регулярно обновляйте прогресс</h4>
+              <p>Отмечайте выполненные задачи сразу после их завершения для точной статистики</p>
+            </div>
+          </div>
+          <div class="tip-item">
+            <mat-icon>check_circle</mat-icon>
+            <div>
+              <h4>Загружайте материалы заранее</h4>
+              <p>ИИ требуется время для анализа больших файлов, делайте это заранее</p>
+            </div>
+          </div>
+          <div class="tip-item">
+            <mat-icon>check_circle</mat-icon>
+            <div>
+              <h4>Используйте теги</h4>
+              <p>Организуйте заметки с помощью тегов для быстрого поиска нужного материала</p>
+            </div>
+          </div>
+          <div class="tip-item">
+            <mat-icon>check_circle</mat-icon>
+            <div>
+              <h4>Задавайте конкретные вопросы ИИ</h4>
+              <p>Чем точнее ��опрос, тем полезнее будет ответ ИИ-помощника</p>
+            </div>
+          </div>
+          <div class="tip-item">
+            <mat-icon>check_circle</mat-icon>
+            <div>
+              <h4>Начинайте подготовку заранее</h4>
+              <p>Создавайте планы за несколько недель до экзамена для лучших результатов</p>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Support CTA -->
+    <mat-card class="section-card cta-card">
+      <mat-icon class="cta-icon">support_agent</mat-icon>
+      <h2>Остались вопросы?</h2>
+      <p>Наша команда поддержки готова помочь вам 24/7</p>
+      <div class="cta-actions">
+        <button mat-raised-button color="primary" routerLink="/faq">
+          <mat-icon>question_answer</mat-icon>
+          Посмотреть FAQ
+        </button>
+        <button mat-raised-button routerLink="/contacts">
+          <mat-icon>email</mat-icon>
+          Связаться с нами
+        </button>
+      </div>
+    </mat-card>
+  </div>
+</div>

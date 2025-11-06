@@ -1,0 +1,49 @@
+<mat-toolbar color="primary" class="public-navbar">
+  <div class="navbar-container">
+    <!-- Logo -->
+    <div class="logo-section">
+      <a routerLink="/home" class="logo">
+        <mat-icon>school</mat-icon>
+        <span>PlannerAI</span>
+      </a>
+    </div>
+
+    <!-- Navigation Links -->
+    <nav class="nav-links">
+      <a mat-button routerLink="/home" routerLinkActive="active">
+        <mat-icon>home</mat-icon>
+        <span>Главная</span>
+      </a>
+      <a mat-button routerLink="/about" routerLinkActive="active">
+        <mat-icon>info</mat-icon>
+        <span>О нас</span>
+      </a>
+      <a mat-button routerLink="/help" routerLinkActive="active">
+        <mat-icon>help_center</mat-icon>
+        <span>Помощь</span>
+      </a>
+      <a mat-button routerLink="/faq" routerLinkActive="active">
+        <mat-icon>question_answer</mat-icon>
+        <span>FAQ</span>
+      </a>
+      <a mat-button routerLink="/contacts" routerLinkActive="active">
+        <mat-icon>contact_support</mat-icon>
+        <span>Контакты</span>
+      </a>
+    </nav>
+
+    <span class="spacer"></span>
+
+    <!-- Auth Buttons -->
+    <div class="auth-buttons">
+      <a mat-button routerLink="/auth/login" class="login-btn">
+        <mat-icon>login</mat-icon>
+        Войти
+      </a>
+      <a mat-raised-button color="accent" routerLink="/auth/register" class="register-btn">
+        <mat-icon>person_add</mat-icon>
+        Регистрация
+      </a>
+    </div>
+  </div>
+</mat-toolbar>
