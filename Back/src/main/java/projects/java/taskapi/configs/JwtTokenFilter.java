@@ -58,8 +58,9 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             return;
         }
 
-        // extract email from token
-        final String email = jwtService.extractUserEmail(token);
+        try {
+            // extract email from token
+            final String email = jwtService.extractUserEmail(token);
 
         // check context for authentication existing
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -78,6 +79,10 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
+        } catch (Exception e) {
+            // Invalid/expired token - continue without authentication
+            // SecurityContext remains empty, protected endpoints will return 401/403
+            System.err.println("JWT validation failed for request " + request.getRequestURI() + ": " + e.getMessage());
         }
 
         filterChain.doFilter(request, response);

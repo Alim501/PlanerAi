@@ -1,0 +1,146 @@
+<div class="info-bg">
+  <div class="info-container">
+    <!-- Header -->
+    <div class="page-header">
+      <mat-icon class="header-icon">info</mat-icon>
+      <h1>О проекте</h1>
+      <p class="subtitle">Персональный планировщик подготовки к экзаменам с базой заметок и интеграцией ИИ</p>
+    </div>
+
+    <!-- Mission Card -->
+    <mat-card class="section-card mission-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>rocket_launch</mat-icon>
+          Наша миссия
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p>
+          Мы создали веб-приложение, которое помогает студентам эффективно планировать подготовку к экзаменам,
+          создавать и управлять заметками, а также использовать возможности искусственного интеллекта для
+          автоматизации и персонализации процесса обучения.
+        </p>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- AI Features Grid -->
+    <mat-card class="section-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>auto_awesome</mat-icon>
+          Возможности ИИ
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="features-grid">
+          @for (feature of features; track feature.title) {
+          <div class="feature-card">
+            <div class="feature-icon">
+              <mat-icon>{{ feature.icon }}</mat-icon>
+            </div>
+            <h3>{{ feature.title }}</h3>
+            <p>{{ feature.description }}</p>
+          </div>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Key Objectives -->
+    <mat-card class="section-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>track_changes</mat-icon>
+          Ключевые цели проекта
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="objectives-list">
+          <div class="objective-item">
+            <mat-icon>verified_user</mat-icon>
+            <div>
+              <h4>Безопасность</h4>
+              <p>Реализация безопасной регистрации и аутентификации пользователей</p>
+            </div>
+          </div>
+          <div class="objective-item">
+            <mat-icon>calendar_month</mat-icon>
+            <div>
+              <h4>Умное планирование</h4>
+              <p>Автоматическая генерация расписаний подготовки с помощью ИИ-алгоритмов</p>
+            </div>
+          </div>
+          <div class="objective-item">
+            <mat-icon>note_alt</mat-icon>
+            <div>
+              <h4>Управление заметками</h4>
+              <p>Система для загрузки, создания и анализа учебных материалов</p>
+            </div>
+          </div>
+          <div class="objective-item">
+            <mat-icon>chat</mat-icon>
+            <div>
+              <h4>ИИ-ассистент</h4>
+              <p>Чат-бот для ответов на вопросы по учебным материалам</p>
+            </div>
+          </div>
+          <div class="objective-item">
+            <mat-icon>analytics</mat-icon>
+            <div>
+              <h4>Аналитика</h4>
+              <p>Визуализация прогресса, пройденных тем и метрик эффективности</p>
+            </div>
+          </div>
+          <div class="objective-item">
+            <mat-icon>phone_iphone</mat-icon>
+            <div>
+              <h4>Адаптивность</h4>
+              <p>Современный, адаптивный и мобильный интерфейс</p>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Technologies -->
+    <mat-card class="section-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>code</mat-icon>
+          Технологический стек
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="tech-grid">
+          @for (tech of technologies; track tech.name) {
+          <div class="tech-card">
+            <mat-icon>{{ tech.icon }}</mat-icon>
+            <div class="tech-info">
+              <span class="tech-name">{{ tech.name }}</span>
+              <span class="tech-value">{{ tech.tech }}</span>
+            </div>
+          </div>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- CTA Card -->
+    <mat-card class="section-card cta-card">
+      <mat-icon class="cta-icon">school</mat-icon>
+      <h2>Начните учиться эффективнее уже сегодня!</h2>
+      <p>Создайте свой первый план подготовки и откройте для себя возможности ИИ в обучении</p>
+      <div class="cta-actions">
+        <button mat-raised-button color="primary" routerLink="/plans/create">
+          <mat-icon>add_circle</mat-icon>
+          Создать план
+        </button>
+        <button mat-raised-button routerLink="/dashboard">
+          <mat-icon>dashboard</mat-icon>
+          К панели управления
+        </button>
+      </div>
+    </mat-card>
+  </div>
+</div>
