@@ -56,7 +56,7 @@ export class RegisterComponent {
     this.authService.register({ email, password }).subscribe({
       next: () => {
         this.snackBar.open('Регистрация успешна!', 'OK', { duration: 3000 });
-        this.router.navigate(['/']);
+        this.router.navigate(['/app/dashboard']);
       },
       error: (error: any) => {
         console.error('Registration error:', error);
