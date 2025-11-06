@@ -6,28 +6,22 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import projects.java.taskapi.models.enums.RoleName;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
-@Data
 @Entity
-@Builder
-@AllArgsConstructor
+@Data
 @NoArgsConstructor
-public class Subject {
-
+@AllArgsConstructor
+@Builder
+public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "subject")
-    private List<Plan> plans;
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "subject")
-    private List<Note> notes;
+    @Enumerated(EnumType.STRING)
+    @Column(unique = true, nullable = false)
+    private RoleName name;
 }
-

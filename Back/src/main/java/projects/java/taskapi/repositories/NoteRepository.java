@@ -11,7 +11,7 @@ import java.util.List;
 public interface NoteRepository extends JpaRepository<Note, Long> {
     List<Note> findByUserId(Long userId);
     List<Note> findBySubjectId(Long subjectId);
-    List<Note> findByUserIdAndSubject(Long userId, Subject subject);
+    List<Note> findByUserIdAndSubjectId(Long userId, Long subjectId);
     @Query("SELECT DISTINCT n FROM Note n JOIN n.keywords k WHERE LOWER(k.word) IN :keywords")
     List<Note> findByKeywordsIn(@Param("keywords") List<String> keywords);
 

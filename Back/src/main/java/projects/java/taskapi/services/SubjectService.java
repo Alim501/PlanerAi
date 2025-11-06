@@ -2,6 +2,7 @@ package projects.java.taskapi.services;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import projects.java.taskapi.exceptions.SubjectNotFoundException;
 import projects.java.taskapi.models.Subject;
 import projects.java.taskapi.models.dto.SubjectDTO;
 import projects.java.taskapi.repositories.SubjectRepository;
@@ -23,6 +24,18 @@ public class SubjectService {
                 .name(dto.name())
                 .build();
         return subjectRepository.save(subject);
+    }
+
+    public Subject updateSubject(Long subjectId, SubjectDTO dto){
+        Subject subject = subjectRepository.findById(subjectId).orElseThrow(
+                () -> new SubjectNotFoundException(subjectId)
+        );
+        subject.setName(dto.name());
+        return subjectRepository.save(subject);
+    }
+
+    public void deleteSubject(Long subjectId){
+        subjectRepository.deleteById(subjectId);
     }
 
 }
