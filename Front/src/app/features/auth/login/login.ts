@@ -46,7 +46,7 @@ export class LoginComponent {
     });
 
     // Получаем URL для возврата после входа
-    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/app/dashboard';
   }
 
   onSubmit(): void {
