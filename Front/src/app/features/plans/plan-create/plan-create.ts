@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -13,8 +13,10 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatStepperModule } from '@angular/material/stepper';
-import { CreatePlanRequest, Plan, PLAN_STATUSES, SUBJECTS } from '../../../models/plan.models';
+import { CreatePlanRequest, Plan, PLAN_STATUSES } from '../../../models/plan.models';
+import { Subject } from '../../../models/note.models';
 import { PlanService } from '../../../services/plan.service';
+import { SubjectService } from '../../../services/subject.service';
 
 @Component({
   selector: 'app-create-plan',
@@ -38,11 +40,11 @@ import { PlanService } from '../../../services/plan.service';
   templateUrl: './plan-create.html',
   styleUrl: './plan-create.scss',
 })
-export class CreatePlanComponent {
+export class CreatePlanComponent implements OnInit {
   planForm: FormGroup;
   isLoading = signal(false);
+  subjects = signal<Subject[]>([]);
 
-  subjects = SUBJECTS;
   statuses = PLAN_STATUSES;
 
   minDate = new Date();
@@ -51,15 +53,34 @@ export class CreatePlanComponent {
   constructor(
     private fb: FormBuilder,
     private planService: PlanService,
+    private subjectService: SubjectService,
     private router: Router,
     private snackBar: MatSnackBar
   ) {
     this.planForm = this.fb.group({
       title: ['', [Validators.required, Validators.minLength(3)]],
-      subject: ['', Validators.required],
+      subjectId: [null, Validators.required],
       startDate: [new Date(), Validators.required],
       endDate: ['', Validators.required],
       status: ['ACTIVE', Validators.required],
+    });
+  }
+
+  ngOnInit() {
+    this.loadSubjects();
+  }
+
+  loadSubjects() {
+    this.subjectService.getAllSubjects().subscribe({
+      next: (subjects: Subject[]) => {
+        this.subjects.set(subjects);
+      },
+      error: (err: any) => {
+        this.snackBar.open('Ошибка загрузки предметов', 'Закрыть', {
+          duration: 3000,
+        });
+        console.error(err);
+      },
     });
   }
 
@@ -84,7 +105,7 @@ export class CreatePlanComponent {
 
     const request: CreatePlanRequest = {
       title: this.planForm.value.title,
-      subject: this.planForm.value.subject,
+      subjectId: this.planForm.value.subjectId,
       startDate: this.formatDate(startDate),
       endDate: this.formatDate(endDate),
       status: this.planForm.value.status,
@@ -93,7 +114,7 @@ export class CreatePlanComponent {
     this.planService.createPlan(request).subscribe({
       next: (plan: Plan) => {
         this.snackBar.open('План успешно создан!', 'OK', { duration: 3000 });
-        this.router.navigate(['/plans', plan.id]);
+        this.router.navigate(['/app/plans', plan.id]);
       },
       error: (error: any) => {
         console.error('Error creating plan:', error);
@@ -105,7 +126,7 @@ export class CreatePlanComponent {
   }
 
   cancel(): void {
-    this.router.navigate(['/plans']);
+    this.router.navigate(['/app/plans']);
   }
 
   getErrorMessage(fieldName: string): string {

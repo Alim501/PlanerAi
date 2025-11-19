@@ -30,16 +30,16 @@
           <!-- Subject -->
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Предмет</mat-label>
-            <mat-select formControlName="subject">
-              @for (subject of subjects; track subject.value) {
-              <mat-option [value]="subject.value">
-                {{ subject.label }}
+            <mat-select formControlName="subjectId">
+              @for (subject of subjects(); track subject.id) {
+              <mat-option [value]="subject.id">
+                {{ subject.name }}
               </mat-option>
               }
             </mat-select>
             <mat-icon matPrefix>subject</mat-icon>
-            @if (planForm.get('subject')?.touched && planForm.get('subject')?.invalid) {
-            <mat-error>{{ getErrorMessage('subject') }}</mat-error>
+            @if (planForm.get('subjectId')?.touched && planForm.get('subjectId')?.invalid) {
+            <mat-error>{{ getErrorMessage('subjectId') }}</mat-error>
             }
           </mat-form-field>
 

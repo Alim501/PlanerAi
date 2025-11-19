@@ -1,1 +1,154 @@
-<p>note-upload works!</p>
+<div class="note-upload-bg">
+  <div class="note-upload-container">
+    <div class="header">
+      <h1>
+        <mat-icon>cloud_upload</mat-icon>
+        Загрузить заметку
+      </h1>
+    </div>
+
+    <!-- Loading -->
+    @if (loading()) {
+    <mat-card class="loading-container">
+      <mat-spinner></mat-spinner>
+      <p>Загрузка предметов...</p>
+    </mat-card>
+    }
+
+  <!-- Upload Form -->
+  @if (!loading()) {
+    <form [formGroup]="uploadForm" (ngSubmit)="onSubmit()">
+      <mat-card class="upload-card">
+        <!-- File Upload Section -->
+        <div class="file-upload-section">
+          <h2>
+            <mat-icon>attach_file</mat-icon>
+            Файл
+          </h2>
+
+          @if (!selectedFile) {
+            <div class="file-drop-zone" (click)="fileInput.click()">
+              <mat-icon>cloud_upload</mat-icon>
+              <p>Нажмите для выбора файла</p>
+              <span class="hint">Поддерживаются: PDF, DOCX, изображения</span>
+            </div>
+          } @else {
+            <div class="file-selected">
+              @if (filePreview) {
+                <img [src]="filePreview" alt="Preview" class="image-preview">
+              } @else {
+                <div class="file-icon-preview">
+                  <mat-icon [class]="'format-icon ' + uploadForm.value.format?.toLowerCase()">
+                    {{ getFormatIcon(uploadForm.value.format) }}
+                  </mat-icon>
+                </div>
+              }
+              <div class="file-info">
+                <p class="file-name">{{ selectedFile.name }}</p>
+                <p class="file-size">{{ (selectedFile.size / 1024 / 1024).toFixed(2) }} MB</p>
+              </div>
+              <button type="button" mat-icon-button color="warn" (click)="removeFile()">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          }
+
+          <input
+            #fileInput
+            type="file"
+            id="fileInput"
+            accept=".pdf,.docx,.doc,.jpg,.jpeg,.png,.gif"
+            (change)="onFileSelected($event)"
+            hidden
+          />
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <!-- Note Details Section -->
+        <div class="details-section">
+          <h2>
+            <mat-icon>info</mat-icon>
+            Информация о заметке
+          </h2>
+
+          <!-- Title -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Название</mat-label>
+            <input matInput formControlName="title" placeholder="Введите название заметки" required>
+            @if (uploadForm.get('title')?.hasError('required') && uploadForm.get('title')?.touched) {
+              <mat-error>Название обязательно</mat-error>
+            }
+            @if (uploadForm.get('title')?.hasError('minlength')) {
+              <mat-error>Минимум 3 символа</mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Subject -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Предмет</mat-label>
+            <mat-select formControlName="subjectId" required>
+              <mat-option [value]="null">Выберите предмет</mat-option>
+              @for (subject of subjects(); track subject.id) {
+                <mat-option [value]="subject.id">{{ subject.name }}</mat-option>
+              }
+            </mat-select>
+            @if (uploadForm.get('subjectId')?.hasError('required') && uploadForm.get('subjectId')?.touched) {
+              <mat-error>Предмет обязателен</mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Format -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Формат</mat-label>
+            <mat-select formControlName="format" required>
+              @for (format of formats; track format) {
+                <mat-option [value]="format">
+                  <mat-icon [class]="'format-icon-small ' + format.toLowerCase()">
+                    {{ getFormatIcon(format) }}
+                  </mat-icon>
+                  {{ format }}
+                </mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <!-- Summary -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Краткое описание (необязательно)</mat-label>
+            <textarea
+              matInput
+              formControlName="summary"
+              placeholder="Краткое описание заметки..."
+              rows="4"
+              maxlength="500"
+            ></textarea>
+            <mat-hint align="end">{{ uploadForm.get('summary')?.value?.length || 0 }} / 500</mat-hint>
+          </mat-form-field>
+        </div>
+
+        <!-- Actions -->
+        <div class="actions">
+          <button type="button" mat-button (click)="cancel()" [disabled]="uploading()">
+            Отмена
+          </button>
+          <button
+            type="submit"
+            mat-raised-button
+            color="primary"
+            [disabled]="uploadForm.invalid || !selectedFile || uploading()"
+          >
+            @if (uploading()) {
+              <mat-spinner diameter="20"></mat-spinner>
+              <span>Загрузка...</span>
+            } @else {
+              <mat-icon>cloud_upload</mat-icon>
+              <span>Загрузить</span>
+            }
+          </button>
+        </div>
+      </mat-card>
+    </form>
+  }
+  </div>
+</div>

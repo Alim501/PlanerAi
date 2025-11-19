@@ -12,9 +12,11 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { Plan, PLAN_STATUSES, SUBJECTS, UpdatePlanRequest } from '../../../models/plan.models';
+import { Plan, PLAN_STATUSES, UpdatePlanRequest } from '../../../models/plan.models';
+import { Subject } from '../../../models/note.models';
 import { PlanStore } from '../../../store/plan.store';
 import { PlanService } from '../../../services/plan.service';
+import { SubjectService } from '../../../services/subject.service';
 
 @Component({
   selector: 'app-edit-plan',
@@ -40,12 +42,14 @@ import { PlanService } from '../../../services/plan.service';
 export class EditPlanComponent implements OnInit {
   private planService = inject(PlanService);
   private planStore = inject(PlanStore);
+  private subjectService = inject(SubjectService);
+
   planForm!: FormGroup;
   planId!: number;
   isLoading = signal(false);
   isLoadingData = signal(true);
 
-  subjects = SUBJECTS;
+  subjects = signal<Subject[]>([]);
   statuses = PLAN_STATUSES;
 
   selectedPlan = this.planStore.selectedPlan;
@@ -61,16 +65,31 @@ export class EditPlanComponent implements OnInit {
 
   ngOnInit(): void {
     this.planId = Number(this.route.snapshot.paramMap.get('id'));
+    this.loadSubjects();
     this.loadPlan();
   }
 
   private initForm(): void {
     this.planForm = this.fb.group({
       title: ['', [Validators.required, Validators.minLength(3)]],
-      subject: ['', Validators.required],
+      subjectId: [null, Validators.required],
       startDate: ['', Validators.required],
       endDate: ['', Validators.required],
       status: ['', Validators.required],
+    });
+  }
+
+  loadSubjects(): void {
+    this.subjectService.getAllSubjects().subscribe({
+      next: (subjects: Subject[]) => {
+        this.subjects.set(subjects);
+      },
+      error: (err: any) => {
+        this.snackBar.open('Ошибка загрузки предметов', 'Закрыть', {
+          duration: 3000,
+        });
+        console.error(err);
+      },
     });
   }
 
@@ -79,7 +98,7 @@ export class EditPlanComponent implements OnInit {
       next: (plan: Plan) => {
         this.planForm.patchValue({
           title: plan.title,
-          subject: plan.subject,
+          subjectId: plan.subject.id,
           startDate: new Date(plan.startDate),
           endDate: new Date(plan.endDate),
           status: plan.status,
@@ -89,7 +108,7 @@ export class EditPlanComponent implements OnInit {
       error: (error: any) => {
         console.error('Error loading plan:', error);
         this.snackBar.open('Ошибка загрузки плана', 'Закрыть', { duration: 3000 });
-        this.router.navigate(['/plans']);
+        this.router.navigate(['/app/plans']);
       },
     });
   }
@@ -114,7 +133,7 @@ export class EditPlanComponent implements OnInit {
 
     const request: UpdatePlanRequest = {
       title: this.planForm.value.title,
-      subject: this.planForm.value.subject,
+      subjectId: this.planForm.value.subjectId,
       startDate: this.formatDate(startDate),
       endDate: this.formatDate(endDate),
       status: this.planForm.value.status,
@@ -123,7 +142,7 @@ export class EditPlanComponent implements OnInit {
     this.planService.updatePlan(this.planId, request).subscribe({
       next: () => {
         this.snackBar.open('План успешно обновлен!', 'OK', { duration: 3000 });
-        this.router.navigate(['/plans', this.planId]);
+        this.router.navigate(['/app/plans', this.planId]);
       },
       error: (error: any) => {
         console.error('Error updating plan:', error);
@@ -135,7 +154,7 @@ export class EditPlanComponent implements OnInit {
   }
 
   cancel(): void {
-    this.router.navigate(['/plans', this.planId]);
+    this.router.navigate(['/app/plans', this.planId]);
   }
 
   deletePlan(): void {
@@ -143,7 +162,7 @@ export class EditPlanComponent implements OnInit {
       this.planService.deletePlan(this.planId).subscribe({
         next: () => {
           this.snackBar.open('План успешно удален', 'OK', { duration: 3000 });
-          this.router.navigate(['/plans']);
+          this.router.navigate(['/app/plans']);
         },
         error: (error: any) => {
           console.error('Error deleting plan:', error);

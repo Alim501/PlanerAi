@@ -41,6 +41,8 @@ export class NavbarCustom {
   userEmail = this.userStore.userEmail;
   userRole = this.userStore.userRole;
   isAdmin = this.userStore.isAdmin;
+  isModerator = this.userStore.isModerator;
+  isAdminOrModerator = this.userStore.isAdminOrModerator;
 
   logout(): void {
     this.authService.logout();

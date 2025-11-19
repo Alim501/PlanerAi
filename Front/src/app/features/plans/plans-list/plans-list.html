@@ -68,8 +68,8 @@
           <mat-label>Предмет</mat-label>
           <mat-select [(ngModel)]="selectedSubject" (ngModelChange)="onSubjectChange($event)">
             <mat-option [value]="null">Все</mat-option>
-            @for (subject of subjects; track subject.value) {
-            <mat-option [value]="subject.value">{{ subject.label }}</mat-option>
+            @for (subject of subjects(); track subject.id) {
+            <mat-option [value]="subject.id">{{ subject.name }}</mat-option>
             }
           </mat-select>
         </mat-form-field>
@@ -135,7 +135,7 @@
             <mat-chip-set>
               <mat-chip>
                 <mat-icon>subject</mat-icon>
-                {{ getSubjectLabel(plan.subject) }}
+                {{ plan.subject.name }}
               </mat-chip>
               <mat-chip [color]="getStatusColor(plan.status)">
                 {{ getStatusLabel(plan.status) }}

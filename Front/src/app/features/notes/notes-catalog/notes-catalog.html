@@ -1,1 +1,138 @@
-<p>notes-catalog works!</p>
+<div class="notes-background">
+  <div class="notes-catalog-container">
+    <!-- Header -->
+    <div class="notes-header">
+      <div class="header-content">
+        <h1>
+          <mat-icon>description</mat-icon>
+          Каталог заметок
+        </h1>
+        <p class="subtitle">Находите и изучайте учебные материалы</p>
+      </div>
+      <button mat-raised-button color="primary" routerLink="/app/notes/upload">
+        <mat-icon>add</mat-icon>
+        Загрузить заметку
+      </button>
+    </div>
+
+    <!-- Filters -->
+    <mat-card class="filters-card">
+      <div class="filters-content">
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Поиск</mat-label>
+          <input
+            matInput
+            placeholder="Поиск по ключевым словам..."
+            [(ngModel)]="searchQuery"
+            (ngModelChange)="onSearchChange()"
+          />
+          <mat-icon matPrefix>search</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Предмет</mat-label>
+          <mat-select [(ngModel)]="selectedSubjectId" (selectionChange)="onSubjectChange()">
+            <mat-option [value]="null">Все предметы</mat-option>
+            @for (subject of subjects(); track subject.id) {
+            <mat-option [value]="subject.id">{{ subject.name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Сортировка</mat-label>
+          <mat-select [(ngModel)]="viewMode" (selectionChange)="onViewModeChange()">
+            <mat-option value="all">Все</mat-option>
+            <mat-option value="popular">Популярные</mat-option>
+            <mat-option value="top-rated">Лучшие по рейтингу</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </mat-card>
+
+    <!-- Loading -->
+    @if (loading()) {
+    <mat-card class="loading-container">
+      <mat-spinner></mat-spinner>
+      <p>Загрузка заметок...</p>
+    </mat-card>
+    }
+
+    <!-- Error -->
+    @if (error()) {
+    <mat-card class="error-state">
+      <mat-icon>error</mat-icon>
+      <h2>Ошибка загрузки</h2>
+      <p>{{ error() }}</p>
+      <button mat-raised-button color="primary" (click)="loadNotes()">Повторить</button>
+    </mat-card>
+    }
+
+    <!-- Notes Grid -->
+    @if (!loading() && !error()) { @if (notes().length === 0) {
+    <mat-card class="empty-state">
+      <mat-icon>description</mat-icon>
+      <h2>Заметок не найдено</h2>
+      <p>Загрузите свою первую заметку, чтобы начать!</p>
+      <button mat-raised-button color="primary" routerLink="/app/notes/upload">
+        <mat-icon>add</mat-icon>
+        Загрузить заметку
+      </button>
+    </mat-card>
+    } @else {
+    <div class="notes-grid">
+      @for (note of notes(); track note.id) {
+      <mat-card class="note-card" [routerLink]="['/app/notes', note.id]">
+        <mat-card-header>
+          <mat-icon mat-card-avatar [class]="'format-icon ' + note.format.toLowerCase()">
+            {{ getFormatIcon(note.format) }}
+          </mat-icon>
+          <mat-card-title>{{ note.title }}</mat-card-title>
+          <mat-card-subtitle>{{ note.subject.name }}</mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          @if (note.summary) {
+          <p class="summary">{{ note.summary }}</p>
+          }
+
+          <!-- Keywords -->
+          @if (note.keywords.length > 0) {
+          <div class="keywords">
+            @for (keyword of note.keywords.slice(0, 5); track keyword.id) {
+            <mat-chip>{{ keyword.word }}</mat-chip>
+            } @if (note.keywords.length > 5) {
+            <span class="more-keywords">+{{ note.keywords.length - 5 }}</span>
+            }
+          </div>
+          }
+        </mat-card-content>
+
+        <mat-card-footer>
+          <div class="footer-content">
+            <!-- Rating -->
+            <app-star-rating
+              [rating]="note.averageRating || 0"
+              [ratingCount]="note.ratingCount"
+              [interactive]="false"
+            ></app-star-rating>
+
+            <!-- Views -->
+            <div class="views">
+              <mat-icon>visibility</mat-icon>
+              <span>{{ note.viewCount }}</span>
+            </div>
+
+            <!-- Author -->
+            <div class="author">
+              <mat-icon>person</mat-icon>
+              <span>{{ note.user.firstName || note.user.email }}</span>
+            </div>
+          </div>
+        </mat-card-footer>
+      </mat-card>
+      }
+    </div>
+    } }
+  </div>
+</div>

@@ -12,9 +12,10 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { Plan, PLAN_STATUSES, SUBJECTS } from '../../../models/plan.models';
+import { Plan, PLAN_STATUSES } from '../../../models/plan.models';
+import { Subject } from '../../../models/note.models';
 import { PlanService } from '../../../services/plan.service';
+import { SubjectService } from '../../../services/subject.service';
 import { PlanStore } from '../../../store/plan.store';
 import { UserStore } from '../../../store/user.store';
 
@@ -35,7 +36,6 @@ import { UserStore } from '../../../store/user.store';
     MatProgressSpinnerModule,
     MatMenuModule,
     MatSnackBarModule,
-    MatDialogModule,
   ],
   templateUrl: './plans-list.html',
   styleUrl: './plans-list.scss',
@@ -44,6 +44,8 @@ export class PlansListComponent implements OnInit {
   private planService = inject(PlanService);
   private planStore = inject(PlanStore);
   private userStore = inject(UserStore);
+  private subjectService = inject(SubjectService);
+
   // Data from stores
   plans = this.planStore.filteredPlans;
   loading = this.planStore.loading;
@@ -51,16 +53,28 @@ export class PlansListComponent implements OnInit {
   userId = this.userStore.userId;
 
   // Filters
-  subjects = SUBJECTS;
+  subjects = signal<Subject[]>([]);
   statuses = PLAN_STATUSES;
   searchQuery = signal('');
-  selectedSubject = signal<string | null>(null);
+  selectedSubject = signal<number | null>(null);
   selectedStatus = signal<string | null>(null);
 
-  constructor(private router: Router, private snackBar: MatSnackBar, private dialog: MatDialog) {}
+  constructor(private router: Router, private snackBar: MatSnackBar) {}
 
   ngOnInit(): void {
+    this.loadSubjects();
     this.loadPlans();
+  }
+
+  loadSubjects(): void {
+    this.subjectService.getAllSubjects().subscribe({
+      next: (subjects: Subject[]) => {
+        this.subjects.set(subjects);
+      },
+      error: (err: any) => {
+        console.error('Error loading subjects:', err);
+      },
+    });
   }
 
   loadPlans(): void {
@@ -79,8 +93,8 @@ export class PlansListComponent implements OnInit {
     this.planStore.setSearchQuery(query);
   }
 
-  onSubjectChange(subject: string | null): void {
-    this.planStore.setFilterSubject(subject as any);
+  onSubjectChange(subjectId: number | null): void {
+    this.planStore.setFilterSubject(subjectId as any);
   }
 
   onStatusChange(status: string | null): void {
@@ -95,16 +109,17 @@ export class PlansListComponent implements OnInit {
   }
 
   createPlan(): void {
-    this.router.navigate(['/plans/create']);
+    this.router.navigate(['/app/plans/create']);
   }
 
   viewPlan(plan: Plan): void {
-    this.router.navigate(['/plans', plan.id]);
+    this.router.navigate(['/app/plans', plan.id]);
   }
 
   editPlan(plan: Plan, event: Event): void {
     event.stopPropagation();
-    this.router.navigate(['/plans', plan.id, 'edit']);
+    this.planStore.selectPlan(plan);
+    this.router.navigate(['/app/plans/edit']);
   }
 
   deletePlan(plan: Plan, event: Event): void {
@@ -123,16 +138,17 @@ export class PlansListComponent implements OnInit {
     }
   }
 
-  getSubjectLabel(subject: string): string {
-    return SUBJECTS.find((s) => s.value === subject)?.label || subject;
+  getSubjectLabel(subjectId: number): string {
+    const subject = this.subjects().find((s: Subject) => s.id === subjectId);
+    return subject?.name || '';
   }
 
   getStatusLabel(status: string): string {
-    return PLAN_STATUSES.find((s) => s.value === status)?.label || status;
+    return PLAN_STATUSES.find((s: any) => s.value === status)?.label || status;
   }
 
   getStatusColor(status: string): string {
-    return PLAN_STATUSES.find((s) => s.value === status)?.color || 'primary';
+    return PLAN_STATUSES.find((s: any) => s.value === status)?.color || 'primary';
   }
 
   getProgressPercentage(plan: Plan): number {
