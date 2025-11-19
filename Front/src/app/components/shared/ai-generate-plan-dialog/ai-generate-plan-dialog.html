@@ -1,0 +1,177 @@
+<h2 mat-dialog-title>
+  <mat-icon>auto_awesome</mat-icon>
+  Генерация плана с AI
+</h2>
+
+<mat-dialog-content>
+  @if (!generatedPlan()) {
+  <!-- Generation Form -->
+  <div class="generate-form">
+    <p class="description">
+      Искусственный интеллект создаст структурированный учебный план на основе ваших предпочтений
+    </p>
+
+    <form [formGroup]="generateForm">
+      <!-- Subject Selection -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Предмет</mat-label>
+        <mat-select formControlName="subjectId" required>
+          @for (subject of data.subjects; track subject.id) {
+          <mat-option [value]="subject.id">{{ subject.name }}</mat-option>
+          }
+        </mat-select>
+        <mat-icon matPrefix>school</mat-icon>
+      </mat-form-field>
+
+      <!-- Duration -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Продолжительность (недель)</mat-label>
+        <input matInput type="number" formControlName="durationWeeks" min="1" max="52" />
+        <mat-icon matPrefix>calendar_today</mat-icon>
+        <mat-hint>От 1 до 52 недель</mat-hint>
+      </mat-form-field>
+
+      <!-- Difficulty Level -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Уровень сложности</mat-label>
+        <mat-select formControlName="level">
+          @for (level of difficultyLevels; track level) {
+          <mat-option [value]="level">{{ getDifficultyLabel(level) }}</mat-option>
+          }
+        </mat-select>
+        <mat-icon matPrefix>trending_up</mat-icon>
+      </mat-form-field>
+
+      <!-- Topics -->
+      <div class="topics-section">
+        <label class="topics-label">Темы для изучения (опционально)</label>
+        <div class="topics-input-group">
+          <mat-form-field appearance="outline" class="topic-input">
+            <mat-label>Добавить тему</mat-label>
+            <input
+              matInput
+              [(ngModel)]="topicsInput"
+              [ngModelOptions]="{ standalone: true }"
+              (keyup.enter)="addTopic()"
+              placeholder="Например: Пределы, Производные"
+            />
+          </mat-form-field>
+          <button mat-raised-button color="primary" type="button" (click)="addTopic()">
+            <mat-icon>add</mat-icon>
+            Добавить
+          </button>
+        </div>
+
+        @if (topics.length > 0) {
+        <div class="topics-chips">
+          @for (topic of topics; track topic) {
+          <mat-chip (removed)="removeTopic(topic)">
+            {{ topic }}
+            <button matChipRemove>
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </mat-chip>
+          }
+        </div>
+        }
+      </div>
+
+      <!-- Goals -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Цели обучения (опционально)</mat-label>
+        <textarea
+          matInput
+          formControlName="goals"
+          rows="3"
+          placeholder="Например: Подготовка к экзамену, изучение основ"
+        ></textarea>
+        <mat-icon matPrefix>flag</mat-icon>
+      </mat-form-field>
+    </form>
+  </div>
+  } @else {
+  <!-- Generated Plan Preview -->
+  <div class="generated-plan">
+    <div class="plan-header">
+      <mat-icon class="success-icon">check_circle</mat-icon>
+      <h3>{{ generatedPlan()!.title }}</h3>
+    </div>
+
+    <div class="plan-info">
+      <div class="info-item">
+        <mat-icon>school</mat-icon>
+        <span>{{ generatedPlan()!.subject }}</span>
+      </div>
+      <div class="info-item">
+        <mat-icon>calendar_today</mat-icon>
+        <span>{{ generatedPlan()!.durationWeeks }} недель</span>
+      </div>
+      <div class="info-item">
+        <mat-icon>trending_up</mat-icon>
+        <span>{{ generatedPlan()!.difficulty }}</span>
+      </div>
+    </div>
+
+    <div class="plan-description">
+      <h4>Описание:</h4>
+      <p>{{ generatedPlan()!.description }}</p>
+    </div>
+
+    @if (generatedPlan()!.learningOutcomes?.length) {
+    <div class="learning-outcomes">
+      <h4>Результаты обучения:</h4>
+      <ul>
+        @for (outcome of generatedPlan()!.learningOutcomes; track outcome) {
+        <li>{{ outcome }}</li>
+        }
+      </ul>
+    </div>
+    }
+
+    <div class="weeks-summary">
+      <h4>План по неделям ({{ generatedPlan()!.weeks.length }} недель):</h4>
+      <div class="weeks-list">
+        @for (week of generatedPlan()!.weeks; track week.weekNumber) {
+        <div class="week-item">
+          <strong>Неделя {{ week.weekNumber }}: {{ week.title }}</strong>
+          <span class="week-hours">{{ week.estimatedHours }}ч</span>
+        </div>
+        }
+      </div>
+    </div>
+
+    <div class="plan-actions-info">
+      <mat-icon>info</mat-icon>
+      <p>Нажмите "Использовать план" чтобы создать план на основе этой генерации</p>
+    </div>
+  </div>
+  }
+
+  @if (loading()) {
+  <div class="loading-overlay">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Генерация плана... Это может занять 10-20 секунд</p>
+  </div>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  @if (!generatedPlan()) {
+  <button mat-button (click)="cancel()">Отмена</button>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="generate()"
+    [disabled]="generateForm.invalid || loading()"
+  >
+    <mat-icon>auto_awesome</mat-icon>
+    Сгенерировать
+  </button>
+  } @else {
+  <button mat-button (click)="cancel()">Отмена</button>
+  <button mat-raised-button color="primary" (click)="usePlan()">
+    <mat-icon>check</mat-icon>
+    Использовать план
+  </button>
+  }
+</mat-dialog-actions>

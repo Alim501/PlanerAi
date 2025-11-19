@@ -13,19 +13,33 @@
   gap: 16px;
   margin-bottom: 24px;
 
-  h1 {
+  .header-content {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin: 0;
-    font-size: 28px;
-    font-weight: 600;
+    justify-content: space-between;
+    flex: 1;
+    gap: 24px;
 
-    mat-icon {
-      font-size: 32px;
-      width: 32px;
-      height: 32px;
-      color: #667eea;
+    h1 {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 0;
+      font-size: 28px;
+      font-weight: 600;
+
+      mat-icon {
+        font-size: 32px;
+        width: 32px;
+        height: 32px;
+        color: #667eea;
+      }
+    }
+
+    .ai-generate-btn {
+      mat-icon {
+        margin-right: 8px;
+      }
     }
   }
 }

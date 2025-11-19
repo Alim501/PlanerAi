@@ -4,10 +4,22 @@
       <button mat-icon-button (click)="cancel()">
         <mat-icon>arrow_back</mat-icon>
       </button>
-      <h1>
-        <mat-icon>add_circle</mat-icon>
-        Создать учебный план
-      </h1>
+      <div class="header-content">
+        <h1>
+          <mat-icon>add_circle</mat-icon>
+          Создать учебный план
+        </h1>
+        <button
+          mat-raised-button
+          color="accent"
+          type="button"
+          (click)="openAIGenerateDialog()"
+          class="ai-generate-btn"
+        >
+          <mat-icon>auto_awesome</mat-icon>
+          Сгенерировать с AI
+        </button>
+      </div>
     </div>
 
     <mat-card class="form-card">

@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  ai-service:
+    build: .
+    container_name: plannerai-ai-service
+    ports:
+      - "8000:8000"
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      - OLLAMA_MODEL=llama3.2:3b
+      - BACKEND_URL=http://host.docker.internal:8080
+      - ALLOWED_ORIGINS=http://localhost:4200,http://localhost:8080
+    volumes:
+      - ./app:/app/app
+      - ./logs:/app/logs
+    restart: unless-stopped
+    networks:
+      - plannerai-network
+
+networks:
+  plannerai-network:
+    driver: bridge
