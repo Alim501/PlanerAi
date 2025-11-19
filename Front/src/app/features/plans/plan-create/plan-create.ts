@@ -13,10 +13,14 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatStepperModule } from '@angular/material/stepper';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { CreatePlanRequest, Plan, PLAN_STATUSES } from '../../../models/plan.models';
 import { Subject } from '../../../models/note.models';
 import { PlanService } from '../../../services/plan.service';
 import { SubjectService } from '../../../services/subject.service';
+import { AIService } from '../../../services/ai.service';
+import { GeneratePlanRequest, GeneratedPlan, DifficultyLevel } from '../../../models/ai.models';
+import { AIGeneratePlanDialogComponent } from '../../../components/shared/ai-generate-plan-dialog/ai-generate-plan-dialog';
 
 @Component({
   selector: 'app-create-plan',
@@ -36,6 +40,7 @@ import { SubjectService } from '../../../services/subject.service';
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatStepperModule,
+    MatDialogModule,
   ],
   templateUrl: './plan-create.html',
   styleUrl: './plan-create.scss',
@@ -54,8 +59,10 @@ export class CreatePlanComponent implements OnInit {
     private fb: FormBuilder,
     private planService: PlanService,
     private subjectService: SubjectService,
+    private aiService: AIService,
     private router: Router,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) {
     this.planForm = this.fb.group({
       title: ['', [Validators.required, Validators.minLength(3)]],
@@ -127,6 +134,52 @@ export class CreatePlanComponent implements OnInit {
 
   cancel(): void {
     this.router.navigate(['/app/plans']);
+  }
+
+  openAIGenerateDialog(): void {
+    const dialogRef = this.dialog.open(AIGeneratePlanDialogComponent, {
+      width: '800px',
+      maxWidth: '90vw',
+      data: {
+        subjects: this.subjects(),
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((result: GeneratedPlan | null) => {
+      if (result) {
+        this.fillFormFromGeneratedPlan(result);
+      }
+    });
+  }
+
+  private fillFormFromGeneratedPlan(plan: GeneratedPlan): void {
+    // Find subject by name
+    const subject = this.subjects().find(
+      (s) => s.name.toLowerCase() === plan.subject.toLowerCase()
+    );
+
+    if (subject) {
+      this.planForm.patchValue({
+        title: plan.title,
+        subjectId: subject.id,
+      });
+
+      // Calculate dates based on duration
+      const startDate = new Date();
+      const endDate = new Date();
+      endDate.setDate(endDate.getDate() + plan.durationWeeks * 7);
+
+      this.planForm.patchValue({
+        startDate: startDate,
+        endDate: endDate,
+      });
+
+      this.snackBar.open(
+        'Форма заполнена на основе AI плана. Проверьте и сохраните.',
+        'OK',
+        { duration: 5000 }
+      );
+    }
   }
 
   getErrorMessage(fieldName: string): string {
