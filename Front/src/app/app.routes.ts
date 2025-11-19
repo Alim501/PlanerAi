@@ -7,6 +7,7 @@ import { CreatePlanComponent } from './features/plans/plan-create/plan-create';
 import { EditPlanComponent } from './features/plans/plan-edit/plan-edit';
 import { NotesCatalogComponent } from './features/notes/notes-catalog/notes-catalog';
 import { NoteUploadComponent } from './features/notes/note-upload/note-upload';
+import { NoteDetailComponent } from './features/notes/note-detail/note-detail';
 import { ProfileComponent } from './features/profile/profile';
 import { HomeComponent } from './features/home/home';
 import { AboutComponent } from './features/info/about';
@@ -14,9 +15,11 @@ import { ContactsComponent } from './features/info/contacts';
 import { HelpComponent } from './features/info/help';
 import { FaqComponent } from './features/info/faq';
 import { authGuard, publicGuard } from './guards/auth.guard';
+import { adminGuard, moderatorGuard } from './guards/admin.guard';
 import { AuthLayoutComponent } from './components/layout/auth-layout/auth-layout';
 import { MainLayoutComponent } from './components/layout/main-layout/main-layout';
 import { PublicLayoutComponent } from './components/layout/public-layout/public-layout';
+import { AdminUsersListComponent } from './features/admin/admin-users-list/admin-users-list';
 
 export const routes: Routes = [
   // Public routes with PublicLayout
@@ -97,8 +100,18 @@ export const routes: Routes = [
         component: NoteUploadComponent,
       },
       {
+        path: 'notes/:id',
+        component: NoteDetailComponent,
+      },
+      {
         path: 'profile',
         component: ProfileComponent,
+      },
+      // Admin routes
+      {
+        path: 'admin/users',
+        component: AdminUsersListComponent,
+        canActivate: [adminGuard],
       },
     ],
   },

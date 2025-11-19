@@ -145,8 +145,8 @@ export class PlanService {
     if (params.title) {
       httpParams = httpParams.set('title', params.title);
     }
-    if (params.subject) {
-      httpParams = httpParams.set('subject', params.subject);
+    if (params.subjectId) {
+      httpParams = httpParams.set('subjectId', params.subjectId.toString());
     }
 
     return this.http

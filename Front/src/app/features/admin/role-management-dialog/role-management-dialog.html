@@ -1,0 +1,54 @@
+<h2 mat-dialog-title>
+  <mat-icon>admin_panel_settings</mat-icon>
+  Управление ролями
+</h2>
+
+<mat-dialog-content>
+  <div class="user-info">
+    <div class="info-row">
+      <span class="label">Email:</span>
+      <span class="value">{{ user.email }}</span>
+    </div>
+    @if (user.firstName || user.lastName) {
+    <div class="info-row">
+      <span class="label">Имя:</span>
+      <span class="value">{{ user.firstName }} {{ user.lastName }}</span>
+    </div>
+    }
+  </div>
+
+  <div class="roles-section">
+    <h3>Доступные роли</h3>
+    <p class="hint">Нажмите на роль, чтобы добавить или удалить её</p>
+
+    <div class="roles-grid">
+      @for (roleName of availableRoles; track roleName) {
+      <div
+        class="role-item"
+        [class.active]="hasRole(roleName)"
+        (click)="toggleRole(roleName)"
+      >
+        <mat-chip
+          [color]="getRoleColor(roleName)"
+          [highlighted]="hasRole(roleName)"
+        >
+          <mat-icon>
+            {{ hasRole(roleName) ? 'check_circle' : 'radio_button_unchecked' }}
+          </mat-icon>
+          {{ getRoleLabel(roleName) }}
+        </mat-chip>
+      </div>
+      }
+    </div>
+
+    @if (loading()) {
+    <div class="loading-overlay">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+    }
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="close()">Закрыть</button>
+</mat-dialog-actions>

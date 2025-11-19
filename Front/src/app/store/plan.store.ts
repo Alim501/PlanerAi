@@ -1,5 +1,6 @@
 import { Injectable, signal, computed } from '@angular/core';
-import { Plan, PlanStatus, Subject } from '../models/plan.models';
+import { Plan, PlanStatus } from '../models/plan.models';
+import { Subject } from '../models/note.models';
 
 /**
  * Store для управления состоянием планов
@@ -33,7 +34,11 @@ export class PlanStore {
     // Поиск по названию
     if (query) {
       plans = plans.filter(
-        (p) => p.title.toLowerCase().includes(query) || p.subject.toLowerCase().includes(query)
+        (p) =>
+          p.title.toLowerCase().includes(query) ||
+          (typeof p.subject === 'string'
+            ? (p.subject as string).toLowerCase().includes(query)
+            : p.subject?.name?.toLowerCase?.().includes(query) ?? false)
       );
     }
 

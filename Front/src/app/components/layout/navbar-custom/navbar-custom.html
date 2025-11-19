@@ -2,7 +2,7 @@
   <div class="navbar-container">
     <!-- Logo -->
     <div class="logo-section">
-      <a routerLink="/" class="logo">
+      <a routerLink="/app/dashboard" class="logo">
         <mat-icon>school</mat-icon>
         <span>PlannerAI</span>
       </a>
@@ -11,19 +11,25 @@
     @if (isAuthenticated()) {
     <!-- Navigation Links -->
     <nav class="nav-links">
-      <a mat-button routerLink="/dashboard" routerLinkActive="active" matTooltip="Главная панель">
+      <a
+        mat-button
+        routerLink="/app/dashboard"
+        routerLinkActive="active"
+        matTooltip="Главная панель"
+      >
         <mat-icon>dashboard</mat-icon>
         <span>Дашборд</span>
       </a>
-      <a mat-button routerLink="/tasks" routerLinkActive="active" matTooltip="Управление задачами">
+      <a
+        mat-button
+        routerLink="/app/plans"
+        routerLinkActive="active"
+        matTooltip="Учебные планы"
+      >
         <mat-icon>task_alt</mat-icon>
-        <span>Задачи</span>
+        <span>Планы</span>
       </a>
-      <a mat-button routerLink="/calendar" routerLinkActive="active" matTooltip="Календарь событий">
-        <mat-icon>calendar_month</mat-icon>
-        <span>Календарь</span>
-      </a>
-      <a mat-button routerLink="/notes" routerLinkActive="active" matTooltip="Мои заметки">
+      <a mat-button routerLink="/app/notes" routerLinkActive="active" matTooltip="Мои заметки">
         <mat-icon>note</mat-icon>
         <span>Заметки</span>
       </a>
@@ -63,21 +69,17 @@
       <mat-divider></mat-divider>
 
       <!-- Menu Items -->
-      <a mat-menu-item routerLink="/profile">
+      <a mat-menu-item routerLink="/app/profile">
         <mat-icon>person</mat-icon>
         <span>Мой профиль</span>
       </a>
 
-      <a mat-menu-item routerLink="/settings">
-        <mat-icon>settings</mat-icon>
-        <span>Настройки</span>
-      </a>
-
+      <!-- Admin Menu Items -->
       @if (isAdmin()) {
       <mat-divider></mat-divider>
-      <a mat-menu-item routerLink="/admin">
+      <a mat-menu-item routerLink="/app/admin/users">
         <mat-icon>admin_panel_settings</mat-icon>
-        <span>Админ панель</span>
+        <span>Управление пользователями</span>
       </a>
       }
 
@@ -92,8 +94,8 @@
     <!-- Auth Buttons for non-authenticated users -->
     <span class="spacer"></span>
     <div class="auth-buttons">
-      <a mat-button routerLink="/login">Войти</a>
-      <a mat-raised-button color="accent" routerLink="/register">Регистрация</a>
+      <a mat-button routerLink="/auth/login">Войти</a>
+      <a mat-raised-button color="accent" routerLink="/auth/register">Регистрация</a>
     </div>
     }
   </div>

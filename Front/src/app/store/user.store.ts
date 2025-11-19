@@ -31,8 +31,13 @@ export class UserStore {
   });
   userId = computed(() => this._user()?.id ?? null);
   userEmail = computed(() => this._user()?.email ?? '');
-  userRole = computed(() => this._user()?.role ?? 'USER');
+  userRole = computed(() => this._user()?.role ?? 'STUDENT');
   isAdmin = computed(() => this._user()?.role === 'ADMIN');
+  isModerator = computed(() => this._user()?.role === 'MODERATOR');
+  isAdminOrModerator = computed(() => {
+    const role = this._user()?.role;
+    return role === 'ADMIN' || role === 'MODERATOR';
+  });
 
   // Actions
   setUser(user: User): void {

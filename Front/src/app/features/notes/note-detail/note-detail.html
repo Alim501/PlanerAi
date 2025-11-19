@@ -1,0 +1,156 @@
+<div class="note-detail-bg">
+  <div class="note-detail-container">
+    <!-- Loading -->
+    @if (loading()) {
+    <mat-card class="loading-container">
+      <mat-spinner></mat-spinner>
+      <p>Загрузка заметки...</p>
+    </mat-card>
+    }
+
+    <!-- Error -->
+    @if (error()) {
+    <mat-card class="error-state">
+      <mat-icon>error</mat-icon>
+      <h2>Ошибка загрузки</h2>
+      <p>{{ error() }}</p>
+      <button mat-raised-button color="primary" (click)="goBack()">Вернуться к списку</button>
+    </mat-card>
+    }
+
+  <!-- Note Content -->
+  @if (!loading() && !error() && note()) {
+    <div class="note-content">
+      <!-- Header -->
+      <div class="header">
+        <button mat-icon-button (click)="goBack()">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <h1>{{ note()!.title }}</h1>
+        <div class="actions">
+          <button mat-icon-button (click)="downloadFile()" matTooltip="Скачать файл">
+            <mat-icon>download</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="deleteNote()" matTooltip="Удалить">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <!-- Info Card -->
+      <mat-card class="info-card">
+        <div class="info-grid">
+          <div class="info-item">
+            <mat-icon>category</mat-icon>
+            <div>
+              <span class="label">Предмет</span>
+              <span class="value">{{ note()!.subject.name }}</span>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <mat-icon [class]="'format-icon ' + note()!.format.toLowerCase()">
+              {{ getFormatIcon(note()!.format) }}
+            </mat-icon>
+            <div>
+              <span class="label">Формат</span>
+              <span class="value">{{ note()!.format }}</span>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <mat-icon>visibility</mat-icon>
+            <div>
+              <span class="label">Просмотры</span>
+              <span class="value">{{ note()!.viewCount }}</span>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <mat-icon>person</mat-icon>
+            <div>
+              <span class="label">Автор</span>
+              <span class="value">{{ note()!.user.firstName || note()!.user.email }}</span>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <mat-icon>calendar_today</mat-icon>
+            <div>
+              <span class="label">Дата создания</span>
+              <span class="value">{{ formatDate(note()!.createdAt) }}</span>
+            </div>
+          </div>
+        </div>
+      </mat-card>
+
+      <!-- Rating Section -->
+      <mat-card class="rating-card">
+        <h2>Оценка</h2>
+        <div class="rating-section">
+          <div class="average-rating">
+            <div class="rating-value">{{ note()!.averageRating?.toFixed(1) || '0.0' }}</div>
+            <app-star-rating
+              [rating]="note()!.averageRating || 0"
+              [ratingCount]="note()!.ratingCount"
+              [interactive]="false"
+            ></app-star-rating>
+          </div>
+
+          <mat-divider vertical></mat-divider>
+
+          <div class="user-rating">
+            <p>Ваша оценка:</p>
+            <app-star-rating
+              [rating]="userRating()"
+              [interactive]="true"
+              [showCount]="false"
+              (ratingChange)="onRatingChange($event)"
+            ></app-star-rating>
+            @if (userRating() > 0) {
+              <span class="your-rating">{{ userRating() }} звезд</span>
+            }
+          </div>
+        </div>
+      </mat-card>
+
+      <!-- Summary -->
+      @if (note()!.summary) {
+        <mat-card class="summary-card">
+          <h2>Краткое описание</h2>
+          <p>{{ note()!.summary }}</p>
+        </mat-card>
+      }
+
+      <!-- Keywords -->
+      @if (note()!.keywords.length > 0) {
+        <mat-card class="keywords-card">
+          <h2>Ключевые слова</h2>
+          <div class="keywords">
+            @for (keyword of note()!.keywords; track keyword.id) {
+              <mat-chip>{{ keyword.word }}</mat-chip>
+            }
+          </div>
+        </mat-card>
+      }
+
+      <!-- File Preview/Download -->
+      <mat-card class="file-card">
+        <h2>Файл</h2>
+        <div class="file-info">
+          <mat-icon [class]="'file-icon ' + note()!.format.toLowerCase()">
+            {{ getFormatIcon(note()!.format) }}
+          </mat-icon>
+          <div class="file-details">
+            <p class="file-name">{{ note()!.title }}.{{ note()!.format.toLowerCase() }}</p>
+            <button mat-raised-button color="primary" (click)="downloadFile()">
+              <mat-icon>download</mat-icon>
+              Скачать файл
+            </button>
+          </div>
+        </div>
+      </mat-card>
+    </div>
+  }
+  </div>
+</div>

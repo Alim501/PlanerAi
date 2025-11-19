@@ -48,7 +48,7 @@ export class ContactsComponent {
     {
       icon: 'phone',
       title: 'Телефон',
-      value: '+7 (XXX) XXX-XX-XX',
+      value: '+7 (777) 777-77-77',
       description: 'Горячая линия поддержки',
       color: 'warning',
     },
