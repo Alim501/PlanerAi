@@ -30,6 +30,13 @@ public class NoteStatisticsService {
         return noteRepository.save(note);
     }
 
+    public Integer getUserRating(Long noteId, Long userId) {
+        return noteRatingRepository
+                .findByNoteIdAndUserId(noteId, userId)
+                .map(NoteRating::getRating)
+                .orElse(null);
+    }
+
     @Transactional
     public Note rateNote(Long noteId, Long userId, Integer rating) {
         // 1. Validate rating (1-5)

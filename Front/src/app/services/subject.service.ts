@@ -34,11 +34,33 @@ export class SubjectService {
    */
   createSubject(name: string): Observable<Subject> {
     return this.http.post<Subject>(
-      this.API_URL,
+      `${this.API_URL}/subject`,
       { name },
       {
         withCredentials: true,
       }
     );
+  }
+
+  /**
+   * Update subject (admin only)
+   */
+  updateSubject(id: number, name: string): Observable<Subject> {
+    return this.http.put<Subject>(
+      `${this.API_URL}/${id}`,
+      { name },
+      {
+        withCredentials: true,
+      }
+    );
+  }
+
+  /**
+   * Delete subject (admin only)
+   */
+  deleteSubject(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.API_URL}/${id}`, {
+      withCredentials: true,
+    });
   }
 }

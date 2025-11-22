@@ -1,0 +1,60 @@
+h2[mat-dialog-title] {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #333;
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+
+  mat-icon {
+    color: #667eea;
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+  }
+}
+
+mat-dialog-content {
+  min-width: 400px;
+  padding: 24px;
+  position: relative;
+
+  .full-width {
+    width: 100%;
+  }
+
+  .loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+}
+
+mat-dialog-actions {
+  padding: 16px 24px;
+  border-top: 1px solid #f0f0f0;
+  margin: 0;
+
+  button {
+    mat-icon {
+      margin-right: 8px;
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 480px) {
+  mat-dialog-content {
+    min-width: unset;
+    width: 100%;
+    padding: 16px;
+  }
+}

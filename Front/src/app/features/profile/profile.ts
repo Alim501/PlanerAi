@@ -88,6 +88,7 @@ export class ProfileComponent implements OnInit {
     } else {
       this.patchFormValues();
     }
+    console.log(this.userProfile());
   }
 
   ngOnDestroy(): void {

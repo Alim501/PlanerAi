@@ -31,12 +31,32 @@ export class UserStore {
   });
   userId = computed(() => this._user()?.id ?? null);
   userEmail = computed(() => this._user()?.email ?? '');
-  userRole = computed(() => this._user()?.role ?? 'STUDENT');
-  isAdmin = computed(() => this._user()?.role === 'ADMIN');
-  isModerator = computed(() => this._user()?.role === 'MODERATOR');
+
+  // Get highest role for display
+  userRole = computed(() => {
+    const user = this._user();
+    if (!user?.roles || user.roles.length === 0) return 'STUDENT';
+
+    // Priority: ADMIN > MODERATOR > STUDENT
+    if (user.roles.some(r => r.name === 'ROLE_ADMIN')) return 'ADMIN';
+    if (user.roles.some(r => r.name === 'ROLE_MODERATOR')) return 'MODERATOR';
+    return 'STUDENT';
+  });
+
+  isAdmin = computed(() => {
+    const user = this._user();
+    return user?.roles?.some(r => r.name === 'ROLE_ADMIN') ?? false;
+  });
+
+  isModerator = computed(() => {
+    const user = this._user();
+    return user?.roles?.some(r => r.name === 'ROLE_MODERATOR') ?? false;
+  });
+
   isAdminOrModerator = computed(() => {
-    const role = this._user()?.role;
-    return role === 'ADMIN' || role === 'MODERATOR';
+    const user = this._user();
+    if (!user?.roles) return false;
+    return user.roles.some(r => r.name === 'ROLE_ADMIN' || r.name === 'ROLE_MODERATOR');
   });
 
   // Actions

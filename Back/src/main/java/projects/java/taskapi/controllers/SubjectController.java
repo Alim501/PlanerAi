@@ -37,11 +37,11 @@ public class SubjectController {
         return ResponseEntity.ok(subjectService.updateSubject(subjectId, dto));
     }
 
-//    @Operation(summary = "delete subject by ID")
-//    @DeleteMapping("/{subjectId}")
-//    public ResponseEntity<Void> deleteSubject(@PathVariable("subjectId") Long subjectId){
-//        subjectService.deleteSubject(subjectId);
-//        return ResponseEntity.noContent().build();
-//    }
+    @Operation(summary = "delete subject by ID")
+    @DeleteMapping("/{subjectId}")
+    public ResponseEntity<Void> deleteSubject(@PathVariable("subjectId") Long subjectId){
+        subjectService.deleteSubject(subjectId);
+        return ResponseEntity.noContent().build();
+    }
 
 }

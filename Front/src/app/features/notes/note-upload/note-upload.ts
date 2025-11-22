@@ -13,7 +13,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { NoteService } from '../../../services/note.service';
 import { SubjectService } from '../../../services/subject.service';
-import { Subject, NoteFormat, CreateNoteRequest, Note } from '../../../models/note.models';
+import { Subject, NoteFormat, Note } from '../../../models/note.models';
 import { MatDivider, MatDividerModule } from '@angular/material/divider';
 
 @Component({
@@ -31,6 +31,7 @@ import { MatDivider, MatDividerModule } from '@angular/material/divider';
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatDividerModule,
+    MatIconModule
   ],
   templateUrl: './note-upload.html',
   styleUrl: './note-upload.scss',
@@ -118,7 +119,7 @@ export class NoteUploadComponent implements OnInit {
     }
   }
 
-  async onSubmit() {
+  onSubmit() {
     if (this.uploadForm.invalid || !this.selectedFile) {
       this.snackBar.open('Пожалуйста, заполните все обязательные поля и выберите файл', 'Закрыть', {
         duration: 3000,
@@ -128,23 +129,15 @@ export class NoteUploadComponent implements OnInit {
 
     this.uploading.set(true);
 
-    try {
-      // First upload the file
-      const fileUploadResponse = await this.noteService.uploadFile(this.selectedFile).toPromise();
-
-      if (!fileUploadResponse || !fileUploadResponse.fileUrl) {
-        throw new Error('Не удалось получить URL файла');
-      }
-
-      // Then create the note with the file URL
-      const noteRequest: CreateNoteRequest = {
-        title: this.uploadForm.value.title,
-        subjectId: this.uploadForm.value.subjectId,
-        format: this.uploadForm.value.format,
-        summary: this.uploadForm.value.summary || undefined,
-      };
-
-      this.noteService.createNote(noteRequest).subscribe({
+    // Upload file and create note in one request
+    this.noteService
+      .uploadFile(
+        this.selectedFile,
+        this.uploadForm.value.title,
+        this.uploadForm.value.subjectId,
+        this.uploadForm.value.format
+      )
+      .subscribe({
         next: (note: Note) => {
           this.snackBar.open('Заметка успешно загружена!', 'Закрыть', {
             duration: 3000,
@@ -153,20 +146,13 @@ export class NoteUploadComponent implements OnInit {
           this.router.navigate(['/app/notes', note.id]);
         },
         error: (err: any) => {
-          this.snackBar.open('Ошибка создания заметки', 'Закрыть', {
+          this.snackBar.open('Ошибка загрузки заметки', 'Закрыть', {
             duration: 3000,
           });
           this.uploading.set(false);
           console.error(err);
         },
       });
-    } catch (err) {
-      this.snackBar.open('Ошибка загрузки файла', 'Закрыть', {
-        duration: 3000,
-      });
-      this.uploading.set(false);
-      console.error(err);
-    }
   }
 
   cancel() {
