@@ -83,6 +83,17 @@
       </a>
       }
 
+      <!-- Admin/Moderator Menu Items -->
+      @if (isAdminOrModerator()) {
+      @if (!isAdmin()) {
+      <mat-divider></mat-divider>
+      }
+      <a mat-menu-item routerLink="/app/admin/subjects">
+        <mat-icon>subject</mat-icon>
+        <span>Управление предметами</span>
+      </a>
+      }
+
       <mat-divider></mat-divider>
 
       <button mat-menu-item (click)="logout()">

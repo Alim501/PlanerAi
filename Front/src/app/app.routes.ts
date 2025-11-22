@@ -20,6 +20,7 @@ import { AuthLayoutComponent } from './components/layout/auth-layout/auth-layout
 import { MainLayoutComponent } from './components/layout/main-layout/main-layout';
 import { PublicLayoutComponent } from './components/layout/public-layout/public-layout';
 import { AdminUsersListComponent } from './features/admin/admin-users-list/admin-users-list';
+import { AdminSubjectsListComponent } from './features/admin/admin-subjects-list/admin-subjects-list';
 
 export const routes: Routes = [
   // Public routes with PublicLayout
@@ -112,6 +113,11 @@ export const routes: Routes = [
         path: 'admin/users',
         component: AdminUsersListComponent,
         canActivate: [adminGuard],
+      },
+      {
+        path: 'admin/subjects',
+        component: AdminSubjectsListComponent,
+        canActivate: [moderatorGuard],
       },
     ],
   },

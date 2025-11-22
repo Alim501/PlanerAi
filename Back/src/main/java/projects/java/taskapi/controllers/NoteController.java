@@ -16,12 +16,14 @@ import projects.java.taskapi.models.Note;
 import projects.java.taskapi.models.User;
 import projects.java.taskapi.models.enums.NoteFormat;
 import projects.java.taskapi.models.Subject;
+import projects.java.taskapi.models.dto.RateNoteRequest;
 import projects.java.taskapi.services.NoteService;
 import projects.java.taskapi.services.NoteStatisticsService;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/notes")
@@ -85,6 +87,14 @@ public class NoteController {
         return ResponseEntity.ok(results);
     }
 
+    @Operation(summary = "Получить конспект по id")
+    @GetMapping("/{id}")
+    public ResponseEntity<Note> getNoteById(@PathVariable Long id) {
+        Note note = noteService.getNoteById(id)
+                .orElseThrow(() -> new RuntimeException("Note not found with id: " + id));
+        return ResponseEntity.ok(note);
+    }
+
     @Operation(summary = "Скачать конспект по id")
     @GetMapping("/{noteId}/download")
     public ResponseEntity<Resource> downloadNoteFile(@PathVariable Long noteId) {
@@ -132,13 +142,22 @@ public class NoteController {
         return ResponseEntity.ok(noteStatisticsService.incrementNoteViews(noteId));
     }
 
+    @Operation(summary = "Получить оценку текущего пользователя для конспекта")
+    @GetMapping("/{noteId}/my-rating")
+    public ResponseEntity<Map<String, Integer>> getMyRating(
+            @AuthenticationPrincipal User currentUser,
+            @PathVariable Long noteId) {
+        Integer rating = noteStatisticsService.getUserRating(noteId, currentUser.getId());
+        return ResponseEntity.ok(Map.of("rating", rating != null ? rating : 0));
+    }
+
     @Operation(summary = "Оценка конспекта от 1 до 5 включительно")
     @PostMapping("/{noteId}/rate")
     public ResponseEntity<Note> rateNote(
             @AuthenticationPrincipal User currentUser,
             @PathVariable Long noteId,
-            @RequestParam Integer rating) {
-        return ResponseEntity.ok(noteStatisticsService.rateNote(noteId, currentUser.getId(), rating));
+            @RequestBody RateNoteRequest request) {
+        return ResponseEntity.ok(noteStatisticsService.rateNote(noteId, currentUser.getId(), request.getRating()));
     }
 
 }

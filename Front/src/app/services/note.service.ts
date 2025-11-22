@@ -72,13 +72,21 @@ export class NoteService {
   }
 
   /**
-   * Upload file for note
+   * Upload file and create note in one request
    */
-  uploadFile(file: File): Observable<{ fileUrl: string }> {
+  uploadFile(
+    file: File,
+    title: string,
+    subjectId: number,
+    format: string
+  ): Observable<Note> {
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('title', title);
+    formData.append('subjectId', subjectId.toString());
+    formData.append('format', format);
 
-    return this.http.post<{ fileUrl: string }>(`${this.API_URL}/upload`, formData, {
+    return this.http.post<Note>(`${this.API_URL}/upload`, formData, {
       withCredentials: true,
     });
   }

@@ -86,21 +86,31 @@
       }
     }
 
-    mat-card {
+    mat-card.section-card {
       margin-bottom: 24px;
-      transition: transform 0.2s, box-shadow 0.2s;
+      transition: all 0.3s;
 
-      h2 {
-        margin: 0 0 16px 0;
-        font-size: 20px;
-        font-weight: 600;
-        color: #333;
-        display: flex;
-        align-items: center;
-        gap: 8px;
+      &:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+      }
 
-        mat-icon {
-          color: #667eea;
+      mat-card-header {
+        margin-bottom: 20px;
+
+        mat-card-title {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          font-size: 20px;
+          font-weight: 600;
+          color: #333;
+
+          mat-icon {
+            color: #667eea;
+            font-size: 24px;
+            width: 24px;
+            height: 24px;
+          }
         }
       }
     }
