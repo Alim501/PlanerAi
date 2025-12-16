@@ -12,6 +12,7 @@ import projects.java.taskapi.exceptions.UserNotFoundException;
 import projects.java.taskapi.models.Keyword;
 import projects.java.taskapi.models.Note;
 import projects.java.taskapi.models.User;
+import projects.java.taskapi.models.dto.FileDTO;
 import projects.java.taskapi.models.enums.NoteFormat;
 import projects.java.taskapi.models.Subject;
 import projects.java.taskapi.models.enums.RoleName;
@@ -34,14 +35,15 @@ public class NoteService {
     private final KeywordRepository keywordRepository;
 
 
-    public Note createNote(Long userId, String title, Long subjectId, NoteFormat format, MultipartFile file) {
+    public Note createNote(Long userId, String title, Long subjectId, MultipartFile file) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
         Subject subject = subjectRepository.findById(subjectId)
                 .orElseThrow(() -> new SubjectNotFoundException(subjectId));
 
-        // Save file to "uploads/notes/"
+        NoteFormat format = NoteFormat.fromMultipartFile(file);
+
         String fileUrl = fileService.saveFile(file);
 
         Note note = Note.builder()
@@ -110,14 +112,23 @@ public class NoteService {
             throw new AccessDeniedException("You cannot delete this note");
         }
 
+        fileService.deleteFile(note.getFileUrl());
+
         noteRepository.delete(note);
     }
 
-    public Resource downloadNoteFile(Long noteId) {
+    public FileDTO downloadNoteFile(Long noteId) {
         Note note = noteRepository.findById(noteId)
                 .orElseThrow(() -> new NoteNotFoundException(noteId));
-        return fileService.loadFile(note.getFileUrl());
+
+        Resource resource = fileService.loadFile(note.getFileUrl());
+
+        String fileName = "note_" + note.getId() + note.getFormat().getExtension();
+        String contentType = note.getFormat().getMimeType();
+
+        return new FileDTO(resource, contentType, fileName);
     }
+
 
 
 
@@ -147,5 +158,6 @@ public class NoteService {
     public List<Keyword> getAllKeywords() {
         return keywordRepository.findAll();
     }
+
 }
 
