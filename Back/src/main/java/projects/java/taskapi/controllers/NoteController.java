@@ -11,9 +11,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import projects.java.taskapi.exceptions.NoteNotFoundException;
 import projects.java.taskapi.models.Keyword;
 import projects.java.taskapi.models.Note;
 import projects.java.taskapi.models.User;
+import projects.java.taskapi.models.dto.FileDTO;
 import projects.java.taskapi.models.enums.NoteFormat;
 import projects.java.taskapi.models.Subject;
 import projects.java.taskapi.models.dto.RateNoteRequest;
@@ -39,10 +41,9 @@ public class NoteController {
             @AuthenticationPrincipal User currentUser,
             @RequestParam("title") String title,
             @RequestParam("subjectId") Long subjectId,
-            @RequestParam("format") NoteFormat format,
             @RequestParam("file") MultipartFile file) {
 
-        Note savedNote = noteService.createNote(currentUser.getId(), title, subjectId, format, file);
+        Note savedNote = noteService.createNote(currentUser.getId(), title, subjectId, file);
         return ResponseEntity.ok(savedNote);
     }
 
@@ -91,18 +92,18 @@ public class NoteController {
     @GetMapping("/{id}")
     public ResponseEntity<Note> getNoteById(@PathVariable Long id) {
         Note note = noteService.getNoteById(id)
-                .orElseThrow(() -> new RuntimeException("Note not found with id: " + id));
+                .orElseThrow(() -> new NoteNotFoundException(id));
         return ResponseEntity.ok(note);
     }
 
     @Operation(summary = "Скачать конспект по id")
     @GetMapping("/{noteId}/download")
     public ResponseEntity<Resource> downloadNoteFile(@PathVariable Long noteId) {
-        Resource data = noteService.downloadNoteFile(noteId);
+        FileDTO file = noteService.downloadNoteFile(noteId);
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=note_" + noteId + ".file")
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .body(data);
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.fileName() + "\"")
+                .contentType(MediaType.parseMediaType(file.contentType()))
+                .body(file.resource());
     }
 
     @Operation(summary = "Удалить конспект по id, student может удалить только свои")
