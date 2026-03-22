@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 
 import java.util.List;
 
+// рекорд используемый для запроса на создание плана
 public record GeneratePlanRequestDTO(
         @NotBlank(message = "Subject is required")
         String subject,

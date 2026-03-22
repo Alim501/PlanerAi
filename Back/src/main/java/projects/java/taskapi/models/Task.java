@@ -2,13 +2,9 @@ package projects.java.taskapi.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import projects.java.taskapi.models.enums.TaskStatus;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -18,6 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Task {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -29,14 +26,12 @@ public class Task {
     @Enumerated(EnumType.STRING)
     private TaskStatus taskStatus;
 
-    private LocalDate dueDate;
-
     private LocalDateTime createdAt;
 
     @JsonIgnore
     @ManyToOne
-    @JoinColumn(name = "study_plan_id")
-    private Plan studyPlan;
+    @JoinColumn(name = "week_id")
+    private Week week;
 
     @ManyToMany
     @JoinTable(
@@ -47,7 +42,7 @@ public class Task {
     private List<Note> relatedNotes;
 
     @PrePersist
-    private void prePersist(){
+    private void prePersist() {
         this.taskStatus = TaskStatus.PENDING;
         this.createdAt = LocalDateTime.now();
     }

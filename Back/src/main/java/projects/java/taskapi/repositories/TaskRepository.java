@@ -6,5 +6,6 @@ import projects.java.taskapi.models.Task;
 import java.util.List;
 
 public interface TaskRepository extends JpaRepository<Task, Long> {
-    List<Task> findByStudyPlanId(Long planId);
+    List<Task> findByWeekId(Long weekId);
+    List<Task> findByWeekPlanId(Long planId);
 }

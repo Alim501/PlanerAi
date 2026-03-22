@@ -1,18 +1,16 @@
 package projects.java.taskapi.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import projects.java.taskapi.exceptions.PlanNotFoundException;
 import projects.java.taskapi.models.Plan;
 import projects.java.taskapi.models.User;
 import projects.java.taskapi.models.dto.PlanDTO;
-import projects.java.taskapi.models.Subject;
 import projects.java.taskapi.services.PlanService;
 
 import java.util.List;
@@ -20,11 +18,12 @@ import java.util.List;
 @RestController
 @RequestMapping("api/plans")
 @RequiredArgsConstructor
+@Tag(name = "Plans", description = "Study plan management")
 public class PlanController {
 
     private final PlanService studyPlanService;
 
-    @Operation(summary = "Создать новый учебный план")
+    @Operation(summary = "Создать новый учебный план с неделями и задачами")
     @PostMapping
     public Plan createPlan(@AuthenticationPrincipal User currentUser,
                            @RequestBody PlanDTO planDto) {
@@ -39,7 +38,7 @@ public class PlanController {
 
     @Operation(summary = "Получить все планы текущего пользователя")
     @GetMapping("/my")
-    public List<Plan> getPlansByUser(@AuthenticationPrincipal User currentUser) {
+    public List<Plan> getMyPlans(@AuthenticationPrincipal User currentUser) {
         return studyPlanService.getPlansByUser(currentUser.getId());
     }
 
@@ -58,7 +57,7 @@ public class PlanController {
                 .orElseThrow(() -> new PlanNotFoundException(id));
     }
 
-    @Operation(summary = "Обновить существующий план(title, subject, startDate, endDate) по ID")
+    @Operation(summary = "Обновить шаблон плана (title, subject, description, difficulty) по ID")
     @PutMapping("/{id}")
     public Plan updatePlan(@PathVariable Long id, @RequestBody PlanDTO dto) {
         return studyPlanService.updatePlan(id, dto);
@@ -71,7 +70,4 @@ public class PlanController {
         studyPlanService.deletePlan(id);
         return ResponseEntity.noContent().build();
     }
-
-    // todo: add endpoint that would delete UserPlanProgress(plan for determine user) not genuine Plan
-
 }

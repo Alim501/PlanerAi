@@ -1,9 +1,11 @@
 package projects.java.taskapi.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import projects.java.taskapi.exceptions.TaskNotFoundException;
 import projects.java.taskapi.models.Task;
 import projects.java.taskapi.models.dto.TaskDTO;
 import projects.java.taskapi.services.TaskService;
@@ -11,40 +13,48 @@ import projects.java.taskapi.services.TaskService;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/plans")
+@RequestMapping("api/tasks")
 @RequiredArgsConstructor
+@Tag(name = "Tasks", description = "Task management within study plan weeks")
 public class TaskController {
 
     private final TaskService taskService;
 
-    @Operation(summary = "Добавить новую задачу в план")
-    @PostMapping("/{planId}/tasks")
-    public Task addTask(@PathVariable Long planId, @RequestBody TaskDTO taskDto) {
-        return taskService.addTask(planId, taskDto);
+    @Operation(summary = "Добавить задачу в неделю плана")
+    @PostMapping
+    public Task addTask(@RequestParam Long weekId, @RequestBody TaskDTO dto) {
+        return taskService.addTask(weekId, dto);
     }
 
-    @Operation(summary = "Получить все задачи для выбранного плана")
-    @GetMapping("/{planId}/tasks")
-    public List<Task> getTasks(@PathVariable Long planId) {
+    @Operation(summary = "Получить все задачи для недели")
+    @GetMapping("/week/{weekId}")
+    public List<Task> getTasksByWeek(@PathVariable Long weekId) {
+        return taskService.getTasksByWeek(weekId);
+    }
+
+    @Operation(summary = "Получить все задачи плана")
+    @GetMapping("/plan/{planId}")
+    public List<Task> getTasksByPlan(@PathVariable Long planId) {
         return taskService.getTasksByPlan(planId);
     }
 
-    @Operation(summary = "Получить задачу по её ID")
-    @GetMapping("/tasks/{taskId}")
+    @Operation(summary = "Получить задачу по ID")
+    @GetMapping("/{taskId}")
     public Task getTaskById(@PathVariable Long taskId) {
         return taskService.getTaskById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+                .orElseThrow(() -> new TaskNotFoundException(taskId));
     }
 
-    @Operation(summary = "Обновить существующую задачу")
-    @PutMapping("/tasks/{taskId}")
-    public Task updateTask(@PathVariable Long taskId, @RequestBody Task task) {
-        return taskService.updateTask(taskId, task);
+    @Operation(summary = "Обновить задачу")
+    @PutMapping("/{taskId}")
+    public Task updateTask(@PathVariable Long taskId, @RequestBody TaskDTO dto) {
+        return taskService.updateTask(taskId, dto);
     }
 
     @Operation(summary = "Удалить задачу по ID")
-    @DeleteMapping("/tasks/{taskId}")
-    public void deleteTask(@PathVariable Long taskId) {
+    @DeleteMapping("/{taskId}")
+    public ResponseEntity<Void> deleteTask(@PathVariable Long taskId) {
         taskService.deleteTask(taskId);
+        return ResponseEntity.noContent().build();
     }
 }
