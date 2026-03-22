@@ -118,6 +118,133 @@ In Future:
 - ✅ Added HttpOnly Cookie (accessToken and refreshToken)
 - Docker
 
+---
+### Architecture Diagrams
+- General Component Diagram (Mermaid): diagrams/component-diagram.md
+
+If you want the diagram to be visible right in this README, insert the Mermaid code block below (or keep it as-is in diagrams/component-diagram.md). GitHub renders Mermaid fenced blocks automatically.
+
+```mermaid
+flowchart LR
+  %% Clients
+  A[User / Browser]
+
+  %% Frontend
+  subgraph FE[Front – Angular]
+    FE_APP[Angular App]
+    FE_GUARDS[Auth Guard]
+    FE_INTERCEPTOR[Auth Interceptor]
+  end
+
+  %% Backend
+  subgraph BE[Back – Spring Boot Task API]
+    direction TB
+
+    subgraph SEC[Security]
+      SEC_SPRING[Spring Security]
+      SEC_JWT_FILTER[JwtTokenFilter]
+      SEC_JWT_SERVICE[JwtService]
+    end
+
+    subgraph CTRL[REST Controllers]
+      CTRL_AUTH[AuthController]
+      CTRL_USER[UserController]
+      CTRL_PLAN[PlanController]
+      CTRL_TASK[TaskController]
+      CTRL_NOTE[NoteController]
+      CTRL_FILE[FileController]
+      CTRL_EX[GlobalExceptionHandler]
+    end
+
+    subgraph SRV[Services]
+      SRV_AUTH[AuthService]
+      SRV_USER[UserService]
+      SRV_PLAN[PlanService]
+      SRV_TASK[TaskService]
+      SRV_NOTE[NoteService]
+      SRV_FILE[FileService]
+      SRV_USER_DETAILS[CustomUserDetailsService]
+    end
+
+    subgraph REPO[Repositories]
+      REPO_USER[UserRepository]
+      REPO_PLAN[PlanRepository]
+      REPO_TASK[TaskRepository]
+      REPO_NOTE[NoteRepository]
+      REPO_PROGRESS[ProgressRepository]
+    end
+
+    subgraph DOCS[Docs]
+      SWAGGER[Swagger UI / OpenAPI]
+    end
+  end
+
+  %% Database
+  DB[(PostgreSQL)]
+
+  %% Config
+  ENV[.env / application.properties]
+
+  %% Flows
+  A -->|HTTP(S)| FE_APP
+  FE_APP -->|HTTP JSON| BE
+
+  FE_APP -->|Attaches JWT| FE_INTERCEPTOR
+  FE_APP -->|Route protection| FE_GUARDS
+
+  %% Security
+  FE_APP -->|/api/**| SEC_SPRING
+  SEC_SPRING --> SEC_JWT_FILTER
+  SEC_JWT_FILTER --> SEC_JWT_SERVICE
+
+  %% Controllers -> Services
+  CTRL_AUTH --> SRV_AUTH
+  CTRL_USER --> SRV_USER
+  CTRL_PLAN --> SRV_PLAN
+  CTRL_TASK --> SRV_TASK
+  CTRL_NOTE --> SRV_NOTE
+  CTRL_FILE --> SRV_FILE
+
+  %% Services -> Repositories
+  SRV_AUTH --> REPO_USER
+  SRV_USER --> REPO_USER
+  SRV_PLAN --> REPO_PLAN
+  SRV_TASK --> REPO_TASK
+  SRV_NOTE --> REPO_NOTE
+  SRV_PLAN --> REPO_PROGRESS
+  SRV_USER_DETAILS --> REPO_USER
+
+  %% Repositories -> DB
+  REPO_USER --> DB
+  REPO_PLAN --> DB
+  REPO_TASK --> DB
+  REPO_NOTE --> DB
+  REPO_PROGRESS --> DB
+
+  %% Swagger
+  A -->|Docs| SWAGGER
+  SWAGGER -. served by .-> BE
+
+  %% Config wiring
+  ENV -. provides secrets/urls .-> BE
+  ENV -. DB URL/creds .-> DB
+
+  %% File operations (optional storage)
+  FE_APP -->|Upload/Download| CTRL_FILE
+  CTRL_FILE --> SRV_FILE
+
+  %% Legends
+  classDef area fill:#f8f9ff,stroke:#9aa0a6,stroke-width:1px;
+  class FE,BE,DOCS area;
+```
+
+Notes
+- Front is an Angular app that communicates with the Spring Boot backend via REST (JSON). AuthGuard and AuthInterceptor protect routes and attach JWT access tokens.
+- Backend uses Spring Security with a JWT filter and JwtService for token validation. Controllers delegate to Services, which access data via Spring Data JPA repositories.
+- PostgreSQL stores Users, Plans, Tasks, Notes, and UserPlanProgress.
+- Swagger UI provides interactive API documentation at /swagger-ui/index.html.
+- Configuration variables are provided via .env and application.properties (DB credentials, JWT secret, allowed origins, etc.).
+
 
 ! If problems with launching and it is related to flyway then write command directly to db console
 ```sql
