@@ -4,10 +4,8 @@ uvicorn[standard]==0.32.0
 pydantic==2.9.2
 pydantic-settings==2.6.0
 
-# AI/ML Libraries
-langchain==0.3.7
-langchain-ollama==0.2.0
-ollama==0.3.3
+# Google Gemini
+google-genai
 
 # File Processing
 PyPDF2==3.0.1

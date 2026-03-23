@@ -12,9 +12,9 @@ class Settings(BaseSettings):
     host: str = "0.0.0.0"
     port: int = 8000
 
-    # Ollama Configuration
-    ollama_base_url: str = "http://localhost:11434"
-    ollama_model: str = "llama3.2:3b"
+    # Google Gemini Configuration
+    gemini_api_key: str = ""
+    gemini_model: str = "gemini-2.0-flash"
 
     # Backend URL
     backend_url: str = "http://localhost:8080"

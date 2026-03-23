@@ -35,6 +35,8 @@ class FileParserService:
                 return await self._parse_docx(file_path)
             elif file_type in ["image", "jpg", "jpeg", "png"]:
                 return await self._parse_image(file_path)
+            elif file_type == "txt":
+                return await self._parse_txt(file_path)
             else:
                 raise ValueError(f"Unsupported file type: {file_type}")
 
@@ -111,6 +113,17 @@ class FileParserService:
             # If tesseract is not installed, return a warning message
             if "tesseract" in str(e).lower():
                 return "[OCR not available - tesseract not installed]"
+            raise
+
+    async def _parse_txt(self, file_path: str) -> str:
+        """Extract text from plain text file"""
+        try:
+            with open(file_path, "r", encoding="utf-8") as file:
+                result = file.read()
+            logger.info(f"Extracted {len(result)} characters from TXT")
+            return result
+        except Exception as e:
+            logger.error(f"Error parsing TXT: {e}")
             raise
 
     def get_file_info(self, file_path: str) -> dict:

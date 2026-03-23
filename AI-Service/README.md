@@ -1,109 +1,75 @@
 # PlannerAI - AI Service
 
-AI-powered microservice для генерации учебных планов и анализа заметок.
+AI микросервис для генерации учебных планов и анализа конспектов на базе Google Gemini.
 
-## 🚀 Возможности
+## Возможности
 
-- **Генерация учебных планов**: Создание структурированных планов обучения с помощью AI
-- **Анализ заметок**: Извлечение ключевых концепций и резюме из PDF/DOCX/изображений
-- **Интеграция с Ollama**: Использование локальных LLM моделей (бесплатно!)
-- **REST API**: Простая интеграция с Spring Boot backend
+- **Генерация учебных планов** — структурированные планы с разбивкой по неделям
+- **Анализ конспектов** — извлечение резюме, ключевых концепций, сложности и языка из PDF/DOCX/изображений через Gemini File API
+- **Улучшение задач** — AI переформулирует описания задач
+- **Google Gemini** — облачная LLM, бесплатный тариф через AI Studio
 
-## 📋 Требования
+## Требования
 
 - Python 3.11+
-- Ollama (для локального LLM)
-- Tesseract OCR (опционально, для распознавания текста с изображений)
+- Google Gemini API ключ (бесплатно на [aistudio.google.com](https://aistudio.google.com))
 
-## 🛠️ Установка
+## Установка
 
-### 1. Установка Ollama
+### 1. Получить API ключ
 
-```bash
-# macOS
-brew install ollama
+1. Откройте [aistudio.google.com](https://aistudio.google.com)
+2. Нажмите **Get API key** → **Create API key**
+3. Скопируйте ключ
 
-# Linux
-curl -fsSL https://ollama.com/install.sh | sh
-
-# Запуск Ollama
-ollama serve
-```
-
-### 2. Загрузка модели
-
-```bash
-# Рекомендуемая модель (легкая и быстрая)
-ollama pull llama3.2:3b
-
-# Альтернативы:
-ollama pull mistral:7b
-ollama pull qwen2.5:7b
-```
-
-### 3. Установка зависимостей Python
+### 2. Установить зависимости
 
 ```bash
 cd AI-Service
 
-# Создание виртуального окружения
-python -m venv venv
-
-# Активация
+python3 -m venv venv
 source venv/bin/activate  # macOS/Linux
-# или
-venv\Scripts\activate  # Windows
+# или venv\Scripts\activate  # Windows
 
-# Установка зависимостей
 pip install -r requirements.txt
 ```
 
-### 4. (Опционально) Установка Tesseract для OCR
+### 3. Настроить окружение
 
-```bash
-# macOS
-brew install tesseract tesseract-lang
+Создайте файл `.env` в папке `AI-Service`:
 
-# Ubuntu/Debian
-sudo apt-get install tesseract-ocr tesseract-ocr-rus tesseract-ocr-eng
+```env
+GEMINI_API_KEY=your_api_key_from_ai_studio
+GEMINI_MODEL=gemini-2.0-flash
+BACKEND_URL=http://localhost:8080
+ALLOWED_ORIGINS=http://localhost:4200,http://localhost:8080
 ```
 
-### 5. Конфигурация
-
-Скопируйте `.env.example` в `.env` и настройте по необходимости:
+## Запуск
 
 ```bash
-cp .env.example .env
-```
-
-## 🚀 Запуск
-
-### Локальный запуск
-
-```bash
-# Убедитесь что Ollama запущен
-ollama serve
-
-# В другом терминале запустите AI сервис
 cd AI-Service
 source venv/bin/activate
 python -m app.main
 ```
 
-Сервис будет доступен на `http://localhost:8000`
+Сервис запустится на `http://localhost:8000`
 
-### Запуск через Docker
-
-```bash
-docker-compose up --build
-```
-
-## 📚 API Endpoints
+## API Endpoints
 
 ### Health Check
 
 ```http
 GET /health
+```
+
+```json
+{
+  "status": "healthy",
+  "ollama_connected": true,
+  "model": "gemini-2.0-flash",
+  "version": "1.0.0"
+}
 ```
 
 ### Генерация учебного плана
@@ -116,131 +82,87 @@ Content-Type: application/json
   "subject": "Математический анализ",
   "duration_weeks": 12,
   "level": "intermediate",
-  "topics": ["Пределы", "Производные", "Интегралы"],
+  "topics": ["Пределы", "Производные"],
   "goals": "Подготовка к экзамену"
 }
 ```
 
-### Анализ заметки
+### Анализ конспекта
 
 ```http
 POST /api/ai/notes/analyze
 Content-Type: application/json
 
 {
-  "file_path": "/path/to/note.pdf",
-  "file_type": "pdf",
-  "subject_id": 1
+  "file_url": "https://presigned-s3-url...",
+  "file_type": "pdf"
 }
 ```
 
-## 📖 Документация API
+```json
+{
+  "summary": "Краткое резюме конспекта...",
+  "key_concepts": ["производная", "интеграл", "предел"],
+  "difficulty": "intermediate",
+  "language": "ru"
+}
+```
 
-После запуска сервиса, интерактивная документация доступна по адресу:
+> Этот endpoint вызывается внутренне из Spring Boot. Напрямую с фронта запросы идут на `POST /api/ai/notes/analyze` с телом `{ "noteId": N }`.
+
+## Поддерживаемые форматы файлов
+
+| Формат | MIME тип | Анализ |
+|--------|----------|--------|
+| PDF | application/pdf | Gemini File API |
+| DOCX | application/vnd.openxmlformats-officedocument... | Gemini File API |
+| JPG/JPEG | image/jpeg | Gemini File API |
+| PNG | image/png | Gemini File API |
+| TXT | text/plain | Gemini File API |
+
+## Документация API
+
+После запуска:
 - Swagger UI: `http://localhost:8000/docs`
 - ReDoc: `http://localhost:8000/redoc`
 
-## 🔧 Настройка моделей
-
-### Рекомендуемые модели для разных задач:
-
-**Для быстрой генерации (3-4 GB RAM):**
-```bash
-ollama pull llama3.2:3b
-ollama pull phi3:mini
-```
-
-**Для лучшего качества (8+ GB RAM):**
-```bash
-ollama pull mistral:7b
-ollama pull qwen2.5:7b
-```
-
-**Для максимального качества (16+ GB RAM):**
-```bash
-ollama pull llama3.1:8b
-ollama pull mixtral:8x7b
-```
-
-Изменить модель можно в `.env` файле:
-```env
-OLLAMA_MODEL=llama3.2:3b
-```
-
-## 📁 Структура проекта
+## Структура проекта
 
 ```
 AI-Service/
 ├── app/
 │   ├── main.py              # FastAPI приложение
-│   ├── config.py            # Конфигурация
-│   ├── models/              # Pydantic модели
-│   │   ├── requests.py
-│   │   └── responses.py
-│   ├── services/            # Бизнес логика
-│   │   ├── ollama_service.py
-│   │   ├── plan_generator.py
-│   │   ├── note_analyzer.py
-│   │   └── file_parser.py
-│   └── routers/             # API endpoints
-│       ├── plans.py
-│       ├── notes.py
-│       └── health.py
+│   ├── config.py            # Конфигурация (gemini_api_key, gemini_model)
+│   ├── models/
+│   │   ├── requests.py      # Pydantic модели запросов
+│   │   └── responses.py     # Pydantic модели ответов
+│   ├── services/
+│   │   ├── gemini_service.py    # Google Gemini API интеграция
+│   │   ├── plan_generator.py    # Генерация учебных планов
+│   │   ├── note_analyzer.py     # Анализ конспектов
+│   │   └── file_parser.py       # Локальный парсинг файлов (fallback)
+│   └── routers/
+│       ├── plans.py         # /api/ai/plans/*
+│       ├── notes.py         # /api/ai/notes/*
+│       └── health.py        # /health
 ├── requirements.txt
-├── Dockerfile
-├── docker-compose.yml
 └── README.md
 ```
 
-## 🔗 Интеграция с Backend
+## Troubleshooting
 
-AI сервис предоставляет REST API, который можно вызывать из Spring Boot:
+### Ошибка 429 (quota exceeded)
 
-```java
-// Пример интеграции в Spring Boot
-RestTemplate restTemplate = new RestTemplate();
-String aiServiceUrl = "http://localhost:8000/api/ai/plans/generate";
+Убедитесь что API ключ получен с **aistudio.google.com**, не с Google Cloud Console.
 
-PlanRequest request = new PlanRequest("Математика", 12, "intermediate");
-GeneratedPlan plan = restTemplate.postForObject(
-    aiServiceUrl,
-    request,
-    GeneratedPlan.class
-);
-```
+### `is not a valid file path`
 
-## 🐛 Troubleshooting
+Ошибка при загрузке файла в Gemini. Убедитесь что используется `google-genai` пакет, не устаревший `google-generativeai`.
 
-### Ollama не подключается
+### AI Service недоступен
 
 ```bash
-# Проверьте что Ollama запущен
-curl http://localhost:11434/api/tags
-
-# Перезапустите Ollama
-ollama serve
+curl http://localhost:8000/health
 ```
 
-### Модель не найдена
-
-```bash
-# Список установленных моделей
-ollama list
-
-# Установите нужную модель
-ollama pull llama3.2:3b
-```
-
-### OCR не работает
-
-```bash
-# Проверьте установку Tesseract
-tesseract --version
-
-# Установите языковые пакеты
-brew install tesseract-lang  # macOS
-```
-
-## 📝 Лицензия
-
-MIT
+Проверьте что venv активирован и зависимости установлены.

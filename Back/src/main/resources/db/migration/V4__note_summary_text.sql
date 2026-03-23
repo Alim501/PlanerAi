@@ -1,0 +1,1 @@
+ALTER TABLE note ALTER COLUMN summary TYPE TEXT;

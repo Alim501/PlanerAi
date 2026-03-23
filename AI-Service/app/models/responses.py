@@ -31,10 +31,8 @@ class GeneratedPlan(BaseModel):
 class NoteAnalysis(BaseModel):
     """Note analysis response"""
     summary: str = Field(..., description="Brief summary of the note")
-    key_concepts: List[str] = Field(..., description="Key concepts identified")
-    topics: List[str] = Field(..., description="Main topics covered")
+    key_concepts: List[str] = Field(..., description="Key concepts identified (5-7 terms)")
     difficulty: str = Field(..., description="Estimated difficulty level")
-    suggested_tags: List[str] = Field(..., description="Suggested tags for categorization")
     word_count: Optional[int] = Field(default=None, description="Word count (if text)")
     language: Optional[str] = Field(default=None, description="Detected language")
 
@@ -58,6 +56,6 @@ class TaskImprovement(BaseModel):
 class HealthCheckResponse(BaseModel):
     """Health check response"""
     status: str = Field(..., description="Service status")
-    ollama_connected: bool = Field(..., description="Ollama connection status")
+    ollama_connected: bool = Field(..., description="LLM connection status")
     model: str = Field(..., description="Active model")
     version: str = Field(default="1.0.0", description="Service version")

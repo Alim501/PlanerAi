@@ -1,10 +1,10 @@
 package projects.java.taskapi.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import projects.java.taskapi.models.enums.PlanStatus;
+
+import java.time.LocalDate;
 
 @Data
 @Entity
@@ -25,6 +25,17 @@ public class UserPlanProgress {
     @JoinColumn(name = "study_plan_id")
     private Plan studyPlan;
 
-    private double progress;
-}
+    private LocalDate startDate;
 
+    private LocalDate endDate;
+
+    @Enumerated(EnumType.STRING)
+    private PlanStatus status;
+
+    private double progress;
+
+    @PrePersist
+    private void prePersist() {
+        this.status = PlanStatus.ACTIVE;
+    }
+}

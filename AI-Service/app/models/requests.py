@@ -24,8 +24,9 @@ class GeneratePlanRequest(BaseModel):
 
 class AnalyzeNoteRequest(BaseModel):
     """Request model for note analysis"""
-    file_path: str = Field(..., description="Path to the file")
-    file_type: str = Field(..., description="File type (pdf, docx, image)")
+    file_url: Optional[str] = Field(default=None, description="S3 URL of the file (preferred)")
+    file_path: Optional[str] = Field(default=None, description="Local path to the file (fallback for tests)")
+    file_type: str = Field(..., description="File type (pdf, docx, txt, jpg, png)")
     subject_id: Optional[int] = Field(default=None, description="Related subject ID")
 
 

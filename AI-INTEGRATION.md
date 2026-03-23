@@ -1,64 +1,67 @@
-# 🤖 AI Integration Guide - PlannerAI
+# AI Integration Guide - PlannerAI
 
-## 📋 Обзор
+## Обзор
 
 AI микросервис добавляет интеллектуальные возможности в PlannerAI:
-- **Генерация учебных планов** с помощью LLM
-- **Анализ заметок** (PDF/DOCX/изображения)
-- **Умные рекомендации** для задач
+- **Генерация учебных планов** с помощью Google Gemini
+- **Анализ конспектов** (PDF/DOCX/JPG/PNG/TXT) через Gemini File API
+- **Улучшение описаний задач** с помощью AI
 
-## 🏗️ Архитектура
+## Архитектура
 
 ```
 ┌─────────────┐         ┌──────────────┐         ┌─────────────┐
 │   Angular   │ ◄─────► │ Spring Boot  │ ◄─────► │ AI Service  │
-│  Frontend   │         │   (Port 8080)│         │ (Port 8000) │
-└─────────────┘         └──────────────┘         └──────┬──────┘
-                                                         │
-                                                  ┌──────▼──────┐
-                                                  │   Ollama    │
-                                                  │ (Port 11434)│
-                                                  └─────────────┘
+│  Frontend   │         │  (Port 8080) │         │ (Port 8000) │
+└─────────────┘         └──────┬───────┘         └──────┬──────┘
+                               │                        │
+                        ┌──────▼──────┐         ┌──────▼──────┐
+                        │   AWS S3    │         │Google Gemini│
+                        │  (файлы)   │         │  Cloud API  │
+                        └─────────────┘         └─────────────┘
 ```
 
-## 🚀 Быстрый старт
+**Поток анализа конспекта:**
+1. Файл загружается на AWS S3 при создании конспекта
+2. При запросе анализа Spring Boot генерирует presigned URL (15 мин) из S3 ключа
+3. AI Service скачивает файл и загружает в Gemini File API
+4. Gemini нативно анализирует документ (PDF, DOCX, изображения)
+5. Результат сохраняется в БД: `summary`, `difficulty`, `language`, `keywords`
 
-### Шаг 1: Установка Ollama
+## Быстрый старт
 
-**macOS:**
-```bash
-brew install ollama
-```
+### Шаг 1: Получить Gemini API ключ
 
-**Linux:**
-```bash
-curl -fsSL https://ollama.com/install.sh | sh
-```
+1. Перейдите на [aistudio.google.com](https://aistudio.google.com)
+2. Нажмите **"Get API key"** → **"Create API key"**
+3. Скопируйте ключ
 
-### Шаг 2: Запуск Ollama и загрузка модели
+> Важно: ключ нужно получать именно с **AI Studio**, не с Google Cloud Console.
 
-```bash
-# Запустите Ollama сервер
-ollama serve
-
-# В другом терминале загрузите модель (рекомендуется)
-ollama pull llama3.2:3b
-```
-
-### Шаг 3: Настройка AI Service
+### Шаг 2: Настройка AI Service
 
 ```bash
 cd AI-Service
 
 # Создайте виртуальное окружение
 python3 -m venv venv
-source venv/bin/activate
+source venv/bin/activate  # macOS/Linux
+# или venv\Scripts\activate  # Windows
 
 # Установите зависимости
 pip install -r requirements.txt
+
+# Создайте .env файл
+cp .env.example .env
 ```
 
-### Шаг 4: Запуск AI Service
+Заполните `.env`:
+```env
+GEMINI_API_KEY=ваш_ключ_из_ai_studio
+GEMINI_MODEL=gemini-2.0-flash
+```
+
+### Шаг 3: Запуск AI Service
 
 ```bash
 cd AI-Service
@@ -68,30 +71,27 @@ python -m app.main
 
 AI Service запустится на `http://localhost:8000`
 
-### Шаг 5: Запуск Spring Boot
+### Шаг 4: Запуск Spring Boot
 
 ```bash
 cd Back
 ./mvnw spring-boot:run
 ```
 
-Backend будет автоматически подключаться к AI сервису.
-
-### Шаг 6: Запуск Frontend
+### Шаг 5: Запуск Frontend
 
 ```bash
 cd Front
 npm start
 ```
 
-## 📡 API Endpoints
+## API Endpoints
 
-### Spring Boot → AI Service
-
-#### 1. Генерация плана
+### 1. Генерация плана
 ```http
 POST http://localhost:8080/api/ai/plans/generate
 Content-Type: application/json
+Authorization: Bearer <token>
 
 {
   "subject": "Математический анализ",
@@ -116,40 +116,55 @@ Content-Type: application/json
       "weekNumber": 1,
       "title": "Введение в пределы",
       "topics": ["Определение предела", "Свойства пределов"],
-      "tasks": ["Решить задачи 1-10", "Изучить теорему"],
-      "estimatedHours": 10,
-      "resources": ["Учебник Фихтенгольца"]
+      "tasks": ["Решить задачи 1-10"],
+      "estimatedHours": 10
     }
   ]
 }
 ```
 
-#### 2. Анализ заметки
+### 2. Анализ конспекта
+
+Теперь достаточно передать только `noteId` — все данные о файле берутся из БД.
+
 ```http
 POST http://localhost:8080/api/ai/notes/analyze
 Content-Type: application/json
+Authorization: Bearer <token>
 
 {
-  "filePath": "/path/to/note.pdf",
-  "fileType": "pdf",
-  "subjectId": 1
+  "noteId": 1
 }
 ```
 
 **Response:**
 ```json
 {
-  "summary": "Заметка содержит основные концепции производных...",
-  "keyConcepts": ["Производная", "Правило цепочки", "Экстремумы"],
-  "topics": ["Дифференциальное исчисление"],
+  "summary": "Конспект по производным: правила дифференцирования...",
+  "keyConcepts": ["производная", "правило цепочки", "экстремум"],
   "difficulty": "intermediate",
-  "suggestedTags": ["математика", "производные", "калькулус"],
-  "wordCount": 1500,
   "language": "ru"
 }
 ```
 
-#### 3. Health Check
+Результаты автоматически сохраняются в Note: `summary`, `difficulty`, `language` и `keywords`.
+
+### 3. Улучшение задачи
+
+```http
+POST http://localhost:8080/api/ai/tasks/improve
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{
+  "taskTitle": "Изучить производные",
+  "taskDescription": "...",
+  "subject": "Математика"
+}
+```
+
+### 4. Health Check
+
 ```http
 GET http://localhost:8080/api/ai/health
 ```
@@ -159,187 +174,90 @@ GET http://localhost:8080/api/ai/health
 {
   "status": "healthy",
   "ollamaConnected": true,
-  "model": "llama3.2:3b",
+  "model": "gemini-2.0-flash",
   "version": "1.0.0"
 }
 ```
 
-## 🔧 Конфигурация
+## Конфигурация
 
 ### AI Service (.env)
 ```env
-# Ollama
-OLLAMA_BASE_URL=http://localhost:11434
-OLLAMA_MODEL=llama3.2:3b
-
-# Backend
+GEMINI_API_KEY=your_api_key_from_ai_studio
+GEMINI_MODEL=gemini-2.0-flash
 BACKEND_URL=http://localhost:8080
-
-# CORS
 ALLOWED_ORIGINS=http://localhost:4200,http://localhost:8080
 ```
 
 ### Spring Boot (.env)
 ```env
 AI_SERVICE_URL=http://localhost:8000
+AWS_ACCESS_KEY_ID=your_key
+AWS_SECRET_ACCESS_KEY=your_secret
 ```
 
-## 🎯 Рекомендуемые модели
+## Поддерживаемые форматы файлов
 
-### Для разработки (быстрые):
-- `llama3.2:3b` ✅ Рекомендуется (2GB RAM)
-- `phi3:mini` (2GB RAM)
+| Формат | Анализ | Примечание |
+|--------|--------|-----------|
+| PDF | Gemini File API | Нативный, лучшее качество |
+| DOCX | Gemini File API | Нативный |
+| JPG/PNG | Gemini File API | Нативный, OCR встроен |
+| TXT | Gemini File API | Нативный |
 
-### Для production (качество):
-- `mistral:7b` (8GB RAM)
-- `qwen2.5:7b` (8GB RAM)
+## Troubleshooting
 
-### Как сменить модель:
-```bash
-# Загрузите новую модель
-ollama pull mistral:7b
-
-# Обновите .env в AI-Service
-OLLAMA_MODEL=mistral:7b
-
-# Перезапустите AI Service
-```
-
-## 🐛 Troubleshooting
-
-### AI Service не подключается
-
-**Проверка:**
-```bash
-curl http://localhost:8000/health
-```
-
-**Решение:**
-1. Убедитесь что AI Service запущен
-2. Проверьте порт 8000 не занят
-3. Проверьте логи AI Service
-
-### Ollama не подключается
-
-**Проверка:**
-```bash
-curl http://localhost:11434/api/tags
-```
-
-**Решение:**
-1. Запустите Ollama: `ollama serve`
-2. Проверьте что модель загружена: `ollama list`
-3. Загрузите модель: `ollama pull llama3.2:3b`
-
-### Backend не может достучаться до AI Service
-
-**Проверка логов Spring Boot:**
-```
-Error calling AI service: Connection refused
-```
-
-**Решение:**
-1. Убедитесь что AI Service запущен
-2. Проверьте `AI_SERVICE_URL` в Spring Boot .env
-3. Проверьте CORS настройки в AI Service
-
-## 📊 Мониторинг
-
-### Health Checks
+### AI Service не запускается
 
 ```bash
-# AI Service
+# Проверьте Python версию (нужна 3.11+)
+python3 --version
+
+# Проверьте зависимости
+pip install -r requirements.txt
+```
+
+### Gemini API ошибка 429 (quota exceeded)
+
+- Убедитесь что API ключ получен с **aistudio.google.com**, не с Google Cloud Console
+- Проверьте лимиты на [aistudio.google.com](https://aistudio.google.com)
+
+### AI Service недоступен
+
+```bash
+# Проверьте health endpoint
 curl http://localhost:8000/health
 
-# Spring Boot AI endpoint
+# Проверьте логи
+tail -f AI-Service/logs/app.log
+```
+
+### Backend не видит AI Service
+
+1. Убедитесь что AI Service запущен на порту 8000
+2. Проверьте `AI_SERVICE_URL` в Spring Boot `.env`
+3. Проверьте логи Spring Boot
+
+## Мониторинг
+
+```bash
+# Статус AI Service
+curl http://localhost:8000/health
+
+# Статус через Spring Boot
 curl http://localhost:8080/api/ai/health
+
+# Swagger документация AI Service
+open http://localhost:8000/docs
 ```
 
-### Логи
+## Checklist готовности
 
-```bash
-# AI Service
-tail -f logs/ai-service.log
-
-# Spring Boot
-tail -f logs/spring-boot.log
-```
-
-## 🔒 Безопасность
-
-- AI Service доступен только для локального использования
-- Spring Boot проксирует запросы с аутентификацией
-- CORS настроен для Frontend и Backend
-
-## 📈 Производительность
-
-### Время генерации плана:
-- `llama3.2:3b`: ~10-15 секунд
-- `mistral:7b`: ~15-25 секунд
-- `mixtral:8x7b`: ~30-60 секунд
-
-### Оптимизация:
-1. Используйте `llama3.2:3b` для разработки
-2. Настройте кэширование в Spring Boot
-3. Добавьте очередь для длинных задач
-
-## 🚀 Production Deployment
-
-### Docker Compose (All-in-One)
-
-```yaml
-version: '3.8'
-
-services:
-  ollama:
-    image: ollama/ollama
-    ports:
-      - "11434:11434"
-    volumes:
-      - ollama-data:/root/.ollama
-
-  ai-service:
-    build: ./AI-Service
-    ports:
-      - "8000:8000"
-    environment:
-      - OLLAMA_BASE_URL=http://ollama:11434
-    depends_on:
-      - ollama
-
-  backend:
-    build: ./Back
-    ports:
-      - "8080:8080"
-    environment:
-      - AI_SERVICE_URL=http://ai-service:8000
-    depends_on:
-      - ai-service
-
-volumes:
-  ollama-data:
-```
-
-## 📚 Дополнительные ресурсы
-
-- [Ollama Documentation](https://ollama.com/docs)
-- [FastAPI Documentation](https://fastapi.tiangolo.com)
-- [LangChain Documentation](https://python.langchain.com)
-
-## ✅ Checklist готовности
-
-- [ ] Ollama установлен и запущен
-- [ ] Модель загружена (`ollama pull llama3.2:3b`)
-- [ ] AI Service запущен (port 8000)
-- [ ] Spring Boot подключен к AI Service
-- [ ] Health check возвращает "healthy"
+- [ ] Получен GEMINI_API_KEY с aistudio.google.com
+- [ ] `.env` заполнен в AI-Service
+- [ ] AI Service запущен (порт 8000)
+- [ ] AWS S3 настроен (для хранения файлов)
+- [ ] Spring Boot запущен и подключён к AI Service
+- [ ] Health check возвращает `"status": "healthy"`
 - [ ] Тестовая генерация плана работает
-
-## 🎉 Готово!
-
-Теперь PlannerAI имеет полноценную AI интеграцию!
-
-Следующие шаги:
-1. Добавить UI кнопки для AI генерации
-2. Создать интерфейс просмотра сгенерированных планов
-3. Добавить автоматический анализ при загрузке заметок
+- [ ] Анализ конспекта работает

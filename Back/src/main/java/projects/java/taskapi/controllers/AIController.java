@@ -6,13 +6,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import projects.java.taskapi.exceptions.NoteNotFoundException;
+import projects.java.taskapi.models.Note;
+import projects.java.taskapi.models.Plan;
+import projects.java.taskapi.models.User;
 import projects.java.taskapi.models.dto.ai.*;
 import projects.java.taskapi.services.AIService;
+import projects.java.taskapi.services.FileService;
+import projects.java.taskapi.services.NoteService;
+import projects.java.taskapi.services.PlanService;
 
-/**
- * Controller for AI-powered features
- */
 @RestController
 @RequestMapping("/api/ai")
 @RequiredArgsConstructor
@@ -21,34 +26,44 @@ import projects.java.taskapi.services.AIService;
 public class AIController {
 
     private final AIService aiService;
+    private final PlanService planService;
+    private final NoteService noteService;
+    private final FileService fileService;
 
-    @Operation(summary = "Generate study plan using AI")
+    // todo: make sure plan is constructed based on student's notes
+    /**
+     * Генерирует план через ИИ и сохраняет его в БД.
+     * Возвращает сохранённый план с ID и задачами.
+     */
+    @Operation(summary = "Generate and save study plan using AI")
     @PostMapping("/plans/generate")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<GeneratedPlanDTO> generatePlan(
+    public ResponseEntity<Plan> generatePlan(
+            @AuthenticationPrincipal User currentUser,
             @RequestBody GeneratePlanRequestDTO request
     ) {
-        log.info("Generating AI plan for subject: {}", request.subject());
-        GeneratedPlanDTO plan = aiService.generatePlan(request);
-        return ResponseEntity.ok(plan);
+        log.info("User {} generating AI plan for subject: {}", currentUser.getId(), request.subject());
+        GeneratedPlanDTO generated = aiService.generatePlan(request);
+        Plan saved = planService.createPlanFromGenerated(currentUser.getId(), generated);
+        return ResponseEntity.ok(saved);
     }
 
-    @Operation(summary = "Analyze note using AI")
+    @Operation(summary = "Analyze note using AI and save results")
     @PostMapping("/notes/analyze")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<NoteAnalysisDTO> analyzeNote(
             @RequestBody AnalyzeNoteRequestDTO request
     ) {
-        log.info("Analyzing note: {}", request.filePath());
-        NoteAnalysisDTO analysis = aiService.analyzeNote(request);
-        return ResponseEntity.ok(analysis);
-    }
+        Note note = noteService.getNoteById(request.noteId())
+                .orElseThrow(() -> new NoteNotFoundException(request.noteId()));
 
-    @Operation(summary = "Check AI service health")
-    @GetMapping("/health")
-    public ResponseEntity<AIHealthDTO> checkHealth() {
-        AIHealthDTO health = aiService.checkHealth();
-        return ResponseEntity.ok(health);
+        String fileType = note.getFormat().name().toLowerCase();
+        String presignedUrl = fileService.generatePresignedUrl(note.getFileUrl());
+        log.info("Analyzing note id={}, fileType={}", note.getId(), fileType);
+
+        NoteAnalysisDTO analysis = aiService.analyzeNote(presignedUrl, fileType);
+        noteService.applyAnalysis(note.getId(), analysis);
+        return ResponseEntity.ok(analysis);
     }
 
     @Operation(summary = "Improve task description using AI")
@@ -58,7 +73,12 @@ public class AIController {
             @RequestBody ImproveTaskRequestDTO request
     ) {
         log.info("Improving task: {}", request.taskTitle());
-        TaskImprovementDTO improvement = aiService.improveTask(request);
-        return ResponseEntity.ok(improvement);
+        return ResponseEntity.ok(aiService.improveTask(request));
+    }
+
+    @Operation(summary = "Check AI service health")
+    @GetMapping("/health")
+    public ResponseEntity<AIHealthDTO> checkHealth() {
+        return ResponseEntity.ok(aiService.checkHealth());
     }
 }

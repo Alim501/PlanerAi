@@ -13,6 +13,7 @@ import projects.java.taskapi.models.Keyword;
 import projects.java.taskapi.models.Note;
 import projects.java.taskapi.models.User;
 import projects.java.taskapi.models.dto.FileDTO;
+import projects.java.taskapi.models.dto.ai.NoteAnalysisDTO;
 import projects.java.taskapi.models.enums.NoteFormat;
 import projects.java.taskapi.models.Subject;
 import projects.java.taskapi.models.enums.RoleName;
@@ -104,7 +105,7 @@ public class NoteService {
 
         // Students can only delete their own notes
         boolean isOwner = note.getUser().getId().equals(userId);
-        boolean isModerator = user.getRoles().stream()
+        boolean isModerator = user.getRoles() != null && user.getRoles().stream()
                 .anyMatch(role -> role.getName() == RoleName.ROLE_MODERATOR
                         || role.getName() == RoleName.ROLE_ADMIN);
 
@@ -134,11 +135,27 @@ public class NoteService {
 
     ///keywords and summary
 
+    public Note applyAnalysis(Long noteId, NoteAnalysisDTO analysis) {
+        Note note = noteRepository.findById(noteId)
+                .orElseThrow(() -> new NoteNotFoundException(noteId));
+
+        note.setSummary(analysis.summary());
+        note.setDifficulty(analysis.difficulty());
+        note.setLanguage(analysis.language());
+        noteRepository.save(note);
+
+        if (analysis.keyConcepts() != null && !analysis.keyConcepts().isEmpty()) {
+            addKeywordsToNote(noteId, analysis.keyConcepts());
+        }
+
+        return noteRepository.findById(noteId).orElseThrow();
+    }
+
     public Note addKeywordsToNote(Long noteId, List<String> newKeywords) {
         Note note = noteRepository.findById(noteId)
                 .orElseThrow(() -> new NoteNotFoundException(noteId));
 
-        Set<Keyword> updatedKeywords = new HashSet<>(note.getKeywords());
+        Set<Keyword> updatedKeywords = new HashSet<>(note.getKeywords() != null ? note.getKeywords() : new ArrayList<>());
 
         for (String word : newKeywords) {
             if (word == null || word.isBlank()) continue;

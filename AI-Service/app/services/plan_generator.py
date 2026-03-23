@@ -4,7 +4,7 @@ Study plan generation service
 import logging
 from typing import Dict, Any, List
 from app.models import GeneratePlanRequest, GeneratedPlan, WeekPlan
-from app.services.ollama_service import get_ollama_service
+from app.services.gemini_service import get_gemini_service
 
 logger = logging.getLogger(__name__)
 
@@ -13,7 +13,7 @@ class PlanGeneratorService:
     """Service for generating AI-powered study plans"""
 
     def __init__(self):
-        self.ollama = get_ollama_service()
+        self.llm = get_gemini_service()
 
     async def generate_plan(self, request: GeneratePlanRequest) -> GeneratedPlan:
         """
@@ -29,9 +29,9 @@ class PlanGeneratorService:
             # Build the prompt
             prompt = self._build_plan_prompt(request)
 
-            # Generate plan using Ollama
+            # Generate plan using Gemini
             logger.info(f"Generating plan for subject: {request.subject}")
-            response = await self.ollama.generate_json(
+            response = await self.llm.generate_json(
                 prompt=prompt,
                 system_prompt=self._get_system_prompt(),
                 temperature=0.7,
