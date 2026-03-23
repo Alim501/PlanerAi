@@ -61,6 +61,7 @@ public class UserService {
         Role role = roleRepository.findByName(roleName)
                 .orElseThrow(() -> new EntityNotFoundException("Role not found: " + roleName));
 
+        if (user.getRoles() == null) user.setRoles(new java.util.HashSet<>());
         user.getRoles().add(role);
         return userRepository.save(user);
     }
@@ -69,7 +70,7 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
-        user.getRoles().removeIf(role -> role.getName() == roleName);
+        if (user.getRoles() != null) user.getRoles().removeIf(role -> role.getName() == roleName);
         return userRepository.save(user);
     }
 

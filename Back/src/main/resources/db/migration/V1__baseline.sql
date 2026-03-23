@@ -1,0 +1,4 @@
+-- Baseline migration
+-- Existing schema was created by Hibernate (ddl-auto=update).
+-- This migration serves as a baseline checkpoint.
+-- All tables up to this version are considered already applied.

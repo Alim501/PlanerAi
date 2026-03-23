@@ -25,8 +25,8 @@ async def lifespan(app: FastAPI):
     logger.info("=" * 60)
     logger.info("Starting PlannerAI AI Service")
     logger.info(f"Version: 1.0.0")
-    logger.info(f"Ollama URL: {settings.ollama_base_url}")
-    logger.info(f"Ollama Model: {settings.ollama_model}")
+    logger.info(f"LLM Provider: Google Gemini")
+    logger.info(f"Gemini Model: {settings.gemini_model}")
     logger.info(f"Port: {settings.port}")
     logger.info("=" * 60)
 

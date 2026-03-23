@@ -12,8 +12,11 @@ import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.UUID;
 
 @Slf4j
@@ -22,6 +25,7 @@ import java.util.UUID;
 public class FileService {
 
     private final S3Client s3Client;
+    private final S3Presigner s3Presigner;
 
     @Value("${aws.s3.bucket-name}")
     private String bucketName;
@@ -121,6 +125,20 @@ public class FileService {
             log.error("S3 error while deleting file: {}", e.awsErrorDetails().errorMessage());
             throw new RuntimeException("Failed to delete file from S3: " + s3Key, e);
         }
+    }
+
+    /**
+     * Generate a presigned URL for temporary access to an S3 file
+     * @param s3Key S3 object key
+     * @return Presigned URL valid for 15 minutes
+     */
+    public String generatePresignedUrl(String s3Key) {
+        GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
+                .signatureDuration(Duration.ofMinutes(15))
+                .getObjectRequest(r -> r.bucket(bucketName).key(s3Key))
+                .build();
+
+        return s3Presigner.presignGetObject(presignRequest).url().toString();
     }
 
     /**

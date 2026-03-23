@@ -33,7 +33,12 @@ public class Note {
     @Enumerated(EnumType.STRING)
     private NoteFormat format;
 
+    @Column(columnDefinition = "TEXT")
     private String summary;
+
+    private String difficulty;
+
+    private String language;
 
     @ManyToMany
     @JoinTable(

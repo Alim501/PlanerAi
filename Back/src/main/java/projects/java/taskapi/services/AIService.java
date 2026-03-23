@@ -43,13 +43,12 @@ public class AIService {
         }
     }
 
-    public NoteAnalysisDTO analyzeNote(AnalyzeNoteRequestDTO request) {
+    public NoteAnalysisDTO analyzeNote(String presignedUrl, String fileType) {
         String url = aiServiceUrl + "/api/ai/notes/analyze";
 
         Map<String, Object> body = Map.of(
-                "file_path", request.filePath(),
-                "file_type", request.fileType(),
-                "subject_id", request.subjectId() != null ? request.subjectId() : 0
+                "file_url", presignedUrl,
+                "file_type", fileType
         );
 
         try {

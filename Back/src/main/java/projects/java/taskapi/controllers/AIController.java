@@ -8,10 +8,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import projects.java.taskapi.exceptions.NoteNotFoundException;
+import projects.java.taskapi.models.Note;
 import projects.java.taskapi.models.Plan;
 import projects.java.taskapi.models.User;
 import projects.java.taskapi.models.dto.ai.*;
 import projects.java.taskapi.services.AIService;
+import projects.java.taskapi.services.FileService;
+import projects.java.taskapi.services.NoteService;
 import projects.java.taskapi.services.PlanService;
 
 @RestController
@@ -23,7 +27,10 @@ public class AIController {
 
     private final AIService aiService;
     private final PlanService planService;
+    private final NoteService noteService;
+    private final FileService fileService;
 
+    // todo: make sure plan is constructed based on student's notes
     /**
      * Генерирует план через ИИ и сохраняет его в БД.
      * Возвращает сохранённый план с ID и задачами.
@@ -41,14 +48,22 @@ public class AIController {
         return ResponseEntity.ok(saved);
     }
 
-    @Operation(summary = "Analyze note using AI")
+    @Operation(summary = "Analyze note using AI and save results")
     @PostMapping("/notes/analyze")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<NoteAnalysisDTO> analyzeNote(
             @RequestBody AnalyzeNoteRequestDTO request
     ) {
-        log.info("Analyzing note: {}", request.filePath());
-        return ResponseEntity.ok(aiService.analyzeNote(request));
+        Note note = noteService.getNoteById(request.noteId())
+                .orElseThrow(() -> new NoteNotFoundException(request.noteId()));
+
+        String fileType = note.getFormat().name().toLowerCase();
+        String presignedUrl = fileService.generatePresignedUrl(note.getFileUrl());
+        log.info("Analyzing note id={}, fileType={}", note.getId(), fileType);
+
+        NoteAnalysisDTO analysis = aiService.analyzeNote(presignedUrl, fileType);
+        noteService.applyAnalysis(note.getId(), analysis);
+        return ResponseEntity.ok(analysis);
     }
 
     @Operation(summary = "Improve task description using AI")

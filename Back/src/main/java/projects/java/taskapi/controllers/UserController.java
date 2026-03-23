@@ -19,6 +19,7 @@ public class UserController {
 
     // методы для роли STUDENT и MODERATOR
 
+    // todo: во всех методах где получают данные пользователя? даже косвенно(например при получении subject) нужно возвращать dto без пароля как сейчас
     @Operation(summary = "Получить данные текущего пользователя")
     @GetMapping("/me")
     public ResponseEntity<User> getCurrentUser(@AuthenticationPrincipal User currentUser) {

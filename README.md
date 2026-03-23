@@ -108,7 +108,7 @@ npm run start
 
 ---
 #### To do:
-- ai communication
+- ✅ AI интеграция (Google Gemini — генерация планов, анализ конспектов, улучшение задач)
 - ✅exception handler
 - User info problem: JWT token contain only email and there is no GetByEmail endpoint:
 1. ✅ Put userId in jwt

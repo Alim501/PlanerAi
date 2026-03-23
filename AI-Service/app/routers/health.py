@@ -4,7 +4,7 @@ Health check router
 import logging
 from fastapi import APIRouter, Depends
 from app.models import HealthCheckResponse
-from app.services import get_ollama_service, OllamaService
+from app.services import get_gemini_service, GeminiService
 from app.config import get_settings, Settings
 
 logger = logging.getLogger(__name__)
@@ -14,21 +14,21 @@ router = APIRouter(tags=["Health"])
 
 @router.get("/health", response_model=HealthCheckResponse)
 async def health_check(
-    ollama_service: OllamaService = Depends(get_ollama_service),
+    gemini_service: GeminiService = Depends(get_gemini_service),
     settings: Settings = Depends(get_settings),
 ):
     """
     Health check endpoint
 
     Returns:
-        Service status and Ollama connection status
+        Service status and Gemini connection status
     """
-    ollama_connected = await ollama_service.check_connection()
+    gemini_connected = await gemini_service.check_connection()
 
     return HealthCheckResponse(
-        status="healthy" if ollama_connected else "degraded",
-        ollama_connected=ollama_connected,
-        model=settings.ollama_model,
+        status="healthy" if gemini_connected else "degraded",
+        ollama_connected=gemini_connected,
+        model=settings.gemini_model,
         version="1.0.0",
     )
 

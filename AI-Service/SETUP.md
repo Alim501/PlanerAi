@@ -1,112 +1,83 @@
-# 🚀 Быстрая установка AI сервиса
+# Установка AI Service
 
-## Шаг 1: Установка Ollama
+## Шаг 1: Получить Gemini API ключ
 
-### macOS
-```bash
-brew install ollama
-```
+1. Перейдите на [aistudio.google.com](https://aistudio.google.com)
+2. Нажмите **Get API key** → **Create API key**
+3. Скопируйте ключ
 
-### Linux
-```bash
-curl -fsSL https://ollama.com/install.sh | sh
-```
+> Используйте именно AI Studio. Ключи с Google Cloud Console не имеют бесплатного тарифа.
 
-### Windows
-Скачайте установщик: https://ollama.com/download
-
-## Шаг 2: Запуск Ollama
-
-```bash
-# Запустите Ollama в фоновом режиме
-ollama serve
-```
-
-Ollama запустится на `http://localhost:11434`
-
-## Шаг 3: Загрузка модели
-
-```bash
-# Рекомендуемая модель (быстрая, 2GB)
-ollama pull llama3.2:3b
-
-# Проверка установленных моделей
-ollama list
-```
-
-## Шаг 4: Установка Python зависимостей
+## Шаг 2: Установить Python зависимости
 
 ```bash
 cd AI-Service
 
-# Создайте виртуальное окружение
 python3 -m venv venv
-
-# Активируйте его
 source venv/bin/activate  # macOS/Linux
 # или
 venv\Scripts\activate  # Windows
 
-# Установите зависимости
 pip install -r requirements.txt
 ```
 
-## Шаг 5: (Опционально) Tesseract для OCR
+## Шаг 3: Создать .env файл
 
-### macOS
 ```bash
-brew install tesseract tesseract-lang
+# В папке AI-Service
+cp .env.example .env  # если есть example, или создайте вручную
 ```
 
-### Ubuntu/Debian
-```bash
-sudo apt-get install tesseract-ocr tesseract-ocr-rus tesseract-ocr-eng
+Содержимое `.env`:
+```env
+GEMINI_API_KEY=ваш_ключ_из_ai_studio
+GEMINI_MODEL=gemini-2.0-flash
+BACKEND_URL=http://localhost:8080
+ALLOWED_ORIGINS=http://localhost:4200,http://localhost:8080
 ```
 
-## Шаг 6: Запуск AI сервиса
+## Шаг 4: Запуск
 
 ```bash
-# Убедитесь что venv активирован
 source venv/bin/activate
-
-# Запустите сервис
 python -m app.main
 ```
 
-Сервис запустится на `http://localhost:8000`
-
 ## Проверка работы
 
-### 1. Проверьте health endpoint:
 ```bash
 curl http://localhost:8000/health
 ```
 
-Должны увидеть:
+Ожидаемый ответ:
 ```json
 {
   "status": "healthy",
   "ollama_connected": true,
-  "model": "llama3.2:3b",
+  "model": "gemini-2.0-flash",
   "version": "1.0.0"
 }
 ```
 
-### 2. Протестируйте генерацию плана:
+## Как включить и выключить AI Service
+
+### Запуск в фоне:
 ```bash
-curl -X POST http://localhost:8000/api/ai/plans/generate \
-  -H "Content-Type: application/json" \
-  -d '{
-    "subject": "Математика",
-    "duration_weeks": 4,
-    "level": "beginner"
-  }'
+source venv/bin/activate
+nohup python -m app.main > logs/app.log 2>&1 &
+echo $! > ai-service.pid
 ```
 
-## Готово! 🎉
+### Остановка:
+```bash
+kill $(cat ai-service.pid)
+```
 
-Теперь AI сервис готов к использованию.
+### Проверка статуса:
+```bash
+# Проверить процесс
+ps aux | grep "app.main"
 
-Следующие шаги:
-1. Интегрировать с Spring Boot backend
-2. Добавить UI в Angular frontend
+# Проверить health
+curl http://localhost:8000/health
+```
