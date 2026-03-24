@@ -15,4 +15,7 @@ public interface NoteRepository extends JpaRepository<Note, Long> {
     @Query("SELECT DISTINCT n FROM Note n JOIN n.keywords k WHERE LOWER(k.word) IN :keywords")
     List<Note> findByKeywordsIn(@Param("keywords") List<String> keywords);
 
+    @Query("SELECT DISTINCT n FROM Note n JOIN n.keywords k WHERE n.user.id = :userId AND LOWER(k.word) IN :keywords")
+    List<Note> findByUserIdAndKeywordsIn(@Param("userId") Long userId, @Param("keywords") List<String> keywords);
+
 }

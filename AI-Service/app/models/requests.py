@@ -13,6 +13,15 @@ class DifficultyLevel(str, Enum):
     ADVANCED = "advanced"
 
 
+class NoteContext(BaseModel):
+    """Context of an existing student note for plan generation"""
+    note_id: int = Field(..., description="Note ID in the database")
+    title: str = Field(..., description="Note title")
+    summary: Optional[str] = Field(default=None, description="AI-generated summary")
+    keywords: List[str] = Field(default_factory=list, description="Extracted keywords")
+    difficulty: str = Field(default="intermediate", description="Note difficulty level")
+
+
 class GeneratePlanRequest(BaseModel):
     """Request model for plan generation"""
     subject: str = Field(..., description="Subject name (e.g., 'Математический анализ')")
@@ -20,6 +29,7 @@ class GeneratePlanRequest(BaseModel):
     level: DifficultyLevel = Field(default=DifficultyLevel.INTERMEDIATE, description="Difficulty level")
     topics: Optional[List[str]] = Field(default=None, description="Specific topics to cover")
     goals: Optional[str] = Field(default=None, description="Learning goals")
+    available_notes: Optional[List[NoteContext]] = Field(default=None, description="Student's existing notes to use as resources")
 
 
 class AnalyzeNoteRequest(BaseModel):

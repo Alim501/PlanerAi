@@ -11,15 +11,20 @@ import projects.java.taskapi.models.dto.PlanDTO;
 import projects.java.taskapi.models.dto.TaskDTO;
 import projects.java.taskapi.models.dto.WeekDTO;
 import projects.java.taskapi.models.dto.ai.GeneratedPlanDTO;
+import projects.java.taskapi.models.dto.ai.TaskPlanDTO;
 import projects.java.taskapi.models.dto.ai.WeekPlanDTO;
+import projects.java.taskapi.repositories.NoteRepository;
 import projects.java.taskapi.repositories.PlanRepository;
 import projects.java.taskapi.repositories.ProgressRepository;
 import projects.java.taskapi.repositories.SubjectRepository;
 import projects.java.taskapi.repositories.UserRepository;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +34,7 @@ public class PlanService {
     private final ProgressRepository progressRepository;
     private final UserRepository userRepository;
     private final SubjectRepository subjectRepository;
+    private final NoteRepository noteRepository;
 
     @Transactional
     public Plan createPlan(Long userId, PlanDTO dto) {
@@ -70,8 +76,11 @@ public class PlanService {
         Plan plan = buildPlan(dto.title(), dto.description(), dto.difficulty(), subject);
 
         if (dto.weeks() != null) {
+            // Pre-fetch all referenced notes in one query to avoid N+1
+            Map<Long, Note> notesById = prefetchNotes(dto.weeks());
+
             List<Week> weeks = dto.weeks().stream()
-                    .map(weekDto -> buildWeekFromGenerated(plan, weekDto))
+                    .map(weekDto -> buildWeekFromGenerated(plan, weekDto, notesById))
                     .toList();
             plan.setWeeks(weeks);
         }
@@ -80,6 +89,21 @@ public class PlanService {
         Plan saved = planRepository.save(plan);
         linkUserToPlan(user, saved, startDate, startDate.plusWeeks(dto.durationWeeks()));
         return saved;
+    }
+
+    private Map<Long, Note> prefetchNotes(List<WeekPlanDTO> weeks) {
+        List<Long> allNoteIds = weeks.stream()
+                .filter(w -> w.tasks() != null)
+                .flatMap(w -> w.tasks().stream())
+                .filter(t -> t.internalNoteIds() != null)
+                .flatMap(t -> t.internalNoteIds().stream())
+                .distinct()
+                .toList();
+
+        if (allNoteIds.isEmpty()) return Map.of();
+
+        return noteRepository.findAllById(allNoteIds).stream()
+                .collect(Collectors.toMap(Note::getId, n -> n));
     }
 
     public List<Plan> getPlansByUser(Long userId) {
@@ -144,19 +168,42 @@ public class PlanService {
         return week;
     }
 
-    private Week buildWeekFromGenerated(Plan plan, WeekPlanDTO weekDto) {
+    private Week buildWeekFromGenerated(Plan plan, WeekPlanDTO weekDto, Map<Long, Note> notesById) {
         Week week = buildWeekShell(plan, weekDto.weekNumber(), weekDto.title(), weekDto.estimatedHours());
         List<Task> tasks = weekDto.tasks() != null
                 ? weekDto.tasks().stream()
-                        .map(title -> Task.builder()
-                                .title(title)
-                                .description("Неделя %d: %s".formatted(weekDto.weekNumber(), weekDto.title()))
-                                .week(week)
-                                .build())
+                        .map(taskDto -> buildTaskFromGenerated(taskDto, week, weekDto.weekNumber(), weekDto.title(), notesById))
                         .toList()
                 : List.of();
         week.setTasks(tasks);
         return week;
+    }
+
+    private Task buildTaskFromGenerated(TaskPlanDTO taskDto, Week week, int weekNumber, String weekTitle,
+                                        Map<Long, Note> notesById) {
+        String description = taskDto.description() != null && !taskDto.description().isBlank()
+                ? taskDto.description()
+                : "Неделя %d: %s".formatted(weekNumber, weekTitle);
+
+        List<Note> relatedNotes = new ArrayList<>();
+        if (taskDto.internalNoteIds() != null) {
+            taskDto.internalNoteIds().stream()
+                    .map(notesById::get)
+                    .filter(n -> n != null)
+                    .forEach(relatedNotes::add);
+        }
+
+        List<String> externalResources = taskDto.externalResources() != null
+                ? new ArrayList<>(taskDto.externalResources())
+                : new ArrayList<>();
+
+        return Task.builder()
+                .title(taskDto.title())
+                .description(description)
+                .week(week)
+                .relatedNotes(relatedNotes)
+                .externalResources(externalResources)
+                .build();
     }
 
     private Week buildWeekShell(Plan plan, int weekNumber, String title, int estimatedHours) {

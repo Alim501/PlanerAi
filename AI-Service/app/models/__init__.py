@@ -1,6 +1,7 @@
 """Models package"""
 from .requests import (
     GeneratePlanRequest,
+    NoteContext,
     AnalyzeNoteRequest,
     ChatRequest,
     ImproveTaskRequest,
@@ -9,6 +10,7 @@ from .requests import (
 from .responses import (
     GeneratedPlan,
     WeekPlan,
+    TaskPlan,
     NoteAnalysis,
     ChatResponse,
     TaskImprovement,
@@ -18,6 +20,7 @@ from .responses import (
 __all__ = [
     # Requests
     "GeneratePlanRequest",
+    "NoteContext",
     "AnalyzeNoteRequest",
     "ChatRequest",
     "ImproveTaskRequest",
@@ -25,6 +28,7 @@ __all__ = [
     # Responses
     "GeneratedPlan",
     "WeekPlan",
+    "TaskPlan",
     "NoteAnalysis",
     "ChatResponse",
     "TaskImprovement",

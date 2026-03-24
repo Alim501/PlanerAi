@@ -7,7 +7,7 @@ import java.util.List;
 public record WeekPlanDTO(
         @JsonProperty("week_number") int weekNumber,
         String title,
-        List<String> tasks,
+        List<TaskPlanDTO> tasks,
         @JsonProperty("estimated_hours") int estimatedHours,
         List<String> resources
 ) {
