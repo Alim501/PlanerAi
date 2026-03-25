@@ -3,7 +3,7 @@ Study plan generation service
 """
 import logging
 from typing import Dict, Any, List
-from app.models import GeneratePlanRequest, GeneratedPlan, WeekPlan
+from app.models import GeneratePlanRequest, GeneratedPlan, WeekPlan, TaskPlan
 from app.services.gemini_service import get_gemini_service
 
 logger = logging.getLogger(__name__)
@@ -57,13 +57,14 @@ Guidelines:
 - Provide clear learning objectives for each week
 - Suggest practical tasks and assignments
 - Include realistic time estimates
-- Recommend relevant resources when applicable
+- If student notes are provided, prioritize them as resources and reference their IDs in internal_note_ids
+- For topics not covered by student notes, suggest external resources (books, articles, online courses)
 - Ensure progressive difficulty throughout the plan
 - Use Russian language for all content
 
 Respond with a JSON object matching this structure:
 {
-  "title": "План title",
+  "title": "Plan title",
   "description": "Overview description",
   "learning_outcomes": ["outcome 1", "outcome 2"],
   "weeks": [
@@ -71,14 +72,23 @@ Respond with a JSON object matching this structure:
       "week_number": 1,
       "title": "Week theme",
       "topics": ["topic 1", "topic 2"],
-      "tasks": ["task 1", "task 2"],
+      "tasks": [
+        {
+          "title": "Task title",
+          "description": "Brief task description",
+          "internal_note_ids": [1, 2],
+          "external_resources": ["Book or URL if no matching note"]
+        }
+      ],
       "estimated_hours": 10,
-      "resources": ["resource 1"]
+      "resources": ["general week resource"]
     }
   ],
   "prerequisites": ["prerequisite 1"],
   "recommended_resources": ["resource 1"]
-}"""
+}
+
+IMPORTANT: internal_note_ids must only contain IDs from the provided student notes list. If no notes match a task, use an empty list and provide external_resources instead."""
 
     def _build_plan_prompt(self, request: GeneratePlanRequest) -> str:
         """Build the plan generation prompt"""
@@ -94,6 +104,26 @@ Respond with a JSON object matching this structure:
 
         if request.goals:
             prompt_parts.append(f"Цели обучения: {request.goals}")
+
+        if request.available_notes:
+            prompt_parts.append(
+                f"\nУ студента есть {len(request.available_notes)} конспект(а/ов) — используй их как приоритетные ресурсы:"
+            )
+            for note in request.available_notes:
+                keywords_str = ", ".join(note.keywords[:6]) if note.keywords else "—"
+                summary_str = f' | Краткое содержание: "{note.summary}"' if note.summary else ""
+                prompt_parts.append(
+                    f"  [id={note.note_id}] \"{note.title}\" (уровень: {note.difficulty}, ключевые слова: {keywords_str}){summary_str}"
+                )
+            prompt_parts.append(
+                "Для каждой задачи укажи internal_note_ids — список ID подходящих конспектов из списка выше. "
+                "Если подходящих конспектов нет — оставь internal_note_ids пустым и укажи external_resources."
+            )
+        else:
+            prompt_parts.append(
+                "У студента нет конспектов. Для каждой задачи предложи external_resources "
+                "(учебники, онлайн-курсы, статьи)."
+            )
 
         prompt_parts.append(
             "\nСоздай структурированный план с разбивкой по неделям. "
@@ -112,11 +142,24 @@ Respond with a JSON object matching this structure:
             # Parse weeks
             weeks = []
             for week_data in response.get("weeks", []):
+                raw_tasks = week_data.get("tasks", [])
+                tasks = []
+                for t in raw_tasks:
+                    if isinstance(t, dict):
+                        tasks.append(TaskPlan(
+                            title=t.get("title", ""),
+                            description=t.get("description"),
+                            internal_note_ids=t.get("internal_note_ids", []),
+                            external_resources=t.get("external_resources", []),
+                        ))
+                    else:
+                        # fallback: plain string task from old format
+                        tasks.append(TaskPlan(title=str(t), internal_note_ids=[], external_resources=[]))
                 week = WeekPlan(
                     week_number=week_data.get("week_number", 0),
                     title=week_data.get("title", ""),
                     topics=week_data.get("topics", []),
-                    tasks=week_data.get("tasks", []),
+                    tasks=tasks,
                     estimated_hours=week_data.get("estimated_hours", 10),
                     resources=week_data.get("resources"),
                 )
@@ -152,7 +195,10 @@ Respond with a JSON object matching this structure:
                 week_number=i + 1,
                 title=f"Неделя {i + 1}",
                 topics=["Основные концепции", "Практические задания"],
-                tasks=["Изучение теоретического материала", "Выполнение практических заданий"],
+                tasks=[
+                    TaskPlan(title="Изучение теоретического материала", internal_note_ids=[], external_resources=[]),
+                    TaskPlan(title="Выполнение практических заданий", internal_note_ids=[], external_resources=[]),
+                ],
                 estimated_hours=hours_per_week,
             )
             weeks.append(week)

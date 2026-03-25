@@ -96,5 +96,3 @@ target/
 !**/src/test/**/target/
 
 CLAUDE.md
-git_keys
-git_keys.pub

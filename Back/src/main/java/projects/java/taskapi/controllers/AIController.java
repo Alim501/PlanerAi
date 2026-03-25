@@ -15,8 +15,11 @@ import projects.java.taskapi.models.User;
 import projects.java.taskapi.models.dto.ai.*;
 import projects.java.taskapi.services.AIService;
 import projects.java.taskapi.services.FileService;
+import projects.java.taskapi.services.NoteMatchingService;
 import projects.java.taskapi.services.NoteService;
 import projects.java.taskapi.services.PlanService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/ai")
@@ -29,13 +32,14 @@ public class AIController {
     private final PlanService planService;
     private final NoteService noteService;
     private final FileService fileService;
+    private final NoteMatchingService noteMatchingService;
 
-    // todo: make sure plan is constructed based on student's notes
     /**
      * Генерирует план через ИИ и сохраняет его в БД.
-     * Возвращает сохранённый план с ID и задачами.
+     * Автоматически подбирает конспекты пользователя по указанным темам
+     * и передаёт их ИИ как приоритетные ресурсы.
      */
-    @Operation(summary = "Generate and save study plan using AI")
+    @Operation(summary = "Generate and save study plan using AI (auto-selects matching notes)")
     @PostMapping("/plans/generate")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Plan> generatePlan(
@@ -43,7 +47,12 @@ public class AIController {
             @RequestBody GeneratePlanRequestDTO request
     ) {
         log.info("User {} generating AI plan for subject: {}", currentUser.getId(), request.subject());
-        GeneratedPlanDTO generated = aiService.generatePlan(request);
+
+        List<NoteContextDTO> relevantNotes = noteMatchingService.findRelevantNotes(
+                request.topics(), request.subjectId(), currentUser.getId()
+        );
+
+        GeneratedPlanDTO generated = aiService.generatePlan(request, relevantNotes);
         Plan saved = planService.createPlanFromGenerated(currentUser.getId(), generated);
         return ResponseEntity.ok(saved);
     }

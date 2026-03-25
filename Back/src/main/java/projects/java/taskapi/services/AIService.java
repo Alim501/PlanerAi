@@ -11,6 +11,8 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import projects.java.taskapi.models.dto.ai.*;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -23,19 +25,21 @@ public class AIService {
 
     private final RestTemplate restTemplate;
 
-    public GeneratedPlanDTO generatePlan(GeneratePlanRequestDTO request) {
+    public GeneratedPlanDTO generatePlan(GeneratePlanRequestDTO request, List<NoteContextDTO> availableNotes) {
         String url = aiServiceUrl + "/api/ai/plans/generate";
 
-        Map<String, Object> body = Map.of(
-                "subject", request.subject(),
-                "duration_weeks", request.durationWeeks(),
-                "level", request.level() != null ? request.level() : "intermediate",
-                "topics", request.topics() != null ? request.topics() : java.util.List.of(),
-                "goals", request.goals() != null ? request.goals() : ""
-        );
+        Map<String, Object> body = new HashMap<>();
+        body.put("subject", request.subject());
+        body.put("duration_weeks", request.durationWeeks());
+        body.put("level", request.level() != null ? request.level() : "intermediate");
+        body.put("topics", request.topics() != null ? request.topics() : List.of());
+        body.put("goals", request.goals() != null ? request.goals() : "");
+        if (availableNotes != null && !availableNotes.isEmpty()) {
+            body.put("available_notes", availableNotes);
+        }
 
         try {
-            log.info("Calling AI service: POST {}", url);
+            log.info("Calling AI service: POST {} (notes={})", url, availableNotes != null ? availableNotes.size() : 0);
             return restTemplate.postForObject(url, buildRequest(body), GeneratedPlanDTO.class);
         } catch (RestClientException e) {
             log.error("AI service error (generatePlan): {}", e.getMessage());

@@ -6,6 +6,7 @@ import lombok.*;
 import projects.java.taskapi.models.enums.TaskStatus;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -40,6 +41,15 @@ public class Task {
             inverseJoinColumns = @JoinColumn(name = "note_id")
     )
     private List<Note> relatedNotes;
+
+    @Builder.Default
+    @ElementCollection
+    @CollectionTable(
+            name = "task_external_resources",
+            joinColumns = @JoinColumn(name = "task_id")
+    )
+    @Column(name = "resource_url", length = 1000)
+    private List<String> externalResources = new ArrayList<>();
 
     @PrePersist
     private void prePersist() {

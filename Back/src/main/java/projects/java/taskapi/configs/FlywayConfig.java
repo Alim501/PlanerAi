@@ -9,13 +9,16 @@ import javax.sql.DataSource;
 @Configuration
 public class FlywayConfig {
 
-    @Bean(initMethod = "migrate")
+    @Bean
     public Flyway flyway(DataSource dataSource) {
-        return Flyway.configure()
+        Flyway flyway = Flyway.configure()
                 .dataSource(dataSource)
                 .locations("classpath:db/migration")
                 .baselineOnMigrate(true)
                 .baselineVersion("1")
                 .load();
+        flyway.repair();
+        flyway.migrate();
+        return flyway;
     }
 }

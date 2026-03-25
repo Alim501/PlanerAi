@@ -5,12 +5,20 @@ from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 
 
+class TaskPlan(BaseModel):
+    """Structured task with linked resources"""
+    title: str = Field(..., description="Task title")
+    description: Optional[str] = Field(default=None, description="Task description")
+    internal_note_ids: List[int] = Field(default_factory=list, description="IDs of matching student notes")
+    external_resources: List[str] = Field(default_factory=list, description="External resources (books, links)")
+
+
 class WeekPlan(BaseModel):
     """Weekly plan structure"""
     week_number: int = Field(..., description="Week number")
     title: str = Field(..., description="Week title/theme")
     topics: List[str] = Field(..., description="Topics to cover this week")
-    tasks: List[str] = Field(..., description="Tasks/assignments for the week")
+    tasks: List[TaskPlan] = Field(..., description="Tasks/assignments for the week")
     estimated_hours: int = Field(..., description="Estimated study hours")
     resources: Optional[List[str]] = Field(default=None, description="Recommended resources")
 

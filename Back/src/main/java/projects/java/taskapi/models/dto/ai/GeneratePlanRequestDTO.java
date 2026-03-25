@@ -19,6 +19,8 @@ public record GeneratePlanRequestDTO(
 
         List<String> topics,
 
-        String goals
+        String goals,
+
+        Long subjectId  // optional: used to filter notes by subject
 ) {
 }
