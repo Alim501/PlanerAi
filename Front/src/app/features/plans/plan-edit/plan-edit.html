@@ -49,40 +49,19 @@
             }
           </mat-form-field>
 
-          <!-- Dates -->
-          <div class="date-row">
-            <mat-form-field appearance="outline" class="half-width">
-              <mat-label>Дата начала</mat-label>
-              <input matInput [matDatepicker]="startPicker" formControlName="startDate" />
-              <mat-datepicker-toggle matPrefix [for]="startPicker"></mat-datepicker-toggle>
-              <mat-datepicker #startPicker></mat-datepicker>
-              @if (planForm.get('startDate')?.touched && planForm.get('startDate')?.invalid) {
-              <mat-error>{{ getErrorMessage('startDate') }}</mat-error>
-              }
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="half-width">
-              <mat-label>Дата окончания</mat-label>
-              <input matInput [matDatepicker]="endPicker" formControlName="endDate" />
-              <mat-datepicker-toggle matPrefix [for]="endPicker"></mat-datepicker-toggle>
-              <mat-datepicker #endPicker></mat-datepicker>
-              @if (planForm.get('endDate')?.touched && planForm.get('endDate')?.invalid) {
-              <mat-error>{{ getErrorMessage('endDate') }}</mat-error>
-              }
-            </mat-form-field>
-          </div>
-
-          <!-- Status -->
+          <!-- Description -->
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Статус</mat-label>
-            <mat-select formControlName="status">
-              @for (status of statuses; track status.value) {
-              <mat-option [value]="status.value">
-                {{ status.label }}
-              </mat-option>
-              }
-            </mat-select>
-            <mat-icon matPrefix>flag</mat-icon>
+            <mat-label>Описание</mat-label>
+            <textarea matInput formControlName="description" rows="3"
+              placeholder="Краткое описание плана"></textarea>
+            <mat-icon matPrefix>notes</mat-icon>
+          </mat-form-field>
+
+          <!-- Difficulty -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Сложность</mat-label>
+            <input matInput formControlName="difficulty" placeholder="beginner / intermediate / advanced" />
+            <mat-icon matPrefix>trending_up</mat-icon>
           </mat-form-field>
 
           <!-- Actions -->

@@ -12,7 +12,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { Plan, PLAN_STATUSES } from '../../../models/plan.models';
+import { Plan } from '../../../models/plan.models';
 import { Subject } from '../../../models/note.models';
 import { PlanService } from '../../../services/plan.service';
 import { SubjectService } from '../../../services/subject.service';
@@ -54,7 +54,6 @@ export class PlansListComponent implements OnInit {
 
   // Filters
   subjects = signal<Subject[]>([]);
-  statuses = PLAN_STATUSES;
   searchQuery = signal('');
   selectedSubject = signal<number | null>(null);
   selectedStatus = signal<string | null>(null);
@@ -97,10 +96,6 @@ export class PlansListComponent implements OnInit {
     this.planStore.setFilterSubject(subjectId as any);
   }
 
-  onStatusChange(status: string | null): void {
-    this.planStore.setFilterStatus(status as any);
-  }
-
   clearFilters(): void {
     this.searchQuery.set('');
     this.selectedSubject.set(null);
@@ -118,8 +113,7 @@ export class PlansListComponent implements OnInit {
 
   editPlan(plan: Plan, event: Event): void {
     event.stopPropagation();
-    this.planStore.selectPlan(plan);
-    this.router.navigate(['/app/plans/edit']);
+    this.router.navigate(['/app/plans/edit', plan.id]);
   }
 
   deletePlan(plan: Plan, event: Event): void {
@@ -138,22 +132,14 @@ export class PlansListComponent implements OnInit {
     }
   }
 
-  getSubjectLabel(subjectId: number): string {
-    const subject = this.subjects().find((s: Subject) => s.id === subjectId);
-    return subject?.name || '';
-  }
-
-  getStatusLabel(status: string): string {
-    return PLAN_STATUSES.find((s: any) => s.value === status)?.label || status;
-  }
-
-  getStatusColor(status: string): string {
-    return PLAN_STATUSES.find((s: any) => s.value === status)?.color || 'primary';
+  getTotalTasks(plan: Plan): number {
+    return (plan.weeks ?? []).reduce((sum, w) => sum + (w.tasks?.length ?? 0), 0);
   }
 
   getProgressPercentage(plan: Plan): number {
-    if (!plan.tasks || plan.tasks.length === 0) return 0;
-    const completed = plan.tasks.filter((t) => t.taskStatus === 'COMPLETED').length;
-    return Math.round((completed / plan.tasks.length) * 100);
+    const allTasks = (plan.weeks ?? []).flatMap((w) => w.tasks ?? []);
+    if (allTasks.length === 0) return 0;
+    const done = allTasks.filter((t) => t.taskStatus === 'DONE').length;
+    return Math.round((done / allTasks.length) * 100);
   }
 }

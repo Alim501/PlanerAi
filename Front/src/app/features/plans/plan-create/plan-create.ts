@@ -14,12 +14,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { CreatePlanRequest, Plan, PLAN_STATUSES } from '../../../models/plan.models';
+import { CreatePlanRequest, Plan } from '../../../models/plan.models';
 import { Subject } from '../../../models/note.models';
 import { PlanService } from '../../../services/plan.service';
 import { SubjectService } from '../../../services/subject.service';
-import { AIService } from '../../../services/ai.service';
-import { GeneratePlanRequest, GeneratedPlan, DifficultyLevel } from '../../../models/ai.models';
 import { AIGeneratePlanDialogComponent } from '../../../components/shared/ai-generate-plan-dialog/ai-generate-plan-dialog';
 
 @Component({
@@ -50,8 +48,6 @@ export class CreatePlanComponent implements OnInit {
   isLoading = signal(false);
   subjects = signal<Subject[]>([]);
 
-  statuses = PLAN_STATUSES;
-
   minDate = new Date();
   maxDate = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
 
@@ -59,7 +55,6 @@ export class CreatePlanComponent implements OnInit {
     private fb: FormBuilder,
     private planService: PlanService,
     private subjectService: SubjectService,
-    private aiService: AIService,
     private router: Router,
     private snackBar: MatSnackBar,
     private dialog: MatDialog
@@ -69,7 +64,6 @@ export class CreatePlanComponent implements OnInit {
       subjectId: [null, Validators.required],
       startDate: [new Date(), Validators.required],
       endDate: ['', Validators.required],
-      status: ['ACTIVE', Validators.required],
     });
   }
 
@@ -115,7 +109,6 @@ export class CreatePlanComponent implements OnInit {
       subjectId: this.planForm.value.subjectId,
       startDate: this.formatDate(startDate),
       endDate: this.formatDate(endDate),
-      status: this.planForm.value.status,
     };
 
     this.planService.createPlan(request).subscribe({
@@ -145,41 +138,13 @@ export class CreatePlanComponent implements OnInit {
       },
     });
 
-    dialogRef.afterClosed().subscribe((result: GeneratedPlan | null) => {
+    // Бэк возвращает Plan — просто навигируем к нему
+    dialogRef.afterClosed().subscribe((result: Plan | null) => {
       if (result) {
-        this.fillFormFromGeneratedPlan(result);
+        this.snackBar.open('AI план создан и сохранён!', 'OK', { duration: 3000 });
+        this.router.navigate(['/app/plans', result.id]);
       }
     });
-  }
-
-  private fillFormFromGeneratedPlan(plan: GeneratedPlan): void {
-    // Find subject by name
-    const subject = this.subjects().find(
-      (s) => s.name.toLowerCase() === plan.subject.toLowerCase()
-    );
-
-    if (subject) {
-      this.planForm.patchValue({
-        title: plan.title,
-        subjectId: subject.id,
-      });
-
-      // Calculate dates based on duration
-      const startDate = new Date();
-      const endDate = new Date();
-      endDate.setDate(endDate.getDate() + plan.durationWeeks * 7);
-
-      this.planForm.patchValue({
-        startDate: startDate,
-        endDate: endDate,
-      });
-
-      this.snackBar.open(
-        'Форма заполнена на основе AI плана. Проверьте и сохраните.',
-        'OK',
-        { duration: 5000 }
-      );
-    }
   }
 
   getErrorMessage(fieldName: string): string {

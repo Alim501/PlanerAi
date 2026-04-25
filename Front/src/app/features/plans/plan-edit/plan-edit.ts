@@ -8,11 +8,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { Plan, PLAN_STATUSES, UpdatePlanRequest } from '../../../models/plan.models';
+import { Plan, UpdatePlanRequest } from '../../../models/plan.models';
 import { Subject } from '../../../models/note.models';
 import { PlanStore } from '../../../store/plan.store';
 import { PlanService } from '../../../services/plan.service';
@@ -31,8 +29,6 @@ import { SubjectService } from '../../../services/subject.service';
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
   ],
@@ -50,8 +46,6 @@ export class EditPlanComponent implements OnInit {
   isLoadingData = signal(true);
 
   subjects = signal<Subject[]>([]);
-  statuses = PLAN_STATUSES;
-
   selectedPlan = this.planStore.selectedPlan;
 
   constructor(
@@ -65,6 +59,10 @@ export class EditPlanComponent implements OnInit {
 
   ngOnInit(): void {
     this.planId = Number(this.route.snapshot.paramMap.get('id'));
+    if (!this.planId) {
+      this.router.navigate(['/app/plans']);
+      return;
+    }
     this.loadSubjects();
     this.loadPlan();
   }
@@ -73,9 +71,8 @@ export class EditPlanComponent implements OnInit {
     this.planForm = this.fb.group({
       title: ['', [Validators.required, Validators.minLength(3)]],
       subjectId: [null, Validators.required],
-      startDate: ['', Validators.required],
-      endDate: ['', Validators.required],
-      status: ['', Validators.required],
+      description: [''],
+      difficulty: [''],
     });
   }
 
@@ -98,10 +95,9 @@ export class EditPlanComponent implements OnInit {
       next: (plan: Plan) => {
         this.planForm.patchValue({
           title: plan.title,
-          subjectId: plan.subject.id,
-          startDate: new Date(plan.startDate),
-          endDate: new Date(plan.endDate),
-          status: plan.status,
+          subjectId: plan.subject?.id,
+          description: plan.description ?? '',
+          difficulty: plan.difficulty ?? '',
         });
         this.isLoadingData.set(false);
       },
@@ -119,24 +115,13 @@ export class EditPlanComponent implements OnInit {
       return;
     }
 
-    const startDate = new Date(this.planForm.value.startDate);
-    const endDate = new Date(this.planForm.value.endDate);
-
-    if (endDate <= startDate) {
-      this.snackBar.open('Дата окончания должна быть после даты начала', 'Закрыть', {
-        duration: 3000,
-      });
-      return;
-    }
-
     this.isLoading.set(true);
 
     const request: UpdatePlanRequest = {
       title: this.planForm.value.title,
       subjectId: this.planForm.value.subjectId,
-      startDate: this.formatDate(startDate),
-      endDate: this.formatDate(endDate),
-      status: this.planForm.value.status,
+      description: this.planForm.value.description || undefined,
+      difficulty: this.planForm.value.difficulty || undefined,
     };
 
     this.planService.updatePlan(this.planId, request).subscribe({
@@ -187,10 +172,4 @@ export class EditPlanComponent implements OnInit {
     return '';
   }
 
-  private formatDate(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  }
 }

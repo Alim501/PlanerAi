@@ -90,19 +90,6 @@
             </mat-form-field>
           </div>
 
-          <!-- Status -->
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Статус</mat-label>
-            <mat-select formControlName="status">
-              @for (status of statuses; track status.value) {
-              <mat-option [value]="status.value">
-                {{ status.label }}
-              </mat-option>
-              }
-            </mat-select>
-            <mat-icon matPrefix>flag</mat-icon>
-          </mat-form-field>
-
           <!-- Actions -->
           <div class="actions">
             <button mat-stroked-button type="button" (click)="cancel()" [disabled]="isLoading()">

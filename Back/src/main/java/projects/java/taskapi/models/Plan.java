@@ -19,6 +19,7 @@ public class Plan {
 
     private String title;
 
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     private String difficulty;

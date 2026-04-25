@@ -16,7 +16,8 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AIService } from '../../../services/ai.service';
 import { Subject } from '../../../models/note.models';
-import { GeneratedPlan, DifficultyLevel } from '../../../models/ai.models';
+import { DifficultyLevel } from '../../../models/ai.models';
+import { Plan } from '../../../models/plan.models';
 
 export interface AIGeneratePlanDialogData {
   subjects: Subject[];
@@ -45,7 +46,7 @@ export interface AIGeneratePlanDialogData {
 export class AIGeneratePlanDialogComponent {
   generateForm: FormGroup;
   loading = signal(false);
-  generatedPlan = signal<GeneratedPlan | null>(null);
+  generatedPlan = signal<Plan | null>(null);
 
   difficultyLevels: DifficultyLevel[] = ['beginner', 'intermediate', 'advanced'];
 
@@ -114,7 +115,7 @@ export class AIGeneratePlanDialogComponent {
     };
 
     this.aiService.generatePlan(request).subscribe({
-      next: (plan: GeneratedPlan) => {
+      next: (plan: Plan) => {
         this.generatedPlan.set(plan);
         this.loading.set(false);
         this.snackBar.open('План успешно сгенерирован!', 'OK', { duration: 3000 });

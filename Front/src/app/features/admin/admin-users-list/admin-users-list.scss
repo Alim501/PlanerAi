@@ -1,13 +1,12 @@
-.admin-users-container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding-top: 40px;
-  padding-bottom: 40px;
+.admin-users-bg {
+  background: var(--page-bg);
+  min-height: 100%;
 }
 
-.admin-users-bg {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  min-height: 100vh;
+.admin-users-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 24px;
 }
 
 .admin-header {
@@ -15,46 +14,35 @@
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 32px;
+  flex-wrap: wrap;
+  gap: 16px;
 
   .header-content {
     h1 {
       display: flex;
       align-items: center;
       gap: 12px;
-      font-size: 32px;
-      font-weight: 600;
-      margin: 0 0 8px 0;
-      color: #333;
+      font-size: 28px;
+      font-weight: 700;
+      margin: 0 0 4px 0;
+      color: var(--text-primary);
 
-      mat-icon {
-        font-size: 36px;
-        width: 36px;
-        height: 36px;
-        color: #667eea;
-      }
+      mat-icon { font-size: 32px; width: 32px; height: 32px; color: var(--accent-purple); }
     }
-
-    .subtitle {
-      margin: 0;
-      color: #666;
-      font-size: 16px;
-    }
+    .subtitle { margin: 0; color: var(--text-secondary); font-size: 15px; }
   }
 
-  button {
-    mat-icon {
-      margin-right: 8px;
-    }
-  }
+  button mat-icon { margin-right: 8px; }
 }
 
 .search-card {
-  margin-bottom: 24px;
-  padding: 20px;
+  padding: 16px 20px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px 12px 0 0;
+  margin-bottom: 0;
 
-  .search-field {
-    width: 100%;
-  }
+  .search-field { width: 100%; }
 }
 
 .loading-container {
@@ -64,12 +52,11 @@
   justify-content: center;
   padding: 64px 20px;
   gap: 20px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 0 0 12px 12px;
 
-  p {
-    margin: 0;
-    color: #666;
-    font-size: 16px;
-  }
+  p { margin: 0; color: var(--text-secondary); font-size: 16px; }
 }
 
 .error-state {
@@ -79,48 +66,47 @@
   justify-content: center;
   padding: 64px 20px;
   text-align: center;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 0 0 12px 12px;
 
-  mat-icon {
-    font-size: 96px;
-    width: 96px;
-    height: 96px;
-    color: #f44336;
-    margin-bottom: 16px;
-  }
-
-  h2 {
-    margin: 0 0 8px 0;
-    color: #666;
-  }
-
-  p {
-    margin: 0 0 24px 0;
-    color: #999;
-  }
+  mat-icon { font-size: 72px; width: 72px; height: 72px; color: #f44336; margin-bottom: 16px; }
+  h2 { margin: 0 0 8px 0; color: var(--text-primary); }
+  p  { margin: 0 0 24px 0; color: var(--text-secondary); }
 }
 
 .table-card {
   padding: 0;
   overflow: hidden;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-top: none;
+  border-radius: 0 0 12px 12px;
 
   .table-container {
     overflow-x: auto;
-    min-height: 400px;
+    min-height: 200px;
 
     .users-table {
       width: 100%;
-      background: white;
+      background: var(--card-bg);
 
       th {
-        background-color: #f5f5f5;
+        background-color: var(--page-bg);
         font-weight: 600;
-        color: #333;
-        padding: 16px;
+        color: var(--text-primary);
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--border-color);
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
       }
 
       td {
-        padding: 16px;
-        color: #666;
+        padding: 14px 16px;
+        color: var(--text-secondary);
+        border-bottom: 1px solid var(--border-color);
+        background: var(--card-bg);
       }
 
       .email-cell {
@@ -128,18 +114,19 @@
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        color: var(--text-primary);
+        font-weight: 500;
       }
 
-      tr.mat-mdc-row:hover {
-        background-color: rgba(102, 126, 234, 0.04);
+      tr.mat-mdc-row:hover td {
+        background-color: rgba(102, 126, 234, 0.06);
       }
 
-      mat-chip-set {
-        mat-chip {
-          font-size: 12px;
-          height: 28px;
-        }
+      tr.mat-mdc-row:last-child td {
+        border-bottom: none;
       }
+
+      mat-chip-set mat-chip { font-size: 12px; height: 26px; }
     }
 
     .empty-state {
@@ -150,59 +137,17 @@
       padding: 64px 20px;
       text-align: center;
 
-      mat-icon {
-        font-size: 96px;
-        width: 96px;
-        height: 96px;
-        color: #ccc;
-        margin-bottom: 16px;
-      }
-
-      p {
-        margin: 0;
-        color: #999;
-        font-size: 16px;
-      }
+      mat-icon { font-size: 72px; width: 72px; height: 72px; color: var(--accent-purple); opacity: 0.3; margin-bottom: 16px; }
+      p { margin: 0; color: var(--text-muted); font-size: 16px; }
     }
   }
 }
 
-// Responsive
 @media (max-width: 768px) {
-  .admin-users-container {
-    padding: 20px 16px;
-  }
-
-  .admin-header {
-    flex-direction: column;
-    gap: 16px;
-
-    .header-content h1 {
-      font-size: 28px;
-
-      mat-icon {
-        font-size: 32px;
-        width: 32px;
-        height: 32px;
-      }
-    }
-
-    button {
-      width: 100%;
-    }
-  }
-
-  .table-card .table-container {
-    .users-table {
-      th,
-      td {
-        padding: 12px 8px;
-        font-size: 14px;
-      }
-
-      .email-cell {
-        max-width: 150px;
-      }
-    }
+  .admin-users-container { padding: 24px 16px; }
+  .admin-header { flex-direction: column; button { width: 100%; } }
+  .table-card .table-container .users-table {
+    th, td { padding: 10px 8px; font-size: 13px; }
+    .email-cell { max-width: 130px; }
   }
 }

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import projects.java.taskapi.exceptions.TaskNotFoundException;
 import projects.java.taskapi.models.Task;
 import projects.java.taskapi.models.dto.TaskDTO;
+import projects.java.taskapi.models.enums.TaskStatus;
 import projects.java.taskapi.services.TaskService;
 
 import java.util.List;
@@ -49,6 +50,12 @@ public class TaskController {
     @PutMapping("/{taskId}")
     public Task updateTask(@PathVariable Long taskId, @RequestBody TaskDTO dto) {
         return taskService.updateTask(taskId, dto);
+    }
+
+    @Operation(summary = "Изменить статус задачи")
+    @PatchMapping("/{taskId}/status")
+    public Task updateTaskStatus(@PathVariable Long taskId, @RequestParam TaskStatus status) {
+        return taskService.updateTaskStatus(taskId, status);
     }
 
     @Operation(summary = "Удалить задачу по ID")
