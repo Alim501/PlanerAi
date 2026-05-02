@@ -27,6 +27,7 @@ public class NoteMatchingService {
      *   +3 per keyword match between topic words and note keywords
      *   +2 if note belongs to the requested subject
      */
+    // todo: подумать над добавлением учитывания рейтинга конспекта при выборе наиболее подходящих
     public List<NoteContextDTO> findRelevantNotes(List<String> topics, Long subjectId, Long userId) {
         if ((topics == null || topics.isEmpty()) && subjectId == null) {
             log.debug("No topics or subjectId provided — skipping note matching");
@@ -38,6 +39,8 @@ public class NoteMatchingService {
 
         // Score by keyword overlap
         if (!searchKeywords.isEmpty()) {
+            // fixme: сейчас конспекты выбираются только из тех что принадлежат переданному пользователю
+            //  -> нужно чтоб выбор был из всех что есть
             List<Note> byKeywords = noteRepository.findByUserIdAndKeywordsIn(userId, searchKeywords);
             for (Note note : byKeywords) {
                 long matches = note.getKeywords().stream()
