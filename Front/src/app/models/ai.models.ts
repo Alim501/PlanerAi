@@ -1,6 +1,4 @@
-/**
- * AI-related models for plan generation and note analysis
- */
+import { Plan } from './plan.models';
 
 export type DifficultyLevel = 'beginner' | 'intermediate' | 'advanced';
 
@@ -11,49 +9,60 @@ export interface GeneratePlanRequest {
   level?: DifficultyLevel;
   topics?: string[];
   goals?: string;
-}
-
-export interface AnalyzeNoteRequest {
-  filePath: string;
-  fileType: string;
   subjectId?: number;
 }
 
-// Response models
-export interface WeekPlan {
-  weekNumber: number;
+export interface AnalyzeNoteRequest {
+  noteId: number;
+}
+
+// Response models — соответствуют WeekPlanDTO и TaskPlanDTO на бэке
+export interface TaskPlan {
   title: string;
-  topics: string[];
-  tasks: string[];
-  estimatedHours: number;
+  description: string;
+  // приходят как internal_note_ids / external_resources (snake_case от @JsonProperty)
+  internal_note_ids?: number[];
+  external_resources?: string[];
+}
+
+export interface WeekPlan {
+  // приходят как week_number / estimated_hours (snake_case от @JsonProperty)
+  week_number: number;
+  title: string;
+  tasks: TaskPlan[];
+  estimated_hours: number;
   resources?: string[];
 }
 
+// GeneratedPlanDTO — поля со snake_case через @JsonProperty
 export interface GeneratedPlan {
   title: string;
   subject: string;
-  durationWeeks: number;
+  duration_weeks: number;
   difficulty: string;
   description: string;
-  learningOutcomes: string[];
+  learning_outcomes: string[];
   weeks: WeekPlan[];
   prerequisites?: string[];
-  recommendedResources?: string[];
+  recommended_resources?: string[];
 }
 
+// Бэк на /api/ai/plans/generate возвращает Plan (сущность), не GeneratedPlan
+export type GeneratePlanResponse = Plan;
+
+// NoteAnalysisDTO — key_concepts и word_count через @JsonProperty
 export interface NoteAnalysis {
   summary: string;
-  keyConcepts: string[];
-  topics: string[];
+  key_concepts: string[];
   difficulty: string;
-  suggestedTags: string[];
-  wordCount?: number;
+  word_count?: number;
   language?: string;
 }
 
+// AIHealthDTO — ollama_connected через @JsonProperty
 export interface AIHealth {
   status: string;
-  ollamaConnected: boolean;
+  ollama_connected: boolean;
   model: string;
   version: string;
 }

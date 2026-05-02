@@ -3,11 +3,11 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {
   GeneratePlanRequest,
-  GeneratedPlan,
   AnalyzeNoteRequest,
   NoteAnalysis,
   AIHealth,
 } from '../models/ai.models';
+import { Plan } from '../models/plan.models';
 
 @Injectable({
   providedIn: 'root',
@@ -17,20 +17,15 @@ export class AIService {
 
   constructor(private http: HttpClient) {}
 
-  /**
-   * Generate a study plan using AI
-   */
-  generatePlan(request: GeneratePlanRequest): Observable<GeneratedPlan> {
-    return this.http.post<GeneratedPlan>(
+  // Возвращает Plan (сущность), а не GeneratedPlan — бэк сохраняет в БД и отдаёт Plan
+  generatePlan(request: GeneratePlanRequest): Observable<Plan> {
+    return this.http.post<Plan>(
       `${this.API_URL}/plans/generate`,
       request,
       { withCredentials: true }
     );
   }
 
-  /**
-   * Analyze a note file using AI
-   */
   analyzeNote(request: AnalyzeNoteRequest): Observable<NoteAnalysis> {
     return this.http.post<NoteAnalysis>(
       `${this.API_URL}/notes/analyze`,
@@ -39,9 +34,6 @@ export class AIService {
     );
   }
 
-  /**
-   * Check AI service health
-   */
   checkHealth(): Observable<AIHealth> {
     return this.http.get<AIHealth>(`${this.API_URL}/health`, {
       withCredentials: true,

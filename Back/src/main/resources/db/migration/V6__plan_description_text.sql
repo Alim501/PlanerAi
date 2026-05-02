@@ -1,0 +1,1 @@
+ALTER TABLE plan ALTER COLUMN description TYPE TEXT;

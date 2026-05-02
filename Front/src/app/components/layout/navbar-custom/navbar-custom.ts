@@ -10,6 +10,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { AuthService } from '../../../services/auth.service';
 import { AuthStore } from '../../../store/auth.store';
 import { UserStore } from '../../../store/user.store';
+import { ThemeStore } from '../../../store/theme.store';
 import { MatDividerModule } from '@angular/material/divider';
 
 @Component({
@@ -33,6 +34,7 @@ export class NavbarCustom {
   private authService = inject(AuthService);
   private authStore = inject(AuthStore);
   private userStore = inject(UserStore);
+  themeStore = inject(ThemeStore);
 
   isAuthenticated = this.authStore.isAuthenticated;
   loading = this.userStore.loading;

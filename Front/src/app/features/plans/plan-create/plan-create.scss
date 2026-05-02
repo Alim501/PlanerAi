@@ -1,11 +1,11 @@
 .create-plan-container {
   max-width: 800px;
   margin: 0 auto;
-  padding-top: 40px;
-  padding-bottom: 40px;
+  padding: 40px 24px;
 }
 .create-plan-bg {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--page-bg);
+  min-height: 100%;
 }
 .header {
   display: flex;
@@ -32,7 +32,7 @@
         font-size: 32px;
         width: 32px;
         height: 32px;
-        color: #667eea;
+        color: var(--accent-purple);
       }
     }
 
@@ -92,7 +92,7 @@
         p {
           margin: 0;
           font-size: 14px;
-          color: #666;
+          color: var(--text-secondary);
           line-height: 1.5;
         }
       }

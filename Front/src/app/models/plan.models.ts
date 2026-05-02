@@ -1,60 +1,74 @@
-import { Subject, Keyword, NoteUser, Note } from './note.models';
+import { Subject, Note } from './note.models';
 
-export type PlanStatus = 'ACTIVE' | 'COMPLETED' | 'ARCHIVED';
+export type PlanStatus = 'ACTIVE' | 'COMPLETED' | 'CANCELLED';
 
-export type TaskStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED';
+export type TaskStatus = 'PENDING' | 'IN_PROGRESS' | 'DONE';
 
-// Task model - updated to match backend
 export interface Task {
   id: number;
   title: string;
   description: string;
   taskStatus: TaskStatus;
-  dueDate: string;
   createdAt: string;
-  relatedNotes?: Note[]; // Changed from string[] to Note[]
+  relatedNotes?: Note[];
+  externalResources?: string[];
 }
 
-// User Plan Progress model
+export interface Week {
+  id: number;
+  weekNumber: number;
+  title: string;
+  estimatedHours: number;
+  tasks: Task[];
+}
+
 export interface UserPlanProgress {
   id: number;
-  progress: number; // 0-100%
-}
-
-// Plan model - updated to match backend
-export interface Plan {
-  id: number;
-  title: string;
-  subject: Subject; // Now object instead of enum
+  progress: number;
   startDate: string;
   endDate: string;
   status: PlanStatus;
-  tasks?: Task[];
-  userPlans?: UserPlanProgress[];
+  studyPlan?: Plan;
 }
 
-// DTO for creating/updating Plan
+export interface Plan {
+  id: number;
+  title: string;
+  description?: string;
+  difficulty?: string;
+  subject: Subject;
+  weeks?: Week[];
+}
+
 export interface CreatePlanRequest {
   title: string;
-  subjectId: number; // Changed from subject enum to subjectId
+  subjectId: number;
+  description?: string;
+  difficulty?: string;
   startDate: string;
   endDate: string;
-  status?: PlanStatus;
+  weeks?: CreateWeekRequest[];
 }
 
 export interface UpdatePlanRequest {
   title?: string;
-  subjectId?: number; // Changed from subject enum
+  subjectId?: number;
+  description?: string;
+  difficulty?: string;
   startDate?: string;
   endDate?: string;
-  status?: PlanStatus;
 }
 
-// DTO for creating/updating Task
+export interface CreateWeekRequest {
+  weekNumber: number;
+  title: string;
+  estimatedHours: number;
+  tasks: CreateTaskRequest[];
+}
+
 export interface CreateTaskRequest {
   title: string;
   description: string;
-  dueDate: string;
   relatedNoteIds?: number[];
 }
 
@@ -62,7 +76,6 @@ export interface UpdateTaskRequest {
   title?: string;
   description?: string;
   taskStatus?: TaskStatus;
-  dueDate?: string;
   relatedNoteIds?: number[];
 }
 
@@ -71,15 +84,14 @@ export interface SearchPlanParams {
   subjectId?: number;
 }
 
-// UI Constants
 export const PLAN_STATUSES: { value: PlanStatus; label: string; color: string }[] = [
   { value: 'ACTIVE', label: 'Активный', color: 'primary' },
   { value: 'COMPLETED', label: 'Завершен', color: 'accent' },
-  { value: 'ARCHIVED', label: 'Архивирован', color: 'warn' },
+  { value: 'CANCELLED', label: 'Отменён', color: 'warn' },
 ];
 
 export const TASK_STATUSES: { value: TaskStatus; label: string; color: string }[] = [
   { value: 'PENDING', label: 'Ожидает', color: 'warn' },
   { value: 'IN_PROGRESS', label: 'В процессе', color: 'primary' },
-  { value: 'COMPLETED', label: 'Завершена', color: 'accent' },
+  { value: 'DONE', label: 'Завершена', color: 'accent' },
 ];

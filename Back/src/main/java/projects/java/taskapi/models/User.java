@@ -38,9 +38,11 @@ public class User implements UserDetails {
     @Column(unique = true)
     private String email;
 
+    @JsonIgnore
     @NotNull(message = "пароль не может быть пустым")
     private String password;
 
+    @JsonIgnore
     private String refreshToken;
 
     @ManyToMany(fetch = FetchType.EAGER)

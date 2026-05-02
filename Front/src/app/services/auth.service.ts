@@ -46,6 +46,8 @@ export class AuthService {
       }
     } catch (error) {
       this.authStore.setAuthenticated(false);
+    } finally {
+      this.authStore.setAuthChecked();
     }
   }
 

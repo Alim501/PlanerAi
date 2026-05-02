@@ -26,7 +26,7 @@ export interface NoteRating {
 }
 
 // Note Format enum
-export type NoteFormat = 'TEXT' | 'PDF' | 'IMAGE' | 'DOCX';
+export type NoteFormat = 'TXT' | 'PDF' | 'PNG' | 'JPG' | 'DOCX';
 
 // Main Note model
 export interface Note {
@@ -64,24 +64,3 @@ export interface RateNoteRequest {
   rating: number; // 1-5
 }
 
-// Task model (TODO: move to separate file)
-export interface Task {
-  id: number;
-  title: string;
-  description: string;
-  taskStatus: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED';
-  dueDate: string;
-  createdAt: string;
-  relatedNotes: Note[];
-}
-
-// StudyPlan model (TODO: move to plan.models.ts)
-export interface StudyPlan {
-  id: number;
-  title: string;
-  subject: Subject;
-  startDate: string;
-  endDate: string;
-  status: 'ACTIVE' | 'COMPLETED' | 'ARCHIVED';
-  tasks: Task[];
-}

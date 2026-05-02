@@ -26,7 +26,7 @@ git clone https://github.com/Alim501/PlanerAi.git
 cd PlanerAi
 ```
 
-#### 2. Создать .env файл в папке Back на основе .env.example:
+#### 2. Создать .env файл в папках Back и Ai-Service на основе .env.example:
 
 Укажите в нём необходимые переменные
 

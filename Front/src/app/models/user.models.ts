@@ -1,4 +1,4 @@
-import { StudyPlan } from './note.models';
+import { Plan, UserPlanProgress } from './plan.models';
 
 export interface Role {
   id: number;
@@ -10,9 +10,8 @@ export interface User {
   firstName: string;
   lastName: string;
   email: string;
-  roles: Role[];  // Changed from single role to array
-  userPlans?: UserPlan[];
-  createdAt?: string;
+  roles: Role[];
+  userPlans?: UserPlanProgress[];
 }
 
 export interface UpdateProfileRequest {
@@ -23,11 +22,4 @@ export interface UpdateProfileRequest {
 export interface ChangePasswordRequest {
   oldPassword: string;
   newPassword: string;
-}
-
-export interface UserPlan {
-  id: number;
-  user: string;
-  studyPlan: StudyPlan;
-  progress: number;
 }

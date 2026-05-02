@@ -6,6 +6,7 @@ import projects.java.taskapi.exceptions.TaskNotFoundException;
 import projects.java.taskapi.models.Task;
 import projects.java.taskapi.models.Week;
 import projects.java.taskapi.models.dto.TaskDTO;
+import projects.java.taskapi.models.enums.TaskStatus;
 import projects.java.taskapi.repositories.TaskRepository;
 import projects.java.taskapi.repositories.WeekRepository;
 
@@ -53,6 +54,15 @@ public class TaskService {
                     if (dto.deadline() != null) {
                         task.setDeadline(dto.deadline());
                     }
+                    return taskRepository.save(task);
+                })
+                .orElseThrow(() -> new TaskNotFoundException(taskId));
+    }
+
+    public Task updateTaskStatus(Long taskId, TaskStatus status) {
+        return taskRepository.findById(taskId)
+                .map(task -> {
+                    task.setTaskStatus(status);
                     return taskRepository.save(task);
                 })
                 .orElseThrow(() -> new TaskNotFoundException(taskId));

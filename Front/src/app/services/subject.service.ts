@@ -34,7 +34,7 @@ export class SubjectService {
    */
   createSubject(name: string): Observable<Subject> {
     return this.http.post<Subject>(
-      `${this.API_URL}/subject`,
+      this.API_URL,
       { name },
       {
         withCredentials: true,
