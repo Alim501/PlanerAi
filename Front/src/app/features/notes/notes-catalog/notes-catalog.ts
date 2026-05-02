@@ -45,7 +45,6 @@ export class NotesCatalogComponent implements OnInit {
   // Filters
   selectedSubjectId = signal<number | null>(null);
   searchQuery = signal<string>('');
-  viewMode = signal<'all' | 'popular' | 'top-rated'>('all');
 
   constructor(private noteService: NoteService, private subjectService: SubjectService) {}
 
@@ -67,21 +66,12 @@ export class NotesCatalogComponent implements OnInit {
 
     let observable;
 
-    switch (this.viewMode()) {
-      case 'popular':
-        observable = this.noteService.getPopularNotes(20);
-        break;
-      case 'top-rated':
-        observable = this.noteService.getTopRatedNotes(20);
-        break;
-      default:
-        if (this.selectedSubjectId()) {
-          observable = this.noteService.getNotesBySubject(this.selectedSubjectId()!);
-        } else if (this.searchQuery()) {
-          observable = this.noteService.searchNotes(this.searchQuery());
-        } else {
-          observable = this.noteService.getAllNotes();
-        }
+    if (this.searchQuery()) {
+      observable = this.noteService.searchNotesByKeywords([this.searchQuery()]);
+    } else {
+      observable = this.noteService.getAllNotes(
+        this.selectedSubjectId() ?? undefined
+      );
     }
 
     observable.subscribe({
@@ -107,15 +97,12 @@ export class NotesCatalogComponent implements OnInit {
     }
   }
 
-  onViewModeChange() {
-    this.loadNotes();
-  }
-
   getFormatIcon(format: string): string {
     switch (format) {
       case 'PDF':
         return 'picture_as_pdf';
-      case 'IMAGE':
+      case 'PNG':
+      case 'JPG':
         return 'image';
       case 'DOCX':
         return 'description';

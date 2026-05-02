@@ -8,7 +8,7 @@
 
     <!-- Stats Cards -->
     <div class="stats-grid">
-      <mat-card class="stat-card" routerLink="/plans">
+      <mat-card class="stat-card" routerLink="/app/plans">
         <div class="stat-icon primary">
           <mat-icon>book</mat-icon>
         </div>
@@ -18,78 +18,18 @@
         </div>
       </mat-card>
 
-      <mat-card class="stat-card" routerLink="/plans">
+      <mat-card class="stat-card" routerLink="/app/notes">
         <div class="stat-icon success">
-          <mat-icon>check_circle</mat-icon>
+          <mat-icon>description</mat-icon>
         </div>
         <div class="stat-content">
-          <span class="stat-value">{{ plansCount().active }}</span>
-          <span class="stat-label">Активных</span>
-        </div>
-      </mat-card>
-
-      <mat-card class="stat-card" routerLink="/plans">
-        <div class="stat-icon warning">
-          <mat-icon>task_alt</mat-icon>
-        </div>
-        <div class="stat-content">
-          <span class="stat-value">{{ plansCount().completed }}</span>
-          <span class="stat-label">Завершенных</span>
-        </div>
-      </mat-card>
-
-      <mat-card class="stat-card" routerLink="/plans">
-        <div class="stat-icon accent">
-          <mat-icon>stars</mat-icon>
-        </div>
-        <div class="stat-content">
-          <span class="stat-value">{{ upcomingExams().length }}</span>
-          <span class="stat-label">Ближайших</span>
+          <span class="stat-value">—</span>
+          <span class="stat-label">Заметок</span>
         </div>
       </mat-card>
     </div>
 
-    <!-- Upcoming Exams -->
-    @if (upcomingExams().length > 0) {
-    <mat-card class="section-card">
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon>event</mat-icon>
-          Ближайшие экзамены
-        </mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="exams-grid">
-          @for (exam of upcomingExams(); track exam.id) {
-          <div class="exam-card" [routerLink]="['/plans', exam.id]">
-            <div class="exam-header">
-              <h3>{{ exam.title }}</h3>
-              <span [class]="'days-left ' + getDaysLeftClass(exam.daysLeft)">
-                {{ exam.daysLeft }} дн.
-              </span>
-            </div>
-            <mat-chip-set>
-              <mat-chip>{{ exam.subject }}</mat-chip>
-            </mat-chip-set>
-            <p class="exam-date">
-              <mat-icon>event</mat-icon>
-              {{ exam.date | date : 'dd MMMM yyyy' }}
-            </p>
-            <mat-progress-bar
-              mode="determinate"
-              [value]="exam.progress"
-              [color]="getProgressColor(exam.progress)"
-            >
-            </mat-progress-bar>
-            <span class="progress-text">Прогресс: {{ exam.progress }}%</span>
-          </div>
-          }
-        </div>
-      </mat-card-content>
-    </mat-card>
-    }
-
-    <!-- Active Study Plans -->
+    <!-- Recent Plans -->
     @if (recentPlans().length > 0) {
     <mat-card class="section-card">
       <mat-card-header>
@@ -97,7 +37,7 @@
           <mat-icon>assignment_turned_in</mat-icon>
           Недавние планы
         </mat-card-title>
-        <button mat-button color="primary" routerLink="/plans/create" class="header-button">
+        <button mat-button color="primary" routerLink="/app/plans/create" class="header-button">
           <mat-icon>add</mat-icon>
           Создать план
         </button>
@@ -105,30 +45,22 @@
       <mat-card-content>
         <div class="plans-list">
           @for (plan of recentPlans(); track plan.id) {
-          <div class="plan-item" [routerLink]="['/plans', plan.id]">
+          <div class="plan-item" [routerLink]="['/app/plans', plan.id]">
             <div class="plan-content">
               <h4>{{ plan.title }}</h4>
               <mat-chip-set>
-                <mat-chip color="primary">{{ plan.subject }}</mat-chip>
-                <mat-chip [color]="plan.status === 'ACTIVE' ? 'accent' : 'warn'">
-                  {{ plan.status }}
-                </mat-chip>
+                <mat-chip color="primary">{{ plan.subject?.name }}</mat-chip>
+                @if (plan.difficulty) {
+                <mat-chip>{{ plan.difficulty }}</mat-chip>
+                }
               </mat-chip-set>
-              <div class="plan-dates">
-                <mat-icon>calendar_today</mat-icon>
-                <span
-                  >{{ plan.startDate | date : 'dd.MM' }} -
-                  {{ plan.endDate | date : 'dd.MM.yyyy' }}</span
-                >
-              </div>
-              @if (plan.tasks && plan.tasks.length > 0) {
+              @if (getTotalTasks(plan) > 0) {
               <mat-progress-bar
                 mode="determinate"
                 [value]="getPlanProgress(plan)"
                 [color]="getProgressColor(getPlanProgress(plan))"
-              >
-              </mat-progress-bar>
-              <span class="tasks-count">{{ plan.tasks.length }} задач</span>
+              ></mat-progress-bar>
+              <span class="tasks-count">{{ getTotalTasks(plan) }} задач · {{ getPlanProgress(plan) }}%</span>
               }
             </div>
             <div class="plan-actions">
@@ -153,19 +85,19 @@
       </mat-card-header>
       <mat-card-content>
         <div class="quick-actions">
-          <button mat-raised-button color="primary" routerLink="/plans/create">
+          <button mat-raised-button color="primary" routerLink="/app/plans/create">
             <mat-icon>add_circle</mat-icon>
             Создать план
           </button>
-          <button mat-raised-button routerLink="/plans">
+          <button mat-raised-button routerLink="/app/plans">
             <mat-icon>list</mat-icon>
             Все планы
           </button>
-          <button mat-raised-button routerLink="/notes">
+          <button mat-raised-button routerLink="/app/notes">
             <mat-icon>note</mat-icon>
             Заметки
           </button>
-          <button mat-raised-button routerLink="/profile">
+          <button mat-raised-button routerLink="/app/profile">
             <mat-icon>person</mat-icon>
             Профиль
           </button>
@@ -179,7 +111,7 @@
       <mat-icon>school</mat-icon>
       <h2>Начните свою учебу!</h2>
       <p>Создайте свой первый учебный план, чтобы эффективно подготовиться к экзаменам</p>
-      <button mat-raised-button color="primary" routerLink="/plans/create">
+      <button mat-raised-button color="primary" routerLink="/app/plans/create">
         Создать первый план
       </button>
     </mat-card>

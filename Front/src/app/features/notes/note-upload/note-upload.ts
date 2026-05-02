@@ -44,7 +44,7 @@ export class NoteUploadComponent implements OnInit {
   selectedFile: File | null = null;
   filePreview: string | null = null;
 
-  formats: NoteFormat[] = ['PDF', 'IMAGE', 'DOCX'];
+  formats: NoteFormat[] = ['PDF', 'PNG', 'JPG', 'DOCX', 'TXT'];
 
   constructor(
     private fb: FormBuilder,
@@ -91,10 +91,14 @@ export class NoteUploadComponent implements OnInit {
       const fileName = this.selectedFile.name.toLowerCase();
       if (fileName.endsWith('.pdf')) {
         this.uploadForm.patchValue({ format: 'PDF' });
-      } else if (fileName.match(/\.(jpg|jpeg|png|gif)$/)) {
-        this.uploadForm.patchValue({ format: 'IMAGE' });
+      } else if (fileName.endsWith('.png')) {
+        this.uploadForm.patchValue({ format: 'PNG' });
+      } else if (fileName.match(/\.(jpg|jpeg)$/)) {
+        this.uploadForm.patchValue({ format: 'JPG' });
       } else if (fileName.endsWith('.docx')) {
         this.uploadForm.patchValue({ format: 'DOCX' });
+      } else if (fileName.endsWith('.txt')) {
+        this.uploadForm.patchValue({ format: 'TXT' });
       }
 
       // Create preview for images
@@ -134,8 +138,7 @@ export class NoteUploadComponent implements OnInit {
       .uploadFile(
         this.selectedFile,
         this.uploadForm.value.title,
-        this.uploadForm.value.subjectId,
-        this.uploadForm.value.format
+        this.uploadForm.value.subjectId
       )
       .subscribe({
         next: (note: Note) => {
@@ -163,10 +166,13 @@ export class NoteUploadComponent implements OnInit {
     switch (format) {
       case 'PDF':
         return 'picture_as_pdf';
-      case 'IMAGE':
+      case 'PNG':
+      case 'JPG':
         return 'image';
       case 'DOCX':
         return 'description';
+      case 'TXT':
+        return 'text_snippet';
       default:
         return 'note';
     }

@@ -34,16 +34,30 @@
 
     <span class="spacer"></span>
 
-    <!-- Auth Buttons -->
+    <!-- Theme Toggle -->
+    <button mat-icon-button (click)="themeStore.toggle()" [matTooltip]="themeStore.isDark() ? 'Светлая тема' : 'Тёмная тема'" style="color: white; margin-right: 4px;">
+      <mat-icon>{{ themeStore.isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+    </button>
+
+    <!-- Auth Buttons — ждём завершения проверки сессии -->
+    @if (authChecked()) {
     <div class="auth-buttons">
-      <a mat-button routerLink="/auth/login" class="login-btn">
-        <mat-icon>login</mat-icon>
-        Войти
-      </a>
-      <a mat-raised-button color="accent" routerLink="/auth/register" class="register-btn">
-        <mat-icon>person_add</mat-icon>
-        Регистрация
-      </a>
+      @if (isAuthenticated()) {
+        <a mat-raised-button color="accent" routerLink="/app/dashboard">
+          <mat-icon>dashboard</mat-icon>
+          Мой кабинет
+        </a>
+      } @else {
+        <a mat-button routerLink="/auth/login" class="login-btn">
+          <mat-icon>login</mat-icon>
+          Войти
+        </a>
+        <a mat-raised-button color="accent" routerLink="/auth/register" class="register-btn">
+          <mat-icon>person_add</mat-icon>
+          Регистрация
+        </a>
+      }
     </div>
+    }
   </div>
 </mat-toolbar>

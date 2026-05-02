@@ -1,12 +1,8 @@
-
-// Include theming for Angular Material with `mat.theme()`.
-// This Sass mixin will define CSS variables that are used for styling Angular Material
-// components according to the Material 3 design spec.
-// Learn more about theming and how to use it for your application's
-// custom components at https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
 
 html {
+  color-scheme: light;
+
   @include mat.theme((
     color: (
       primary: mat.$cyan-palette,
@@ -18,18 +14,115 @@ html {
 }
 
 body {
-  // Default the application to a light color theme. This can be changed to
-  // `dark` to enable the dark color theme, or to `light dark` to defer to the
-  // user's system settings.
-  color-scheme: dark;
-
-  // Set a default background, font and text colors for the application using
-  // Angular Material's system-level CSS variables. Learn more about these
-  // variables at https://material.angular.dev/guide/system-variables
-  background-color: var(--mat-sys-surface);
-  color: var(--mat-sys-on-surface);
+  background-color: #f5f6fa;
+  color: #1a1a2e;
   font: var(--mat-sys-body-medium);
-
-  // Reset the user agent margin.
   margin: 0;
 }
+
+:root {
+  --text-primary: #1a1a2e;
+  --text-secondary: #5a6475;
+  --text-muted: #8896a5;
+  --accent-purple: #667eea;
+  --accent-purple-dark: #764ba2;
+  --border-color: rgba(0, 0, 0, 0.1);
+  --card-bg: #ffffff;
+  --page-bg: #f5f6fa;
+  --input-bg: #ffffff;
+}
+
+body.dark-theme {
+  --text-primary: #e8eaf0;
+  --text-secondary: #9aa3b2;
+  --text-muted: #6b7585;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --card-bg: #1e2130;
+  --page-bg: #151724;
+  --input-bg: #252838;
+  background-color: #151724;
+  color: #e8eaf0;
+}
+
+// Material overrides для тёмной темы
+body.dark-theme {
+  // Карточки
+  .mat-mdc-card {
+    background-color: var(--card-bg) !important;
+    color: var(--text-primary) !important;
+  }
+
+  // Поля ввода
+  .mat-mdc-text-field-wrapper {
+    background-color: var(--input-bg) !important;
+  }
+  .mat-mdc-form-field-input-control,
+  .mat-mdc-select-value-text,
+  .mat-mdc-option {
+    color: var(--text-primary) !important;
+  }
+  .mat-mdc-form-field-label, .mdc-floating-label {
+    color: var(--text-secondary) !important;
+  }
+
+  // Меню
+  .mat-mdc-menu-panel {
+    background-color: var(--card-bg) !important;
+  }
+  .mat-mdc-menu-item {
+    color: var(--text-primary) !important;
+  }
+
+  // Select dropdown
+  .mat-mdc-select-panel {
+    background-color: var(--card-bg) !important;
+  }
+  .mat-mdc-option {
+    background-color: var(--card-bg) !important;
+    &:hover { background-color: rgba(102, 126, 234, 0.15) !important; }
+  }
+
+  // Chips
+  .mat-mdc-chip {
+    background-color: rgba(102, 126, 234, 0.2) !important;
+    color: #a5b4fc !important;
+  }
+
+  // Divider
+  .mat-divider { border-color: var(--border-color) !important; }
+
+  // Tabs
+  .mat-mdc-tab-header { border-color: var(--border-color) !important; }
+
+  // Snackbar
+  .mat-mdc-snack-bar-container {
+    background-color: #2d3148 !important;
+    color: var(--text-primary) !important;
+  }
+
+  // Таблицы
+  .mat-mdc-table {
+    background: var(--card-bg) !important;
+  }
+  .mat-mdc-header-row {
+    background: var(--page-bg) !important;
+  }
+  .mat-mdc-header-cell {
+    color: var(--text-primary) !important;
+    border-bottom-color: var(--border-color) !important;
+  }
+  .mat-mdc-row {
+    background: var(--card-bg) !important;
+  }
+  .mat-mdc-cell {
+    color: var(--text-secondary) !important;
+    border-bottom-color: var(--border-color) !important;
+  }
+  .mat-mdc-row:hover .mat-mdc-cell {
+    background: rgba(102, 126, 234, 0.08) !important;
+  }
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--page-bg); }
+::-webkit-scrollbar-thumb { background: #555; border-radius: 3px; }

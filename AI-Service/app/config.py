@@ -22,6 +22,11 @@ class Settings(BaseSettings):
     # CORS
     allowed_origins: str = "http://localhost:4200,http://localhost:8080"
 
+    # Rate limiting & retries
+    gemini_max_concurrent: int = 2       # максимум одновременных запросов к Gemini
+    gemini_max_retries: int = 4          # сколько раз повторять при 429/503
+    gemini_retry_base_delay: float = 5.0 # начальная задержка между retry (секунды)
+
     # Logging
     log_level: str = "INFO"
 

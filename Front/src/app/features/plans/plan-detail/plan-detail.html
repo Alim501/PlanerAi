@@ -1,0 +1,154 @@
+<div class="plan-detail-bg">
+  <div class="plan-detail-container">
+
+    @if (loading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="48"></mat-spinner>
+      <p>Загрузка плана...</p>
+    </div>
+    } @else if (plan()) {
+
+    <!-- Header -->
+    <div class="detail-header">
+      <button mat-icon-button (click)="back()" matTooltip="К списку планов">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="header-info">
+        <h1>{{ plan()!.title }}</h1>
+        <div class="header-meta">
+          <mat-chip>
+            <mat-icon>subject</mat-icon>
+            {{ plan()!.subject?.name }}
+          </mat-chip>
+          @if (plan()!.difficulty) {
+          <mat-chip>
+            <mat-icon>trending_up</mat-icon>
+            {{ plan()!.difficulty }}
+          </mat-chip>
+          }
+        </div>
+      </div>
+      <button mat-stroked-button (click)="editPlan()">
+        <mat-icon>edit</mat-icon>
+        Редактировать
+      </button>
+    </div>
+
+    <!-- Description -->
+    @if (plan()!.description) {
+    <mat-card class="description-card">
+      <mat-card-content>
+        <p>{{ plan()!.description }}</p>
+      </mat-card-content>
+    </mat-card>
+    }
+
+    <!-- Progress -->
+    <mat-card class="progress-card">
+      <mat-card-content>
+        <div class="progress-header">
+          <span class="progress-label">Общий прогресс</span>
+          <span class="progress-value">{{ doneTasks() }} / {{ totalTasks() }} задач</span>
+          <span class="progress-percent">{{ progress() }}%</span>
+        </div>
+        <mat-progress-bar
+          mode="determinate"
+          [value]="progress()"
+          [color]="progress() === 100 ? 'accent' : 'primary'">
+        </mat-progress-bar>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Weeks -->
+    @if (plan()!.weeks && plan()!.weeks!.length > 0) {
+    <div class="weeks-section">
+      <mat-accordion multi>
+        @for (week of plan()!.weeks!; track week.id) {
+        <mat-expansion-panel class="week-panel" [expanded]="$index === 0">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <div class="week-title">
+                <span class="week-number">Неделя {{ week.weekNumber }}</span>
+                <span class="week-name">{{ week.title }}</span>
+              </div>
+            </mat-panel-title>
+            <mat-panel-description>
+              <div class="week-meta">
+                <span class="week-hours">
+                  <mat-icon>schedule</mat-icon>
+                  {{ week.estimatedHours }}ч
+                </span>
+                <span class="week-progress">
+                  {{ (week.tasks ?? []).filter(t => t.taskStatus === 'DONE').length }}
+                  / {{ (week.tasks ?? []).length }} задач
+                </span>
+              </div>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <!-- Tasks -->
+          <div class="tasks-list">
+            @if (!week.tasks || week.tasks.length === 0) {
+            <div class="no-tasks">
+              <mat-icon>inbox</mat-icon>
+              <span>Задач нет</span>
+            </div>
+            } @else {
+            @for (task of week.tasks; track task.id) {
+            <div class="task-item" [class.task-done]="task.taskStatus === 'DONE'"
+                 [class.task-in-progress]="task.taskStatus === 'IN_PROGRESS'">
+              <div class="task-status-icon">
+                @if (updatingTaskId() === task.id) {
+                <mat-spinner diameter="20"></mat-spinner>
+                } @else {
+                <mat-icon
+                  [style.color]="getStatusColor(task.taskStatus)"
+                  [matTooltip]="'Сменить на: ' + nextStatusLabel(task.taskStatus)"
+                  class="status-btn"
+                  (click)="setTaskStatus(task, nextStatus(task.taskStatus))">
+                  {{ getStatusIcon(task.taskStatus) }}
+                </mat-icon>
+                }
+              </div>
+
+              <div class="task-content">
+                <div class="task-title">{{ task.title }}</div>
+                @if (task.description) {
+                <div class="task-description">{{ task.description }}</div>
+                }
+                @if (task.externalResources && task.externalResources.length > 0) {
+                <div class="task-resources">
+                  @for (resource of task.externalResources; track resource) {
+                  <a [href]="resource" target="_blank" rel="noopener" class="resource-link">
+                    <mat-icon>link</mat-icon>
+                    {{ resource | slice:0:60 }}{{ resource.length > 60 ? '...' : '' }}
+                  </a>
+                  }
+                </div>
+                }
+              </div>
+
+              <div class="task-badge">
+                <span class="status-badge" [style.background-color]="getStatusColor(task.taskStatus) + '22'"
+                      [style.color]="getStatusColor(task.taskStatus)">
+                  {{ getStatusLabel(task.taskStatus) }}
+                </span>
+              </div>
+            </div>
+            }
+            }
+          </div>
+        </mat-expansion-panel>
+        }
+      </mat-accordion>
+    </div>
+    } @else {
+    <mat-card class="empty-weeks">
+      <mat-icon>assignment</mat-icon>
+      <p>Недели не сформированы</p>
+    </mat-card>
+    }
+
+    }
+  </div>
+</div>

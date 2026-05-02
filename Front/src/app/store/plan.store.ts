@@ -1,5 +1,5 @@
 import { Injectable, signal, computed } from '@angular/core';
-import { Plan, PlanStatus } from '../models/plan.models';
+import { Plan } from '../models/plan.models';
 import { Subject } from '../models/note.models';
 
 /**
@@ -16,7 +16,6 @@ export class PlanStore {
   private _error = signal<string | null>(null);
   private _searchQuery = signal<string>('');
   private _filterSubject = signal<Subject | null>(null);
-  private _filterStatus = signal<PlanStatus | null>(null);
 
   // Public readonly state
   plans = this._plans.asReadonly();
@@ -29,7 +28,6 @@ export class PlanStore {
     let plans = this._plans();
     const query = this._searchQuery().toLowerCase();
     const subject = this._filterSubject();
-    const status = this._filterStatus();
 
     // Поиск по названию
     if (query) {
@@ -44,26 +42,17 @@ export class PlanStore {
 
     // Фильтр по предмету
     if (subject) {
-      plans = plans.filter((p) => p.subject === subject);
-    }
-
-    // Фильтр по статусу
-    if (status) {
-      plans = plans.filter((p) => p.status === status);
+      plans = plans.filter((p) => p.subject?.id === subject.id);
     }
 
     return plans;
   });
 
-  activePlans = computed(() => this._plans().filter((p) => p.status === 'ACTIVE'));
-
-  completedPlans = computed(() => this._plans().filter((p) => p.status === 'COMPLETED'));
-
   plansCount = computed(() => ({
     total: this._plans().length,
-    active: this.activePlans().length,
-    completed: this.completedPlans().length,
-    archived: this._plans().filter((p) => p.status === 'ARCHIVED').length,
+    active: this._plans().length,
+    completed: 0,
+    archived: 0,
   }));
 
   // Actions
@@ -115,14 +104,9 @@ export class PlanStore {
     this._filterSubject.set(subject);
   }
 
-  setFilterStatus(status: PlanStatus | null): void {
-    this._filterStatus.set(status);
-  }
-
   clearFilters(): void {
     this._searchQuery.set('');
     this._filterSubject.set(null);
-    this._filterStatus.set(null);
   }
 
   clearPlans(): void {

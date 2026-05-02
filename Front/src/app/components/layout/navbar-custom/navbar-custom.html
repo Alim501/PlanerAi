@@ -11,21 +11,11 @@
     @if (isAuthenticated()) {
     <!-- Navigation Links -->
     <nav class="nav-links">
-      <a
-        mat-button
-        routerLink="/app/dashboard"
-        routerLinkActive="active"
-        matTooltip="Главная панель"
-      >
+      <a mat-button routerLink="/app/dashboard" routerLinkActive="active" matTooltip="Главная панель">
         <mat-icon>dashboard</mat-icon>
         <span>Дашборд</span>
       </a>
-      <a
-        mat-button
-        routerLink="/app/plans"
-        routerLinkActive="active"
-        matTooltip="Учебные планы"
-      >
+      <a mat-button routerLink="/app/plans" routerLinkActive="active" matTooltip="Учебные планы">
         <mat-icon>task_alt</mat-icon>
         <span>Планы</span>
       </a>
@@ -33,6 +23,21 @@
         <mat-icon>note</mat-icon>
         <span>Заметки</span>
       </a>
+
+      @if (isAdminOrModerator()) {
+      <span class="nav-divider"></span>
+      <a mat-button routerLink="/app/admin/subjects" routerLinkActive="active" matTooltip="Управление предметами">
+        <mat-icon>subject</mat-icon>
+        <span>Предметы</span>
+      </a>
+      }
+
+      @if (isAdmin()) {
+      <a mat-button routerLink="/app/admin/users" routerLinkActive="active" matTooltip="Управление пользователями">
+        <mat-icon>manage_accounts</mat-icon>
+        <span>Пользователи</span>
+      </a>
+      }
     </nav>
 
     <span class="spacer"></span>
@@ -41,6 +46,11 @@
     @if (loading()) {
     <mat-icon class="loading-icon" matTooltip="Загрузка...">sync</mat-icon>
     }
+
+    <!-- Theme Toggle -->
+    <button mat-icon-button (click)="themeStore.toggle()" [matTooltip]="themeStore.isDark() ? 'Светлая тема' : 'Тёмная тема'">
+      <mat-icon>{{ themeStore.isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+    </button>
 
     <!-- User Menu -->
     <button mat-icon-button [matMenuTriggerFor]="userMenu" class="user-button" matTooltip="Профиль">
