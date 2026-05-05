@@ -85,13 +85,13 @@ SSE is future work (Phase 2).
 
 ## 5. Database Changes
 
-### V6 — task.deadline
+### V7 — task.deadline
 ```sql
 ALTER TABLE task ADD COLUMN deadline DATE;
 ```
 Nullable. Backward compatible. Frontend optionally sends deadline when creating/updating a task.
 
-### V7 — user notification preferences
+### V8 — user notification preferences
 ```sql
 ALTER TABLE users
     ADD COLUMN notify_email BOOLEAN DEFAULT TRUE,
@@ -99,7 +99,7 @@ ALTER TABLE users
 ```
 All existing users default to TRUE.
 
-### V8 — notification table
+### V9 — notification table
 ```sql
 CREATE TABLE notification (
     id          BIGSERIAL PRIMARY KEY,

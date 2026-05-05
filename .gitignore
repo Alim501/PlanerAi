@@ -18,6 +18,7 @@ yarn-error.log
 # Environment files
 # -------------------------
 .env
+Notification-Service/.env
 
 # -------------------------
 # IDEs and editors

@@ -32,7 +32,7 @@ public class DeadlineScheduler {
     private final ProgressRepository progressRepository;
     private final KafkaNotificationProducer producer;
 
-    @Scheduled(cron = "0 0 9 * * *")
+    @Scheduled(cron = "0 * * * * *")
     public void checkTaskDeadlines() {
         LocalDate today = LocalDate.now();
         log.info("Running task deadline check for date {}", today);
