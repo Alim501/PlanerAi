@@ -7,17 +7,11 @@ services:
     plan: free
     envVars:
       - key: DB_URL
-        fromDatabase:
-          name: plannerai-db
-          property: connectionString
+        sync: false
       - key: DB_USERNAME
-        fromDatabase:
-          name: plannerai-db
-          property: user
+        sync: false
       - key: DB_PASSWORD
-        fromDatabase:
-          name: plannerai-db
-          property: password
+        sync: false
       - key: JWT_SECRET
         sync: false
       - key: ACCESS_TOKEN_EXP
@@ -63,8 +57,3 @@ services:
       - key: API_URL
         sync: false
 
-databases:
-  - name: plannerai-db
-    plan: free
-    databaseName: task_service
-    user: plannerai
