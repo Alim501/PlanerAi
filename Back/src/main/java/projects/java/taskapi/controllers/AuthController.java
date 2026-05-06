@@ -100,22 +100,18 @@ public class AuthController {
 
     // Method for adding tokens to the cookie
     private void composeCookie(HttpServletResponse response, AuthResponse authResponse) {
-        // Access Token Cookie
-        Cookie accessCookie = new Cookie("accessToken", authResponse.getAccessToken());
-        accessCookie.setHttpOnly(true);
-        accessCookie.setSecure(false);  // false для dev (HTTP)
-        accessCookie.setPath("/");
-        accessCookie.setMaxAge(15 * 60); // 15 minutes
-        
-        // Refresh Token Cookie
-        Cookie refreshCookie = new Cookie("refreshToken", authResponse.getRefreshToken());
-        refreshCookie.setHttpOnly(true);
-        refreshCookie.setSecure(false);  // false для dev (HTTP)
-        refreshCookie.setPath("/");
-        refreshCookie.setMaxAge(7 * 24 * 60 * 60); // 7 days
-        
-        response.addCookie(accessCookie);
-        response.addCookie(refreshCookie);
+        addCookieHeader(response, "accessToken", authResponse.getAccessToken(), 15 * 60);
+        addCookieHeader(response, "refreshToken", authResponse.getRefreshToken(), 7 * 24 * 60 * 60);
+    }
+
+    private void addCookieHeader(HttpServletResponse response, String name, String value, int maxAge) {
+        String cookie = name + "=" + value
+                + "; Max-Age=" + maxAge
+                + "; Path=/"
+                + "; HttpOnly"
+                + "; Secure"
+                + "; SameSite=None";
+        response.addHeader("Set-Cookie", cookie);
     }
 
     // Utility method to get a cookie value
@@ -131,11 +127,6 @@ public class AuthController {
 
     // Method for removing tokens in cookies
     private void clearCookie(HttpServletResponse response, String name) {
-        Cookie cookie = new Cookie(name, "");
-        cookie.setHttpOnly(true);
-        cookie.setSecure(false);  // false для dev (HTTP)
-        cookie.setPath("/");
-        cookie.setMaxAge(0);
-        response.addCookie(cookie);
+        addCookieHeader(response, name, "", 0);
     }
 }
