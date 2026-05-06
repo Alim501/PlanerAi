@@ -136,6 +136,10 @@ export class PlanDetailComponent implements OnInit {
     return this.getStatusLabel(this.nextStatus(current));
   }
 
+  getWeekDoneCount(week: Week): number {
+    return week.tasks?.filter(t => t.taskStatus === 'DONE').length ?? 0;
+  }
+
   editPlan(): void {
     this.router.navigate(['/app/plans/edit', this.plan()?.id]);
   }
