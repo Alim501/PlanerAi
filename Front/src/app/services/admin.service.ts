@@ -7,12 +7,13 @@ import {
   ChangePasswordRequest,
   RoleName,
 } from '../models/admin.models';
+import { API_BASE_URL } from '../core/api.config';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AdminService {
-  private readonly API_URL = 'http://localhost:8080/api/admin/users';
+  private readonly API_URL = `${API_BASE_URL}/api/admin/users`;
 
   constructor(private http: HttpClient) {}
 

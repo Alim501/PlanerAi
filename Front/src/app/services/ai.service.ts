@@ -8,12 +8,13 @@ import {
   AIHealth,
 } from '../models/ai.models';
 import { Plan } from '../models/plan.models';
+import { API_BASE_URL } from '../core/api.config';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AIService {
-  private readonly API_URL = 'http://localhost:8080/api/ai';
+  private readonly API_URL = `${API_BASE_URL}/api/ai`;
 
   constructor(private http: HttpClient) {}
 

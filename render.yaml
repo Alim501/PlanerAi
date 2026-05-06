@@ -1,0 +1,70 @@
+services:
+  - type: web
+    name: plannerai-backend
+    runtime: docker
+    dockerfilePath: ./Back/Dockerfile
+    dockerContext: ./Back
+    plan: free
+    envVars:
+      - key: DB_URL
+        fromDatabase:
+          name: plannerai-db
+          property: connectionString
+      - key: DB_USERNAME
+        fromDatabase:
+          name: plannerai-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: plannerai-db
+          property: password
+      - key: JWT_SECRET
+        sync: false
+      - key: ACCESS_TOKEN_EXP
+        value: "3600000"
+      - key: REFRESH_TOKEN_EXP
+        value: "604800000"
+      - key: FRONT_URL
+        sync: false
+      - key: AI_SERVICE_URL
+        sync: false
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+
+  - type: web
+    name: plannerai-ai-service
+    runtime: docker
+    dockerfilePath: ./AI-Service/Dockerfile
+    dockerContext: ./AI-Service
+    plan: free
+    envVars:
+      - key: HOST
+        value: "0.0.0.0"
+      - key: PORT
+        value: "8000"
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: "gemini-2.0-flash"
+      - key: BACKEND_URL
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false
+
+  - type: web
+    name: plannerai-frontend
+    runtime: docker
+    dockerfilePath: ./Front/Dockerfile
+    dockerContext: ./Front
+    plan: free
+    envVars:
+      - key: API_URL
+        sync: false
+
+databases:
+  - name: plannerai-db
+    plan: free
+    databaseName: task_service
+    user: plannerai

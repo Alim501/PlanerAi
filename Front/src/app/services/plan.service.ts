@@ -8,15 +8,13 @@ import {
   SearchPlanParams,
 } from '../models/plan.models';
 import { PlanStore } from '../store/plan.store';
+import { API_BASE_URL } from '../core/api.config';
 
-/**
- * Сервис для работы с API планов
- */
 @Injectable({
   providedIn: 'root',
 })
 export class PlanService {
-  private readonly API_URL = 'http://localhost:8080/api/plans';
+  private readonly API_URL = `${API_BASE_URL}/api/plans`;
 
   constructor(private http: HttpClient, private planStore: PlanStore) {}
 

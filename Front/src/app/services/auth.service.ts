@@ -7,12 +7,13 @@ import { AuthStore } from '../store/auth.store';
 import { UserStore } from '../store/user.store';
 import { UserService } from './user.service';
 import { User } from '../models/user.models';
+import { API_BASE_URL } from '../core/api.config';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private readonly API_URL = 'http://localhost:8080/api/auth';
+  private readonly API_URL = `${API_BASE_URL}/api/auth`;
   private authCheckPromise: Promise<void> | null = null;
 
   constructor(

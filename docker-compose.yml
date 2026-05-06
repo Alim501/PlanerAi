@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: task_service
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - plannerai-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d task_service"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./Back
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/task_service
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      ACCESS_TOKEN_EXP: ${ACCESS_TOKEN_EXP}
+      REFRESH_TOKEN_EXP: ${REFRESH_TOKEN_EXP}
+      FRONT_URL: ${FRONT_URL}
+      AI_SERVICE_URL: http://ai-service:8000
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - plannerai-network
+
+  ai-service:
+    build: ./AI-Service
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8000
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      GEMINI_MODEL: gemini-2.0-flash
+      BACKEND_URL: http://backend:8080
+      ALLOWED_ORIGINS: ${FRONT_URL}
+    networks:
+      - plannerai-network
+
+  frontend:
+    build: ./Front
+    environment:
+      API_URL: ${BACKEND_PUBLIC_URL}
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - plannerai-network
+
+networks:
+  plannerai-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
