@@ -1,6 +1,23 @@
 version: "3.8"
 
 services:
+  db:
+    image: postgres:16-alpine
+    container_name: planner-db
+    environment:
+      POSTGRES_DB: task_service
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - plannerai-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d task_service"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
   kafka:
     image: confluentinc/cp-kafka:7.6.0
     hostname: kafka
@@ -23,12 +40,92 @@ services:
       CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
     volumes:
       - kafka_data:/var/lib/kafka/data
+    networks:
+      - plannerai-network
     healthcheck:
       test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
       interval: 10s
       timeout: 10s
       retries: 5
 
+  backend:
+    build: ./Back
+    container_name: planner-backend
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/task_service
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      ACCESS_TOKEN_EXP: ${ACCESS_TOKEN_EXP}
+      REFRESH_TOKEN_EXP: ${REFRESH_TOKEN_EXP}
+      FRONT_URL: ${FRONT_URL}
+      AI_SERVICE_URL: http://ai-service:8000
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+    depends_on:
+      db:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      - plannerai-network
+
+  notification-service:
+    build: ./Notification-Service
+    container_name: planner-notification
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/task_service
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      MAIL_HOST: ${MAIL_HOST}
+      MAIL_PORT: ${MAIL_PORT}
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+    depends_on:
+      db:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      - plannerai-network
+
+  ai-service:
+    build: ./AI-Service
+    container_name: planner-ai-service
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8000
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      GEMINI_MODEL: gemini-2.0-flash
+      BACKEND_URL: http://backend:8080
+      ALLOWED_ORIGINS: ${FRONT_URL}
+    depends_on:
+      - backend
+    networks:
+      - plannerai-network
+
+  frontend:
+    build: ./Front
+    container_name: planner-frontend
+    environment:
+      API_URL: ${BACKEND_PUBLIC_URL}
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - plannerai-network
+
+networks:
+  plannerai-network:
+    driver: bridge
+
 volumes:
   kafka_data:
+    driver: local
+  postgres_data:
     driver: local

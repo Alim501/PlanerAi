@@ -5,12 +5,13 @@ import {
   Note,
   RateNoteRequest,
 } from '../models/note.models';
+import { API_BASE_URL } from '../core/api.config';
 
 @Injectable({
   providedIn: 'root',
 })
 export class NoteService {
-  private readonly API_URL = 'http://localhost:8080/api/notes';
+  private readonly API_URL = `${API_BASE_URL}/api/notes`;
 
   constructor(private http: HttpClient) {}
 

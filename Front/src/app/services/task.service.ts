@@ -2,10 +2,11 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Task, TaskStatus } from '../models/plan.models';
+import { API_BASE_URL } from '../core/api.config';
 
 @Injectable({ providedIn: 'root' })
 export class TaskService {
-  private readonly API_URL = 'http://localhost:8080/api/tasks';
+  private readonly API_URL = `${API_BASE_URL}/api/tasks`;
 
   constructor(private http: HttpClient) {}
 

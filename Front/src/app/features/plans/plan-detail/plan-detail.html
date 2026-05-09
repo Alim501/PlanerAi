@@ -79,8 +79,8 @@
                   {{ week.estimatedHours }}ч
                 </span>
                 <span class="week-progress">
-                  {{ (week.tasks ?? []).filter(t => t.taskStatus === 'DONE').length }}
-                  / {{ (week.tasks ?? []).length }} задач
+                  {{ getWeekDoneCount(week) }}
+                  / {{ week.tasks?.length ?? 0 }} задач
                 </span>
               </div>
             </mat-panel-description>
