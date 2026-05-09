@@ -21,6 +21,11 @@ yarn-error.log
 Notification-Service/.env
 
 # -------------------------
+# Kafka certificates
+# -------------------------
+kafka-ca.pem
+
+# -------------------------
 # IDEs and editors
 # -------------------------
 .idea/
