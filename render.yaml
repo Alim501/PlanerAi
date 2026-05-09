@@ -1,4 +1,40 @@
 services:
+  - type: pserv
+    name: plannerai-kafka
+    runtime: docker
+    dockerfilePath: ./Kafka/Dockerfile
+    dockerContext: ./Kafka
+    plan: starter
+    envVars:
+      - key: KAFKA_NODE_ID
+        value: "1"
+      - key: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+        value: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
+      - key: KAFKA_LISTENERS
+        value: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093"
+      - key: KAFKA_ADVERTISED_LISTENERS
+        value: "PLAINTEXT://plannerai-kafka:9092"
+      - key: KAFKA_CONTROLLER_QUORUM_VOTERS
+        value: "1@localhost:9093"
+      - key: KAFKA_PROCESS_ROLES
+        value: "broker,controller"
+      - key: KAFKA_CONTROLLER_LISTENER_NAMES
+        value: "CONTROLLER"
+      - key: KAFKA_INTER_BROKER_LISTENER_NAME
+        value: "PLAINTEXT"
+      - key: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
+        value: "1"
+      - key: KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS
+        value: "0"
+      - key: KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR
+        value: "1"
+      - key: KAFKA_TRANSACTION_STATE_LOG_MIN_ISR
+        value: "1"
+      - key: CLUSTER_ID
+        value: "MkU3OEVBNTcwNTJENDM2Qk"
+      - key: KAFKA_HEAP_OPTS
+        value: "-Xmx256m -Xms128m"
+
   - type: web
     name: plannerai-backend
     runtime: docker
@@ -30,6 +66,30 @@ services:
         value: "0 0 9 * * *"
       - key: PLAN_END_DATE_CRON
         value: "0 0 9 * * *"
+
+  - type: worker
+    name: plannerai-notification
+    runtime: docker
+    dockerfilePath: ./Notification-Service/Dockerfile
+    dockerContext: ./Notification-Service
+    plan: free
+    envVars:
+      - key: DB_URL
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: KAFKA_BOOTSTRAP_SERVERS
+        value: "plannerai-kafka:9092"
+      - key: MAIL_HOST
+        value: "smtp.gmail.com"
+      - key: MAIL_PORT
+        value: "587"
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
 
   - type: web
     name: plannerai-ai-service
