@@ -27,6 +27,7 @@ public class TaskService {
         Task task = Task.builder()
                 .title(dto.title())
                 .description(dto.description())
+                .deadline(dto.deadline())
                 .week(week)
                 .build();
 
@@ -50,6 +51,9 @@ public class TaskService {
                 .map(task -> {
                     task.setTitle(dto.title());
                     task.setDescription(dto.description());
+                    if (dto.deadline() != null) {
+                        task.setDeadline(dto.deadline());
+                    }
                     return taskRepository.save(task);
                 })
                 .orElseThrow(() -> new TaskNotFoundException(taskId));

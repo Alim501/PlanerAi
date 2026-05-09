@@ -8,11 +8,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.validator.constraints.UniqueElements;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import projects.java.taskapi.models.enums.RoleName;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -60,6 +58,14 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<UserPlanProgress> userPlans;
 
+    @Builder.Default
+    @Column(name = "notify_email")
+    private Boolean notifyEmail = true;
+
+    @Builder.Default
+    @Column(name = "notify_inapp")
+    private Boolean notifyInApp = true;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         if (roles == null) return List.of();
@@ -72,5 +78,4 @@ public class User implements UserDetails {
     public String getUsername() {
         return email;
     }
-
 }

@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import projects.java.taskapi.models.enums.TaskStatus;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,8 @@ public class Task {
     private TaskStatus taskStatus;
 
     private LocalDateTime createdAt;
+
+    private LocalDate deadline;
 
     @JsonIgnore
     @ManyToOne

@@ -18,6 +18,7 @@ yarn-error.log
 # Environment files
 # -------------------------
 .env
+Notification-Service/.env
 
 # -------------------------
 # IDEs and editors
@@ -96,3 +97,4 @@ target/
 !**/src/test/**/target/
 
 CLAUDE.md
+DEPLOY_RENDER.md

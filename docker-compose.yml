@@ -1,26 +1,43 @@
-version: '3.8'
+version: "3.8"
 
 services:
-  db:
-    image: postgres:16-alpine
+  kafka:
+    image: confluentinc/cp-kafka:7.6.0
+    hostname: kafka
+    container_name: planner-kafka
+    ports:
+      - "9092:9092"
     environment:
-      POSTGRES_DB: task_service
-      POSTGRES_USER: ${DB_USERNAME}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      KAFKA_NODE_ID: 1
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
+      KAFKA_LISTENERS: "PLAINTEXT://kafka:29092,CONTROLLER://kafka:29093,PLAINTEXT_HOST://0.0.0.0:9092"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:29093"
+      KAFKA_PROCESS_ROLES: "broker,controller"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - kafka_data:/var/lib/kafka/data
     networks:
       - plannerai-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d task_service"]
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
       interval: 10s
-      timeout: 5s
+      timeout: 10s
       retries: 5
 
   backend:
     build: ./Back
+    container_name: planner-backend
+    ports:
+      - "8080:8080"
     environment:
-      DB_URL: jdbc:postgresql://db:5432/task_service
+      DB_URL: ${DB_URL}
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
@@ -28,16 +45,38 @@ services:
       REFRESH_TOKEN_EXP: ${REFRESH_TOKEN_EXP}
       FRONT_URL: ${FRONT_URL}
       AI_SERVICE_URL: http://ai-service:8000
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      TASK_DEADLINE_CRON: ${TASK_DEADLINE_CRON:-0 0 9 * * *}
+      PLAN_END_DATE_CRON: ${PLAN_END_DATE_CRON:-0 0 9 * * *}
     depends_on:
-      db:
+      kafka:
+        condition: service_healthy
+    networks:
+      - plannerai-network
+
+  notification-service:
+    build: ./Notification-Service
+    container_name: planner-notification
+    environment:
+      DB_URL: ${DB_URL}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      MAIL_HOST: ${MAIL_HOST}
+      MAIL_PORT: ${MAIL_PORT}
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+    depends_on:
+      kafka:
         condition: service_healthy
     networks:
       - plannerai-network
 
   ai-service:
     build: ./AI-Service
+    container_name: planner-ai-service
     environment:
       HOST: 0.0.0.0
       PORT: 8000
@@ -45,11 +84,14 @@ services:
       GEMINI_MODEL: gemini-2.0-flash
       BACKEND_URL: http://backend:8080
       ALLOWED_ORIGINS: ${FRONT_URL}
+    depends_on:
+      - backend
     networks:
       - plannerai-network
 
   frontend:
     build: ./Front
+    container_name: planner-frontend
     environment:
       API_URL: ${BACKEND_PUBLIC_URL}
     ports:
@@ -64,4 +106,5 @@ networks:
     driver: bridge
 
 volumes:
-  postgres_data:
+  kafka_data:
+    driver: local

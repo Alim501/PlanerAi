@@ -160,6 +160,7 @@ public class PlanService {
                         .map(t -> Task.builder()
                                 .title(t.title())
                                 .description(t.description())
+                                .deadline(t.deadline())
                                 .week(week)
                                 .build())
                         .toList()

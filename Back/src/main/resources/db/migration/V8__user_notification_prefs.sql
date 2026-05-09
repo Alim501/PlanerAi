@@ -1,0 +1,3 @@
+ALTER TABLE users
+    ADD COLUMN notify_email BOOLEAN DEFAULT TRUE,
+    ADD COLUMN notify_inapp BOOLEAN DEFAULT TRUE;
