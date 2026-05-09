@@ -1,40 +1,4 @@
 services:
-  - type: pserv
-    name: plannerai-kafka
-    runtime: docker
-    dockerfilePath: ./Kafka/Dockerfile
-    dockerContext: ./Kafka
-    plan: starter
-    envVars:
-      - key: KAFKA_NODE_ID
-        value: "1"
-      - key: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
-        value: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
-      - key: KAFKA_LISTENERS
-        value: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093"
-      - key: KAFKA_ADVERTISED_LISTENERS
-        value: "PLAINTEXT://plannerai-kafka:9092"
-      - key: KAFKA_CONTROLLER_QUORUM_VOTERS
-        value: "1@localhost:9093"
-      - key: KAFKA_PROCESS_ROLES
-        value: "broker,controller"
-      - key: KAFKA_CONTROLLER_LISTENER_NAMES
-        value: "CONTROLLER"
-      - key: KAFKA_INTER_BROKER_LISTENER_NAME
-        value: "PLAINTEXT"
-      - key: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
-        value: "1"
-      - key: KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS
-        value: "0"
-      - key: KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR
-        value: "1"
-      - key: KAFKA_TRANSACTION_STATE_LOG_MIN_ISR
-        value: "1"
-      - key: CLUSTER_ID
-        value: "MkU3OEVBNTcwNTJENDM2Qk"
-      - key: KAFKA_HEAP_OPTS
-        value: "-Xmx256m -Xms128m"
-
   - type: web
     name: plannerai-backend
     runtime: docker
@@ -58,6 +22,16 @@ services:
         sync: false
       - key: AI_SERVICE_URL
         sync: false
+      - key: KAFKA_BOOTSTRAP_SERVERS
+        sync: false
+      - key: KAFKA_SECURITY_PROTOCOL
+        value: "SASL_SSL"
+      - key: KAFKA_SASL_MECHANISM
+        value: "SCRAM-SHA-256"
+      - key: KAFKA_SASL_JAAS_CONFIG
+        sync: false
+      - key: KAFKA_CA_CERT
+        sync: false
       - key: AWS_ACCESS_KEY_ID
         sync: false
       - key: AWS_SECRET_ACCESS_KEY
@@ -67,7 +41,7 @@ services:
       - key: PLAN_END_DATE_CRON
         value: "0 0 9 * * *"
 
-  - type: worker
+  - type: web
     name: plannerai-notification
     runtime: docker
     dockerfilePath: ./Notification-Service/Dockerfile
@@ -81,7 +55,15 @@ services:
       - key: DB_PASSWORD
         sync: false
       - key: KAFKA_BOOTSTRAP_SERVERS
-        value: "plannerai-kafka:9092"
+        sync: false
+      - key: KAFKA_SECURITY_PROTOCOL
+        value: "SASL_SSL"
+      - key: KAFKA_SASL_MECHANISM
+        value: "SCRAM-SHA-256"
+      - key: KAFKA_SASL_JAAS_CONFIG
+        sync: false
+      - key: KAFKA_CA_CERT
+        sync: false
       - key: MAIL_HOST
         value: "smtp.gmail.com"
       - key: MAIL_PORT
@@ -105,7 +87,7 @@ services:
       - key: GEMINI_API_KEY
         sync: false
       - key: GEMINI_MODEL
-        value: "gemini-2.5-flash"
+        value: "gemini-2.0-flash"
       - key: BACKEND_URL
         sync: false
       - key: ALLOWED_ORIGINS
@@ -120,4 +102,3 @@ services:
     envVars:
       - key: API_URL
         sync: false
-
