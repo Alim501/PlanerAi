@@ -14,7 +14,7 @@ class Settings(BaseSettings):
 
     # Google Gemini Configuration
     gemini_api_key: str = ""
-    gemini_model: str = "gemini-2.0-flash"
+    gemini_model: str = "gemini-2.5-flash"
 
     # Backend URL
     backend_url: str = "http://localhost:8080"
