@@ -32,7 +32,7 @@ public class DeadlineScheduler {
     private final ProgressRepository progressRepository;
     private final KafkaNotificationProducer producer;
 
-    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = "${scheduler.task-deadlines.cron}")
     public void checkTaskDeadlines() {
         LocalDate today = LocalDate.now();
         log.info("Running task deadline check for date {}", today);
@@ -59,7 +59,7 @@ public class DeadlineScheduler {
         );
     }
 
-    @Scheduled(cron = "0 0 9 * * *")
+    @Scheduled(cron = "${scheduler.plan-end-dates.cron}")
     public void checkPlanEndDates() {
         LocalDate warnDate = LocalDate.now().plusDays(3);
         log.info("Running plan end-date check for date {}", warnDate);
