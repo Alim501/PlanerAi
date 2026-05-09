@@ -4,7 +4,7 @@ services:
     runtime: docker
     dockerfilePath: ./Kafka/Dockerfile
     dockerContext: ./Kafka
-    plan: starter
+    plan: free
     envVars:
       - key: KAFKA_NODE_ID
         value: "1"
