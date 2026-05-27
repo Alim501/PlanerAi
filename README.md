@@ -51,6 +51,37 @@ npm run start
 
 ---
 
+### Тестирование
+
+Тесты делятся на два типа:
+- **Юнит-тесты** — проверяют отдельные сервисы через Mockito (без Spring, без БД, быстро)
+- **Интеграционные тесты** — поднимают Spring-контекст с H2 в памяти и гоняют реальные HTTP-запросы через MockMvc
+
+#### Запуск тестов (из папки `Back/`)
+
+```bash
+# Все тесты
+mvn test
+
+# Только юнит-тесты сервисов
+mvn test -Dtest="TaskServiceTest,AuthServiceTest,PlanServiceTest,NoteServiceTest,UserServiceTest"
+
+# Только интеграционные тесты
+mvn test -Dtest="ControllerIntegrationTest"
+
+# Один конкретный класс
+mvn test -Dtest="TaskServiceTest"
+
+# Тесты + HTML-отчёт покрытия (JaCoCo)
+mvn test
+# Отчёт: Back/target/site/jacoco/index.html
+```
+
+> Если `./mvnw` не работает — используй `mvn` напрямую (Maven должен быть установлен глобально).
+
+Тесты используют H2 in-memory базу данных и не требуют запущенного PostgreSQL, Kafka или AWS.
+
+---
 
 ### Swagger-документация
 
